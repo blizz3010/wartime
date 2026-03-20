@@ -297,6 +297,84 @@
   }
   .overlay-btn:hover{background:var(--surface2);color:var(--text);border-color:var(--border2)}
 
+  /* PiP MINI PLAYER */
+  .pip-player{
+    position:fixed;bottom:20px;right:20px;z-index:999;
+    width:320px;aspect-ratio:16/9;border-radius:8px;overflow:hidden;
+    border:2px solid var(--border2);background:#000;
+    box-shadow:0 8px 32px rgba(0,0,0,0.6);
+    transition:all .3s ease;display:none;
+  }
+  .pip-player.show{display:block}
+  .pip-player.minimized{width:200px}
+  .pip-player iframe{width:100%;height:100%;border:0}
+  .pip-controls{
+    position:absolute;top:0;left:0;right:0;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:4px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.8),transparent);
+    opacity:0;transition:opacity .2s;
+  }
+  .pip-player:hover .pip-controls{opacity:1}
+  .pip-label{
+    font-family:var(--mono);font-size:.55rem;color:var(--text2);
+    display:flex;align-items:center;gap:4px;
+  }
+  .pip-label .live-dot-sm{width:5px;height:5px;border-radius:50%;background:var(--red);animation:blink 1.5s infinite}
+  .pip-btns{display:flex;gap:2px}
+  .pip-btn{
+    background:none;border:none;color:var(--text2);cursor:pointer;
+    font-size:.75rem;padding:2px 6px;border-radius:3px;transition:all .15s;
+  }
+  .pip-btn:hover{background:rgba(255,255,255,0.15);color:#fff}
+  .pip-resize{
+    position:absolute;bottom:0;left:0;right:0;height:4px;
+    cursor:ns-resize;background:transparent;
+  }
+  .pip-resize:hover{background:var(--red)}
+
+  /* NOTIFICATION BADGES */
+  .tab-badge{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:16px;height:16px;border-radius:8px;
+    background:var(--red);color:#fff;
+    font-family:var(--mono);font-size:.5rem;font-weight:700;
+    margin-left:6px;padding:0 4px;
+    animation:badge-pop .3s ease;
+  }
+  @keyframes badge-pop{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+
+  /* HEADER TOGGLE BUTTONS */
+  .header-toggles{display:flex;gap:4px;margin-left:8px}
+  .header-toggle{
+    background:var(--surface2);border:1px solid var(--border);
+    color:var(--text3);padding:4px 8px;border-radius:4px;
+    font-family:var(--mono);font-size:.6rem;cursor:pointer;
+    transition:all .15s;display:flex;align-items:center;gap:4px;
+  }
+  .header-toggle:hover{border-color:var(--border2);color:var(--text2)}
+  .header-toggle.active{border-color:var(--red);color:var(--red);background:var(--red-dim)}
+
+  /* NIGHT OPS THEME */
+  .night-ops{
+    --bg:#020504;--surface:#040a07;--surface2:#081208;--surface3:#0c1a0c;
+    --border:#0f2a10;--border2:#1a3d1a;
+    --text:#00ff41;--text2:#00aa2a;--text3:#006618;
+    --red:#ff3333;--red-dim:#330808;
+    --orange:#ffaa00;--orange-dim:#332200;
+    --green:#00ff41;--green-dim:#003310;
+    --blue:#00ccff;--blue-dim:#002233;
+    --purple:#cc66ff;
+  }
+  .night-ops .header{background:rgba(2,5,4,0.95)}
+  .night-ops .logo{color:var(--green);text-shadow:0 0 20px rgba(0,255,65,0.4)}
+  .night-ops .threat-bar{background:linear-gradient(90deg,var(--green) 0%,var(--orange) 40%,var(--green) 60%,var(--orange) 100%)}
+  .night-ops .nav-tab.active{color:var(--green);border-bottom-color:var(--green)}
+  .night-ops .live-pill{background:var(--green-dim);border-color:rgba(0,255,65,0.4);color:var(--green)}
+  .night-ops .live-dot,.night-ops .live-dot-sm{background:var(--green)}
+  .night-ops .badge{background:var(--green-dim);color:var(--green);border-color:rgba(0,255,65,0.3)}
+  .night-ops .pip-player{border-color:var(--green)}
+  .night-ops body::after{background:repeating-linear-gradient(0deg,rgba(0,255,65,0.02) 0px,rgba(0,255,65,0.02) 1px,transparent 1px,transparent 3px)}
+
   /* MODAL */
   .modal-overlay{
     position:fixed;top:0;left:0;right:0;bottom:0;z-index:1000;
@@ -409,6 +487,10 @@
     <span class="header-divider">|</span>
     <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127470;&#127473;</span> TLV
       <span id="tlvTime" style="color:var(--text)">--:--</span></span>
+    <div class="header-toggles">
+      <button class="header-toggle" id="toggleSound" onclick="toggleAlertSound()" title="Breaking news alert sound">&#128264; ALERTS</button>
+      <button class="header-toggle" id="toggleNightOps" onclick="toggleNightOps()" title="Night operations theme">&#127761; NV</button>
+    </div>
   </div>
 </div>
 
@@ -669,10 +751,25 @@
   </div>
 </div>
 
+<!-- PiP MINI PLAYER -->
+<div class="pip-player" id="pipPlayer">
+  <div class="pip-controls">
+    <div class="pip-label"><span class="live-dot-sm"></span><span id="pipChannelName">--</span></div>
+    <div class="pip-btns">
+      <button class="pip-btn" onclick="pipPrevNext(-1)" title="Previous channel">&#9664;</button>
+      <button class="pip-btn" onclick="pipPrevNext(1)" title="Next channel">&#9654;</button>
+      <button class="pip-btn" onclick="togglePipSize()" title="Resize">&#8596;</button>
+      <button class="pip-btn" onclick="pipGoFull()" title="Go to Live Streams">&#9635;</button>
+      <button class="pip-btn" onclick="closePip()" title="Close">&#10005;</button>
+    </div>
+  </div>
+  <iframe id="pipFrame" src="" allow="autoplay;encrypted-media" allowfullscreen></iframe>
+</div>
+
 <!-- VIDEO MODAL -->
 <div class="modal-overlay" id="videoModal">
   <div class="modal-content">
-    <button class="modal-close" onclick="closeModal()">✕</button>
+    <button class="modal-close" onclick="closeModal()">&#10005;</button>
     <iframe id="modalFrame" src="" allow="autoplay;encrypted-media" allowfullscreen></iframe>
   </div>
 </div>
@@ -870,6 +967,14 @@ async function fetchNews(){
       marqueeBar.style.display='none';
     }
   }
+
+  // Check for breaking news sound alert
+  checkForNewBreaking(filtered);
+
+  // Update news tab badge (if not currently viewing news)
+  const newCount=filtered.length-lastSeenCounts.news;
+  if(newCount>0&&lastSeenCounts.news>0) updateBadge('news',newCount);
+  lastSeenCounts.news=filtered.length;
 }
 
 function buildTimeline(items){
@@ -1023,6 +1128,12 @@ async function fetchVideos(){
 
   status.textContent=`${ytCount} YouTube + ${rdCount} Reddit clips loaded`;
   renderVideoClips();
+
+  // Update video tab badge
+  const totalClips=ytCount+rdCount;
+  const newVids=totalClips-lastSeenCounts.videos;
+  if(newVids>0&&lastSeenCounts.videos>0) updateBadge('videos',newVids);
+  lastSeenCounts.videos=totalClips;
 }
 
 function renderVideoClips(){
@@ -1175,6 +1286,145 @@ function switchStream(dir){
   selectStream(next);
 }
 
+// ===== PiP MINI PLAYER =====
+let pipActive=false;
+let pipStreamIdx=0;
+
+function showPip(){
+  const pip=document.getElementById('pipPlayer');
+  const s=STREAMS[pipStreamIdx];
+  const src=s.channel
+    ?`https://www.youtube.com/embed/live_stream?channel=${s.channel}&autoplay=1&mute=1`
+    :`https://www.youtube.com/embed/${s.video}?autoplay=1&mute=1`;
+  document.getElementById('pipFrame').src=src;
+  document.getElementById('pipChannelName').textContent=s.name;
+  pip.classList.add('show');
+  pipActive=true;
+}
+
+function closePip(){
+  const pip=document.getElementById('pipPlayer');
+  document.getElementById('pipFrame').src='';
+  pip.classList.remove('show');
+  pipActive=false;
+}
+
+function togglePipSize(){
+  document.getElementById('pipPlayer').classList.toggle('minimized');
+}
+
+function pipPrevNext(dir){
+  pipStreamIdx+=dir;
+  if(pipStreamIdx<0) pipStreamIdx=STREAMS.length-1;
+  if(pipStreamIdx>=STREAMS.length) pipStreamIdx=0;
+  showPip();
+}
+
+function pipGoFull(){
+  // Navigate to livestreams tab and close PiP
+  closePip();
+  const tab=document.querySelector('[data-panel="livestreams"]');
+  activateTab(tab);
+  selectStream(pipStreamIdx);
+}
+
+// Drag PiP player
+(function(){
+  const pip=document.getElementById('pipPlayer');
+  const ctrl=pip.querySelector('.pip-controls');
+  let dragging=false,ox,oy;
+  ctrl.addEventListener('mousedown',e=>{
+    if(e.target.closest('.pip-btn')) return;
+    dragging=true;ox=e.clientX-pip.offsetLeft;oy=e.clientY-pip.offsetTop;
+    pip.style.transition='none';
+  });
+  document.addEventListener('mousemove',e=>{
+    if(!dragging) return;
+    pip.style.left=(e.clientX-ox)+'px';pip.style.top=(e.clientY-oy)+'px';
+    pip.style.right='auto';pip.style.bottom='auto';
+  });
+  document.addEventListener('mouseup',()=>{dragging=false;pip.style.transition='all .3s ease'});
+})();
+
+// ===== BREAKING NEWS SOUND ALERT =====
+let alertSoundEnabled=false;
+let previousBreakingTitles=new Set();
+
+// Generate alert tone using Web Audio API
+function playAlertTone(){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    // Three-tone alert
+    [880,1100,880].forEach((freq,i)=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.type='square';osc.frequency.value=freq;
+      gain.gain.value=0.08;
+      osc.start(ctx.currentTime+i*0.15);
+      osc.stop(ctx.currentTime+i*0.15+0.12);
+    });
+  }catch(e){}
+}
+
+function toggleAlertSound(){
+  alertSoundEnabled=!alertSoundEnabled;
+  const btn=document.getElementById('toggleSound');
+  btn.classList.toggle('active',alertSoundEnabled);
+  btn.innerHTML=alertSoundEnabled?'&#128264; ALERTS ON':'&#128264; ALERTS';
+  if(alertSoundEnabled) playAlertTone(); // test tone on enable
+}
+
+function checkForNewBreaking(items){
+  if(!alertSoundEnabled) return;
+  const breaking=items.filter(i=>i.title.toLowerCase().includes('breaking'));
+  let hasNew=false;
+  breaking.forEach(b=>{
+    const key=b.title.toLowerCase().trim();
+    if(!previousBreakingTitles.has(key)){
+      previousBreakingTitles.add(key);
+      hasNew=true;
+    }
+  });
+  if(hasNew&&previousBreakingTitles.size>breaking.length) playAlertTone();
+}
+
+// ===== NOTIFICATION BADGES =====
+let lastSeenCounts={news:0,videos:0};
+let currentPanel='overview';
+
+function updateBadge(panel,count){
+  const tab=document.querySelector(`[data-panel="${panel}"]`);
+  if(!tab) return;
+  // Remove existing badge
+  const old=tab.querySelector('.tab-badge');
+  if(old) old.remove();
+  // Add new badge if count > 0 and not currently viewing that panel
+  if(count>0&&currentPanel!==panel){
+    const badge=document.createElement('span');
+    badge.className='tab-badge';
+    badge.textContent=count>99?'99+':count;
+    tab.appendChild(badge);
+  }
+}
+
+// ===== NIGHT OPS THEME =====
+function toggleNightOps(){
+  document.documentElement.classList.toggle('night-ops');
+  const btn=document.getElementById('toggleNightOps');
+  const isOn=document.documentElement.classList.contains('night-ops');
+  btn.classList.toggle('active',isOn);
+  btn.innerHTML=isOn?'&#127761; NV ON':'&#127761; NV';
+  localStorage.setItem('nightOps',isOn?'1':'0');
+}
+
+// Restore night ops from localStorage
+if(localStorage.getItem('nightOps')==='1'){
+  document.documentElement.classList.add('night-ops');
+  document.getElementById('toggleNightOps').classList.add('active');
+  document.getElementById('toggleNightOps').innerHTML='&#127761; NV ON';
+}
+
 // ===== INIT =====
 updateDayCount();
 updateClock();
@@ -1190,6 +1440,30 @@ document.querySelector('[data-panel="livestreams"]').addEventListener('click',()
 document.querySelector('[data-panel="videos"]').addEventListener('click',()=>{
   if(document.getElementById('clipsGrid').querySelector('.loading'))fetchVideos();
 },{once:true});
+
+// Track active panel for badges + PiP behavior
+document.querySelectorAll('.nav-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    const panel=tab.dataset.panel;
+    const prevPanel=currentPanel;
+    currentPanel=panel;
+    // Clear badge on the tab we're viewing
+    const badge=tab.querySelector('.tab-badge');
+    if(badge) badge.remove();
+    // Show PiP when leaving livestreams (if stream was playing)
+    if(prevPanel==='livestreams'&&panel!=='livestreams'){
+      const mainPlayer=document.getElementById('streamPlayer');
+      if(mainPlayer.src&&mainPlayer.src!==window.location.href){
+        pipStreamIdx=currentStream;
+        showPip();
+      }
+    }
+    // Hide PiP when returning to livestreams
+    if(panel==='livestreams'&&pipActive){
+      closePip();
+    }
+  });
+});
 
 // Auto-refresh news every 3 minutes
 setInterval(fetchNews,180000);
