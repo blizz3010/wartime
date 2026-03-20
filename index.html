@@ -23,27 +23,58 @@
   }
   html{font-size:14px;background:var(--bg);color:var(--text);font-family:var(--sans);scrollbar-width:thin;scrollbar-color:var(--border) var(--bg)}
   body{min-height:100vh;background:var(--bg)}
+  /* Subtle scanline overlay for war-room CRT feel */
+  body::after{
+    content:'';position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;
+    pointer-events:none;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,0.03) 0px,rgba(0,0,0,0.03) 1px,transparent 1px,transparent 3px);
+  }
+  /* Vignette */
+  body::before{
+    content:'';position:fixed;top:0;left:0;right:0;bottom:0;z-index:9998;
+    pointer-events:none;
+    background:radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,0.4) 100%);
+  }
   a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+
+  /* THREAT BAR - thin red line at very top */
+  .threat-bar{
+    height:3px;
+    background:linear-gradient(90deg,var(--red) 0%,var(--orange) 40%,var(--red) 60%,var(--orange) 100%);
+    background-size:200% 100%;
+    animation:threat-slide 3s linear infinite;
+  }
+  @keyframes threat-slide{0%{background-position:0% 0}100%{background-position:200% 0}}
 
   /* HEADER */
   .header{
     position:sticky;top:0;z-index:100;
-    background:rgba(8,10,14,0.92);backdrop-filter:blur(12px);
+    background:rgba(8,10,14,0.95);backdrop-filter:blur(12px);
     border-bottom:1px solid var(--border);
-    padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:10px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;
   }
   .header-left{display:flex;align-items:center;gap:12px}
-  .logo{font-family:var(--mono);font-weight:700;font-size:1.15rem;letter-spacing:2px;color:var(--red)}
-  .logo span{color:var(--text3);font-weight:400;letter-spacing:0}
+  .logo{font-family:var(--mono);font-weight:700;font-size:1.15rem;letter-spacing:2px;color:var(--red);text-shadow:0 0 20px rgba(248,81,73,0.3)}
+  .logo span{color:var(--text3);font-weight:400;letter-spacing:0;text-shadow:none}
   .live-pill{
     display:inline-flex;align-items:center;gap:6px;
     background:var(--red-dim);border:1px solid rgba(248,81,73,0.4);
     color:var(--red);padding:3px 10px;border-radius:100px;
-    font-family:var(--mono);font-size:0.7rem;font-weight:600;letter-spacing:1px;
+    font-family:var(--mono);font-size:0.65rem;font-weight:600;letter-spacing:1px;
+  }
+  .threat-pill{
+    display:inline-flex;align-items:center;
+    background:rgba(248,81,73,0.15);border:1px solid rgba(248,81,73,0.4);
+    color:var(--orange);padding:3px 10px;border-radius:100px;
+    font-family:var(--mono);font-size:0.6rem;font-weight:700;letter-spacing:1px;
+    animation:blink 2s infinite;
   }
   .live-dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:blink 1.5s infinite}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-  .header-right{display:flex;align-items:center;gap:12px;font-size:.75rem;color:var(--text2);font-family:var(--mono)}
+  .header-right{display:flex;align-items:center;gap:8px;font-size:.7rem;color:var(--text2);font-family:var(--mono)}
+  .header-stat{display:inline-flex;align-items:center;gap:4px}
+  .header-stat-label{color:var(--text3);font-size:.6rem}
+  .header-divider{color:var(--border2);font-size:.6rem}
   .day-count{color:var(--orange);font-weight:700;font-size:.85rem}
 
   /* NAV TABS */
@@ -58,6 +89,7 @@
     transition:all .2s;font-family:var(--mono);letter-spacing:.5px;
   }
   .nav-tab:hover{color:var(--text);background:var(--surface2)}
+  .nav-tab:focus-visible{outline:1px solid var(--red);outline-offset:-1px}
   .nav-tab.active{color:var(--red);border-bottom-color:var(--red);background:var(--surface2)}
   .nav-tab .tab-icon{margin-right:6px;font-size:.9rem}
 
@@ -201,6 +233,23 @@
     vertical-align:middle;
   }
 
+  /* BREAKING MARQUEE */
+  .marquee-bar{
+    display:flex;align-items:center;background:var(--red-dim);
+    border-bottom:1px solid rgba(248,81,73,0.3);overflow:hidden;height:28px;
+  }
+  .marquee-label{
+    flex-shrink:0;padding:0 12px;font-family:var(--mono);font-size:.6rem;font-weight:700;
+    letter-spacing:1px;color:#fff;background:var(--red);height:100%;
+    display:flex;align-items:center;animation:blink 1.5s infinite;
+  }
+  .marquee-track{flex:1;overflow:hidden;position:relative;height:100%;display:flex;align-items:center}
+  .marquee-text{
+    white-space:nowrap;font-family:var(--mono);font-size:.7rem;font-weight:600;color:var(--red);
+    animation:marquee-scroll 30s linear infinite;padding-left:100%;
+  }
+  @keyframes marquee-scroll{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+
   /* STAT TICKER */
   .ticker{
     display:flex;gap:0;background:var(--surface);border-bottom:1px solid var(--border);
@@ -209,11 +258,25 @@
   .ticker::-webkit-scrollbar{display:none}
   .tick{
     flex:1;min-width:160px;padding:10px 16px;border-right:1px solid var(--border);
-    text-align:center;
+    text-align:center;transition:background .3s;
   }
+  .tick:hover{background:var(--surface2)}
   .tick-label{font-family:var(--mono);font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+  .tick-icon{font-size:.7rem;margin-right:2px}
   .tick-value{font-family:var(--mono);font-size:1rem;font-weight:700}
   .tick-value.red{color:var(--red)}.tick-value.orange{color:var(--orange)}.tick-value.green{color:var(--green)}.tick-value.blue{color:var(--blue)}
+  .tick-flags{display:inline-flex;align-items:center;gap:4px}
+  .flag{font-size:1.1rem;line-height:1}
+  .tick-pulse{animation:tick-pulse 2s ease-in-out infinite}
+  @keyframes tick-pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  .tick-critical{
+    text-shadow:0 0 10px rgba(248,81,73,0.6),0 0 20px rgba(248,81,73,0.3);
+    animation:threat-glow 1.5s ease-in-out infinite;
+  }
+  @keyframes threat-glow{
+    0%,100%{text-shadow:0 0 10px rgba(248,81,73,0.6),0 0 20px rgba(248,81,73,0.3)}
+    50%{text-shadow:0 0 20px rgba(248,81,73,0.9),0 0 40px rgba(248,81,73,0.5),0 0 60px rgba(248,81,73,0.2)}
+  }
 
   /* LOADING */
   .loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text3);font-family:var(--mono);font-size:.75rem;gap:8px}
@@ -326,26 +389,43 @@
 </head>
 <body>
 
+<!-- THREAT BAR -->
+<div class="threat-bar"></div>
+
 <!-- HEADER -->
 <div class="header">
   <div class="header-left">
-    <div class="logo">WARTIME <span>/ dashboard</span></div>
+    <div class="logo">&#9760; WARTIME <span>/ dashboard</span></div>
     <div class="live-pill"><span class="live-dot"></span>LIVE</div>
+    <div class="threat-pill">DEFCON 2</div>
   </div>
   <div class="header-right">
-    <span>DAY <span class="day-count" id="dayCount">--</span></span>
-    <span id="clock">--:--:-- UTC</span>
+    <span class="header-stat"><span class="header-stat-label">DAY</span> <span class="day-count" id="dayCount">--</span></span>
+    <span class="header-divider">|</span>
+    <span class="header-stat" id="clock">--:--:-- UTC</span>
+    <span class="header-divider">|</span>
+    <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127470;&#127479;</span> TEHRAN
+      <span id="tehranTime" style="color:var(--text)">--:--</span></span>
+    <span class="header-divider">|</span>
+    <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127470;&#127473;</span> TLV
+      <span id="tlvTime" style="color:var(--text)">--:--</span></span>
   </div>
+</div>
+
+<!-- BREAKING MARQUEE -->
+<div class="marquee-bar" id="marqueeBar" style="display:none">
+  <span class="marquee-label">BREAKING</span>
+  <div class="marquee-track"><span class="marquee-text" id="marqueeText"></span></div>
 </div>
 
 <!-- TICKER -->
 <div class="ticker">
-  <div class="tick"><div class="tick-label">Conflict</div><div class="tick-value red">US-IL vs IRAN</div></div>
-  <div class="tick"><div class="tick-label">Strait of Hormuz</div><div class="tick-value orange">CLOSED</div></div>
-  <div class="tick"><div class="tick-label">Brent Crude</div><div class="tick-value orange" id="tickOil">~$105-115/bbl</div></div>
-  <div class="tick"><div class="tick-label">Threat Level</div><div class="tick-value red">CRITICAL</div></div>
-  <div class="tick"><div class="tick-label">Iran Internet</div><div class="tick-value red">~4% NORMAL</div></div>
-  <div class="tick"><div class="tick-label">Started</div><div class="tick-value blue">FEB 28, 2026</div></div>
+  <div class="tick"><div class="tick-label">Conflict</div><div class="tick-value red"><span class="tick-flags"><span class="flag">&#127482;&#127480;</span><span class="flag">&#127470;&#127473;</span> vs <span class="flag">&#127470;&#127479;</span></span></div></div>
+  <div class="tick"><div class="tick-label"><span class="tick-icon">&#9875;</span> Strait of Hormuz</div><div class="tick-value orange tick-pulse">CLOSED</div></div>
+  <div class="tick"><div class="tick-label"><span class="tick-icon">&#128738;</span> Brent Crude</div><div class="tick-value orange" id="tickOil">~$105-115/bbl</div></div>
+  <div class="tick"><div class="tick-label"><span class="tick-icon">&#9888;&#65039;</span> Threat Level</div><div class="tick-value red tick-critical">CRITICAL</div></div>
+  <div class="tick"><div class="tick-label"><span class="tick-icon">&#127760;</span> Iran Internet</div><div class="tick-value red">~4% NORMAL</div></div>
+  <div class="tick"><div class="tick-label"><span class="tick-icon">&#128197;</span> Started</div><div class="tick-value blue">FEB 28, 2026</div></div>
 </div>
 
 <!-- NAV -->
@@ -611,6 +691,12 @@ function updateClock(){
   const now=new Date();
   document.getElementById('clock').textContent=
     now.toUTCString().split(' ')[4]+' UTC';
+  // Tehran (IRST = UTC+3:30)
+  const tehran=document.getElementById('tehranTime');
+  if(tehran) tehran.textContent=now.toLocaleTimeString('en-US',{timeZone:'Asia/Tehran',hour:'2-digit',minute:'2-digit',hour12:false});
+  // Tel Aviv (IST = UTC+2 / IDT = UTC+3)
+  const tlv=document.getElementById('tlvTime');
+  if(tlv) tlv.textContent=now.toLocaleTimeString('en-US',{timeZone:'Asia/Jerusalem',hour:'2-digit',minute:'2-digit',hour12:false});
 }
 
 // ===== TAB NAVIGATION =====
@@ -766,6 +852,24 @@ async function fetchNews(){
   const feedCount=results.filter(r=>r.status==='fulfilled').length;
   const updatedText=`Updated ${updatedTime} · ${filtered.length} items · ${feedCount}/${RSS_FEEDS.length} feeds`;
   document.querySelectorAll('.news-updated').forEach(el=>el.textContent=updatedText);
+
+  // Update breaking news marquee
+  const breaking=filtered.filter(i=>i.title.toLowerCase().includes('breaking')).slice(0,8);
+  const marqueeBar=document.getElementById('marqueeBar');
+  const marqueeText=document.getElementById('marqueeText');
+  if(breaking.length>0){
+    marqueeText.textContent=breaking.map(i=>'>>> '+i.title).join('     ');
+    marqueeBar.style.display='flex';
+  }else{
+    // Show top 3 most recent as urgent ticker
+    const urgent=filtered.filter(i=>MAJOR_KEYWORDS.some(k=>i.title.toLowerCase().includes(k))).slice(0,5);
+    if(urgent.length>0){
+      marqueeText.textContent=urgent.map(i=>'>>> '+i.title).join('     ');
+      marqueeBar.style.display='flex';
+    }else{
+      marqueeBar.style.display='none';
+    }
+  }
 }
 
 function buildTimeline(items){
