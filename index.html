@@ -23,27 +23,58 @@
   }
   html{font-size:14px;background:var(--bg);color:var(--text);font-family:var(--sans);scrollbar-width:thin;scrollbar-color:var(--border) var(--bg)}
   body{min-height:100vh;background:var(--bg)}
+  /* Subtle scanline overlay for war-room CRT feel */
+  body::after{
+    content:'';position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;
+    pointer-events:none;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,0.03) 0px,rgba(0,0,0,0.03) 1px,transparent 1px,transparent 3px);
+  }
+  /* Vignette */
+  body::before{
+    content:'';position:fixed;top:0;left:0;right:0;bottom:0;z-index:9998;
+    pointer-events:none;
+    background:radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,0.4) 100%);
+  }
   a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+
+  /* THREAT BAR - thin red line at very top */
+  .threat-bar{
+    height:3px;
+    background:linear-gradient(90deg,var(--red) 0%,var(--orange) 40%,var(--red) 60%,var(--orange) 100%);
+    background-size:200% 100%;
+    animation:threat-slide 3s linear infinite;
+  }
+  @keyframes threat-slide{0%{background-position:0% 0}100%{background-position:200% 0}}
 
   /* HEADER */
   .header{
     position:sticky;top:0;z-index:100;
-    background:rgba(8,10,14,0.92);backdrop-filter:blur(12px);
+    background:rgba(8,10,14,0.95);backdrop-filter:blur(12px);
     border-bottom:1px solid var(--border);
-    padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:10px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;
   }
   .header-left{display:flex;align-items:center;gap:12px}
-  .logo{font-family:var(--mono);font-weight:700;font-size:1.15rem;letter-spacing:2px;color:var(--red)}
-  .logo span{color:var(--text3);font-weight:400;letter-spacing:0}
+  .logo{font-family:var(--mono);font-weight:700;font-size:1.15rem;letter-spacing:2px;color:var(--red);text-shadow:0 0 20px rgba(248,81,73,0.3)}
+  .logo span{color:var(--text3);font-weight:400;letter-spacing:0;text-shadow:none}
   .live-pill{
     display:inline-flex;align-items:center;gap:6px;
     background:var(--red-dim);border:1px solid rgba(248,81,73,0.4);
     color:var(--red);padding:3px 10px;border-radius:100px;
-    font-family:var(--mono);font-size:0.7rem;font-weight:600;letter-spacing:1px;
+    font-family:var(--mono);font-size:0.65rem;font-weight:600;letter-spacing:1px;
+  }
+  .threat-pill{
+    display:inline-flex;align-items:center;
+    background:rgba(248,81,73,0.15);border:1px solid rgba(248,81,73,0.4);
+    color:var(--orange);padding:3px 10px;border-radius:100px;
+    font-family:var(--mono);font-size:0.6rem;font-weight:700;letter-spacing:1px;
+    animation:blink 2s infinite;
   }
   .live-dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:blink 1.5s infinite}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-  .header-right{display:flex;align-items:center;gap:12px;font-size:.75rem;color:var(--text2);font-family:var(--mono)}
+  .header-right{display:flex;align-items:center;gap:8px;font-size:.7rem;color:var(--text2);font-family:var(--mono)}
+  .header-stat{display:inline-flex;align-items:center;gap:4px}
+  .header-stat-label{color:var(--text3);font-size:.6rem}
+  .header-divider{color:var(--border2);font-size:.6rem}
   .day-count{color:var(--orange);font-weight:700;font-size:.85rem}
 
   /* NAV TABS */
@@ -58,6 +89,7 @@
     transition:all .2s;font-family:var(--mono);letter-spacing:.5px;
   }
   .nav-tab:hover{color:var(--text);background:var(--surface2)}
+  .nav-tab:focus-visible{outline:1px solid var(--red);outline-offset:-1px}
   .nav-tab.active{color:var(--red);border-bottom-color:var(--red);background:var(--surface2)}
   .nav-tab .tab-icon{margin-right:6px;font-size:.9rem}
 
@@ -144,6 +176,80 @@
   .clip-channel{font-size:.65rem;color:var(--text2)}
   .clip-date{font-size:.6rem;color:var(--text3);font-family:var(--mono)}
 
+  /* VIDEO SOURCE TABS */
+  .vid-source-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:4px;overflow:hidden}
+  .vid-src-tab{
+    padding:3px 10px;background:none;border:none;border-right:1px solid var(--border);
+    color:var(--text3);font-family:var(--mono);font-size:.6rem;cursor:pointer;
+    transition:all .15s;letter-spacing:.5px;
+  }
+  .vid-src-tab:last-child{border-right:none}
+  .vid-src-tab:hover{background:var(--surface2);color:var(--text2)}
+  .vid-src-tab.active{background:var(--red-dim);color:var(--red)}
+  .clip-card .clip-source{
+    position:absolute;top:6px;left:6px;
+    background:rgba(0,0,0,0.85);color:var(--text2);
+    font-family:var(--mono);font-size:.55rem;padding:2px 6px;border-radius:3px;
+    letter-spacing:.5px;
+  }
+  .clip-card .clip-source.src-reddit{color:#ff4500}
+  .clip-card .clip-source.src-youtube{color:#f00}
+
+  /* EVENT TIMELINE */
+  .timeline{height:calc(100vh - 130px);overflow-y:auto;padding:20px 20px 20px 28px;scrollbar-width:thin;scrollbar-color:var(--border) var(--surface)}
+  .timeline-group{margin-bottom:24px}
+  .timeline-date{
+    font-family:var(--mono);font-size:.6rem;letter-spacing:1px;text-transform:uppercase;
+    color:var(--text3);margin-bottom:12px;padding-left:20px;
+  }
+  .tl-item{
+    position:relative;padding:10px 14px 10px 20px;margin-left:8px;
+    border-left:2px solid var(--border);cursor:pointer;transition:background .15s;
+  }
+  .tl-item:hover{background:var(--surface2);border-radius:0 6px 6px 0}
+  .tl-item::before{
+    content:'';position:absolute;left:-5px;top:14px;
+    width:8px;height:8px;border-radius:50%;background:var(--border2);
+    border:2px solid var(--bg);
+  }
+  .tl-item.tl-breaking{border-left-color:var(--red)}
+  .tl-item.tl-breaking::before{background:var(--red);box-shadow:0 0 8px rgba(248,81,73,0.5)}
+  .tl-item.tl-major{border-left-color:var(--orange)}
+  .tl-item.tl-major::before{background:var(--orange)}
+  .tl-item .tl-time{
+    font-family:var(--mono);font-size:.55rem;color:var(--text3);margin-bottom:3px;
+  }
+  .tl-item .tl-title{font-size:.78rem;font-weight:600;line-height:1.35;color:var(--text)}
+  .tl-item:hover .tl-title{color:var(--blue)}
+  .tl-item .tl-source{
+    font-family:var(--mono);font-size:.55rem;color:var(--text3);margin-top:4px;
+  }
+  .tl-legend{
+    display:flex;gap:14px;padding:10px 16px;border-bottom:1px solid var(--border);
+    font-family:var(--mono);font-size:.55rem;color:var(--text3);
+  }
+  .tl-legend-dot{
+    display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;
+    vertical-align:middle;
+  }
+
+  /* BREAKING MARQUEE */
+  .marquee-bar{
+    display:flex;align-items:center;background:var(--red-dim);
+    border-bottom:1px solid rgba(248,81,73,0.3);overflow:hidden;height:28px;
+  }
+  .marquee-label{
+    flex-shrink:0;padding:0 12px;font-family:var(--mono);font-size:.6rem;font-weight:700;
+    letter-spacing:1px;color:#fff;background:var(--red);height:100%;
+    display:flex;align-items:center;animation:blink 1.5s infinite;
+  }
+  .marquee-track{flex:1;overflow:hidden;position:relative;height:100%;display:flex;align-items:center}
+  .marquee-text{
+    white-space:nowrap;font-family:var(--mono);font-size:.7rem;font-weight:600;color:var(--red);
+    animation:marquee-scroll 30s linear infinite;padding-left:100%;
+  }
+  @keyframes marquee-scroll{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+
   /* STAT TICKER */
   .ticker{
     display:flex;gap:0;background:var(--surface);border-bottom:1px solid var(--border);
@@ -152,11 +258,25 @@
   .ticker::-webkit-scrollbar{display:none}
   .tick{
     flex:1;min-width:160px;padding:10px 16px;border-right:1px solid var(--border);
-    text-align:center;
+    text-align:center;transition:background .3s;
   }
+  .tick:hover{background:var(--surface2)}
   .tick-label{font-family:var(--mono);font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+  .tick-icon{font-size:.7rem;margin-right:2px}
   .tick-value{font-family:var(--mono);font-size:1rem;font-weight:700}
   .tick-value.red{color:var(--red)}.tick-value.orange{color:var(--orange)}.tick-value.green{color:var(--green)}.tick-value.blue{color:var(--blue)}
+  .tick-flags{display:inline-flex;align-items:center;gap:4px}
+  .flag{font-size:1.1rem;line-height:1}
+  .tick-pulse{animation:tick-pulse 2s ease-in-out infinite}
+  @keyframes tick-pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  .tick-critical{
+    text-shadow:0 0 10px rgba(248,81,73,0.6),0 0 20px rgba(248,81,73,0.3);
+    animation:threat-glow 1.5s ease-in-out infinite;
+  }
+  @keyframes threat-glow{
+    0%,100%{text-shadow:0 0 10px rgba(248,81,73,0.6),0 0 20px rgba(248,81,73,0.3)}
+    50%{text-shadow:0 0 20px rgba(248,81,73,0.9),0 0 40px rgba(248,81,73,0.5),0 0 60px rgba(248,81,73,0.2)}
+  }
 
   /* LOADING */
   .loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text3);font-family:var(--mono);font-size:.75rem;gap:8px}
@@ -176,6 +296,84 @@
     cursor:pointer;transition:all .15s;backdrop-filter:blur(8px);
   }
   .overlay-btn:hover{background:var(--surface2);color:var(--text);border-color:var(--border2)}
+
+  /* PiP MINI PLAYER */
+  .pip-player{
+    position:fixed;bottom:20px;right:20px;z-index:999;
+    width:320px;aspect-ratio:16/9;border-radius:8px;overflow:hidden;
+    border:2px solid var(--border2);background:#000;
+    box-shadow:0 8px 32px rgba(0,0,0,0.6);
+    transition:all .3s ease;display:none;
+  }
+  .pip-player.show{display:block}
+  .pip-player.minimized{width:200px}
+  .pip-player iframe{width:100%;height:100%;border:0}
+  .pip-controls{
+    position:absolute;top:0;left:0;right:0;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:4px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.8),transparent);
+    opacity:0;transition:opacity .2s;
+  }
+  .pip-player:hover .pip-controls{opacity:1}
+  .pip-label{
+    font-family:var(--mono);font-size:.55rem;color:var(--text2);
+    display:flex;align-items:center;gap:4px;
+  }
+  .pip-label .live-dot-sm{width:5px;height:5px;border-radius:50%;background:var(--red);animation:blink 1.5s infinite}
+  .pip-btns{display:flex;gap:2px}
+  .pip-btn{
+    background:none;border:none;color:var(--text2);cursor:pointer;
+    font-size:.75rem;padding:2px 6px;border-radius:3px;transition:all .15s;
+  }
+  .pip-btn:hover{background:rgba(255,255,255,0.15);color:#fff}
+  .pip-resize{
+    position:absolute;bottom:0;left:0;right:0;height:4px;
+    cursor:ns-resize;background:transparent;
+  }
+  .pip-resize:hover{background:var(--red)}
+
+  /* NOTIFICATION BADGES */
+  .tab-badge{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:16px;height:16px;border-radius:8px;
+    background:var(--red);color:#fff;
+    font-family:var(--mono);font-size:.5rem;font-weight:700;
+    margin-left:6px;padding:0 4px;
+    animation:badge-pop .3s ease;
+  }
+  @keyframes badge-pop{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+
+  /* HEADER TOGGLE BUTTONS */
+  .header-toggles{display:flex;gap:4px;margin-left:8px}
+  .header-toggle{
+    background:var(--surface2);border:1px solid var(--border);
+    color:var(--text3);padding:4px 8px;border-radius:4px;
+    font-family:var(--mono);font-size:.6rem;cursor:pointer;
+    transition:all .15s;display:flex;align-items:center;gap:4px;
+  }
+  .header-toggle:hover{border-color:var(--border2);color:var(--text2)}
+  .header-toggle.active{border-color:var(--red);color:var(--red);background:var(--red-dim)}
+
+  /* NIGHT OPS THEME */
+  .night-ops{
+    --bg:#020504;--surface:#040a07;--surface2:#081208;--surface3:#0c1a0c;
+    --border:#0f2a10;--border2:#1a3d1a;
+    --text:#00ff41;--text2:#00aa2a;--text3:#006618;
+    --red:#ff3333;--red-dim:#330808;
+    --orange:#ffaa00;--orange-dim:#332200;
+    --green:#00ff41;--green-dim:#003310;
+    --blue:#00ccff;--blue-dim:#002233;
+    --purple:#cc66ff;
+  }
+  .night-ops .header{background:rgba(2,5,4,0.95)}
+  .night-ops .logo{color:var(--green);text-shadow:0 0 20px rgba(0,255,65,0.4)}
+  .night-ops .threat-bar{background:linear-gradient(90deg,var(--green) 0%,var(--orange) 40%,var(--green) 60%,var(--orange) 100%)}
+  .night-ops .nav-tab.active{color:var(--green);border-bottom-color:var(--green)}
+  .night-ops .live-pill{background:var(--green-dim);border-color:rgba(0,255,65,0.4);color:var(--green)}
+  .night-ops .live-dot,.night-ops .live-dot-sm{background:var(--green)}
+  .night-ops .badge{background:var(--green-dim);color:var(--green);border-color:rgba(0,255,65,0.3)}
+  .night-ops .pip-player{border-color:var(--green)}
+  .night-ops body::after{background:repeating-linear-gradient(0deg,rgba(0,255,65,0.02) 0px,rgba(0,255,65,0.02) 1px,transparent 1px,transparent 3px)}
 
   /* MODAL */
   .modal-overlay{
@@ -269,38 +467,59 @@
 </head>
 <body>
 
+<!-- THREAT BAR -->
+<div class="threat-bar"></div>
+
 <!-- HEADER -->
 <div class="header">
   <div class="header-left">
-    <div class="logo">WARTIME <span>/ dashboard</span></div>
+    <div class="logo">&#9760; WARTIME <span>/ dashboard</span></div>
     <div class="live-pill"><span class="live-dot"></span>LIVE</div>
+    <div class="threat-pill">DEFCON 2</div>
   </div>
   <div class="header-right">
-    <span>DAY <span class="day-count" id="dayCount">--</span></span>
-    <span id="clock">--:--:-- UTC</span>
+    <span class="header-stat"><span class="header-stat-label">DAY</span> <span class="day-count" id="dayCount">--</span></span>
+    <span class="header-divider">|</span>
+    <span class="header-stat" id="clock">--:--:-- UTC</span>
+    <span class="header-divider">|</span>
+    <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127470;&#127479;</span> TEHRAN
+      <span id="tehranTime" style="color:var(--text)">--:--</span></span>
+    <span class="header-divider">|</span>
+    <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127470;&#127473;</span> TLV
+      <span id="tlvTime" style="color:var(--text)">--:--</span></span>
+    <div class="header-toggles">
+      <button class="header-toggle" id="toggleSound" onclick="toggleAlertSound()" title="Breaking news alert sound">&#128264; ALERTS</button>
+      <button class="header-toggle" id="toggleNightOps" onclick="toggleNightOps()" title="Night operations theme">&#127761; NV</button>
+    </div>
   </div>
+</div>
+
+<!-- BREAKING MARQUEE -->
+<div class="marquee-bar" id="marqueeBar" style="display:none">
+  <span class="marquee-label">BREAKING</span>
+  <div class="marquee-track"><span class="marquee-text" id="marqueeText"></span></div>
 </div>
 
 <!-- TICKER -->
 <div class="ticker">
-  <div class="tick"><div class="tick-label">Conflict</div><div class="tick-value red">US-IL vs IRAN</div></div>
-  <div class="tick"><div class="tick-label">Strait of Hormuz</div><div class="tick-value orange">CLOSED</div></div>
-  <div class="tick"><div class="tick-label">Brent Crude</div><div class="tick-value orange" id="tickOil">~$105-115/bbl</div></div>
-  <div class="tick"><div class="tick-label">Threat Level</div><div class="tick-value red">CRITICAL</div></div>
-  <div class="tick"><div class="tick-label">Iran Internet</div><div class="tick-value red">~4% NORMAL</div></div>
-  <div class="tick"><div class="tick-label">Started</div><div class="tick-value blue">FEB 28, 2026</div></div>
+  <div class="tick"><div class="tick-label">Conflict</div><div class="tick-value red"><span class="tick-flags"><span class="flag">&#127482;&#127480;</span><span class="flag">&#127470;&#127473;</span> vs <span class="flag">&#127470;&#127479;</span></span></div></div>
+  <div class="tick"><div class="tick-label"><span class="tick-icon">&#9875;</span> Strait of Hormuz</div><div class="tick-value orange tick-pulse">CLOSED</div></div>
+  <div class="tick"><div class="tick-label"><span class="tick-icon">&#128738;</span> Brent Crude</div><div class="tick-value orange" id="tickOil">~$105-115/bbl</div></div>
+  <div class="tick"><div class="tick-label"><span class="tick-icon">&#9888;&#65039;</span> Threat Level</div><div class="tick-value red tick-critical">CRITICAL</div></div>
+  <div class="tick"><div class="tick-label"><span class="tick-icon">&#127760;</span> Iran Internet</div><div class="tick-value red">~4% NORMAL</div></div>
+  <div class="tick"><div class="tick-label"><span class="tick-icon">&#128197;</span> Started</div><div class="tick-value blue">FEB 28, 2026</div></div>
 </div>
 
 <!-- NAV -->
-<div class="nav-tabs">
-  <div class="nav-tab active" data-panel="overview"><span class="tab-icon">◉</span>OVERVIEW</div>
-  <div class="nav-tab" data-panel="warmap"><span class="tab-icon">⊕</span>WAR MAP</div>
-  <div class="nav-tab" data-panel="maritime"><span class="tab-icon">⚓</span>MARITIME</div>
-  <div class="nav-tab" data-panel="airtraffic"><span class="tab-icon">✈</span>AIR TRAFFIC</div>
-  <div class="nav-tab" data-panel="news"><span class="tab-icon">▤</span>NEWS FEED</div>
-  <div class="nav-tab" data-panel="videos"><span class="tab-icon">▶</span>VIDEO CLIPS</div>
-  <div class="nav-tab" data-panel="livestreams"><span class="tab-icon">◉</span>LIVE STREAMS</div>
-  <div class="nav-tab" data-panel="resources"><span class="tab-icon">≡</span>RESOURCES</div>
+<div class="nav-tabs" role="tablist">
+  <div class="nav-tab active" role="tab" tabindex="0" data-panel="overview"><span class="tab-icon">◉</span>OVERVIEW</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="warmap"><span class="tab-icon">⊕</span>WAR MAP</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="maritime"><span class="tab-icon">⚓</span>MARITIME</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="airtraffic"><span class="tab-icon">✈</span>AIR TRAFFIC</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="news"><span class="tab-icon">▤</span>NEWS FEED</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="videos"><span class="tab-icon">▶</span>VIDEO CLIPS</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="livestreams"><span class="tab-icon">◉</span>LIVE STREAMS</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="resources"><span class="tab-icon">≡</span>RESOURCES</div>
 </div>
 
 <!-- ==================== OVERVIEW PANEL ==================== -->
@@ -308,7 +527,7 @@
   <div class="split-layout">
     <div class="sidebar">
       <div class="section-head">
-        <span>⚡ LATEST NEWS</span>
+        <span>⚡ LATEST NEWS <span class="news-updated" id="newsUpdated1" style="font-weight:400;color:var(--text3);margin-left:8px"></span></span>
         <button class="refresh-btn" onclick="fetchNews()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
       </div>
       <div class="news-feed" id="newsFeed">
@@ -379,16 +598,26 @@
   <div class="split-layout">
     <div class="sidebar">
       <div class="section-head">
-        <span>📰 ALL NEWS SOURCES</span>
+        <span>📰 ALL NEWS SOURCES <span class="news-updated" id="newsUpdated2" style="font-weight:400;color:var(--text3);margin-left:8px"></span></span>
         <button class="refresh-btn" onclick="fetchNews()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
       </div>
       <div class="news-feed" id="newsFeedFull">
         <div class="loading"><div class="spinner"></div>Loading news...</div>
       </div>
     </div>
-    <div class="main-area" id="newsPreview" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--text3)">
-      <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V9a2 2 0 012-2h2a2 2 0 012 2v9a2 2 0 01-2 2h-2zM5 12h7M5 16h7"/></svg>
-      <span style="font-family:var(--mono);font-size:.75rem">Click a news item to read the full article</span>
+    <div class="main-area">
+      <div class="section-head" style="background:var(--surface)">
+        <span>EVENT TIMELINE</span>
+        <span class="badge">LIVE</span>
+      </div>
+      <div class="tl-legend">
+        <span><span class="tl-legend-dot" style="background:var(--red)"></span>BREAKING</span>
+        <span><span class="tl-legend-dot" style="background:var(--orange)"></span>MAJOR</span>
+        <span><span class="tl-legend-dot" style="background:var(--border2)"></span>UPDATE</span>
+      </div>
+      <div class="timeline" id="newsTimeline">
+        <div class="loading"><div class="spinner"></div>Building timeline...</div>
+      </div>
     </div>
   </div>
 </div>
@@ -396,8 +625,13 @@
 <!-- ==================== VIDEO CLIPS PANEL ==================== -->
 <div class="panel" id="panel-videos">
   <div class="section-head">
-    <span>▶ LATEST VIDEO CLIPS — Iran War</span>
+    <span>▶ VIDEO CLIPS</span>
     <div style="display:flex;gap:8px;align-items:center">
+      <div class="vid-source-tabs">
+        <button class="vid-src-tab active" data-source="all" onclick="switchVideoSource('all')">ALL</button>
+        <button class="vid-src-tab" data-source="youtube" onclick="switchVideoSource('youtube')">YOUTUBE</button>
+        <button class="vid-src-tab" data-source="reddit" onclick="switchVideoSource('reddit')">REDDIT</button>
+      </div>
       <select id="videoSort" style="background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:.65rem;padding:3px 8px;border-radius:4px" onchange="fetchVideos()">
         <option value="date">Sort: Latest</option>
         <option value="relevance">Sort: Relevance</option>
@@ -406,8 +640,8 @@
       <button class="refresh-btn" onclick="fetchVideos()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
     </div>
   </div>
-  <div style="padding:12px 16px;font-family:var(--mono);font-size:.65rem;color:var(--text3);border-bottom:1px solid var(--border)">
-    Showing YouTube results for "Iran war 2026" — click to play. Sorted by upload date.
+  <div id="vidStatus" style="padding:8px 16px;font-family:var(--mono);font-size:.6rem;color:var(--text3);border-bottom:1px solid var(--border)">
+    Loading clips from YouTube &amp; Reddit...
   </div>
   <div class="clips-grid" id="clipsGrid">
     <div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading video clips...</div>
@@ -517,10 +751,25 @@
   </div>
 </div>
 
+<!-- PiP MINI PLAYER -->
+<div class="pip-player" id="pipPlayer">
+  <div class="pip-controls">
+    <div class="pip-label"><span class="live-dot-sm"></span><span id="pipChannelName">--</span></div>
+    <div class="pip-btns">
+      <button class="pip-btn" onclick="pipPrevNext(-1)" title="Previous channel">&#9664;</button>
+      <button class="pip-btn" onclick="pipPrevNext(1)" title="Next channel">&#9654;</button>
+      <button class="pip-btn" onclick="togglePipSize()" title="Resize">&#8596;</button>
+      <button class="pip-btn" onclick="pipGoFull()" title="Go to Live Streams">&#9635;</button>
+      <button class="pip-btn" onclick="closePip()" title="Close">&#10005;</button>
+    </div>
+  </div>
+  <iframe id="pipFrame" src="" allow="autoplay;encrypted-media" allowfullscreen></iframe>
+</div>
+
 <!-- VIDEO MODAL -->
 <div class="modal-overlay" id="videoModal">
   <div class="modal-content">
-    <button class="modal-close" onclick="closeModal()">✕</button>
+    <button class="modal-close" onclick="closeModal()">&#10005;</button>
     <iframe id="modalFrame" src="" allow="autoplay;encrypted-media" allowfullscreen></iframe>
   </div>
 </div>
@@ -539,15 +788,29 @@ function updateClock(){
   const now=new Date();
   document.getElementById('clock').textContent=
     now.toUTCString().split(' ')[4]+' UTC';
+  // Tehran (IRST = UTC+3:30)
+  const tehran=document.getElementById('tehranTime');
+  if(tehran) tehran.textContent=now.toLocaleTimeString('en-US',{timeZone:'Asia/Tehran',hour:'2-digit',minute:'2-digit',hour12:false});
+  // Tel Aviv (IST = UTC+2 / IDT = UTC+3)
+  const tlv=document.getElementById('tlvTime');
+  if(tlv) tlv.textContent=now.toLocaleTimeString('en-US',{timeZone:'Asia/Jerusalem',hour:'2-digit',minute:'2-digit',hour12:false});
 }
 
 // ===== TAB NAVIGATION =====
+function activateTab(tab){
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  tab.classList.add('active');
+  document.getElementById('panel-'+tab.dataset.panel).classList.add('active');
+}
 document.querySelectorAll('.nav-tab').forEach(tab=>{
-  tab.addEventListener('click',()=>{
-    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('panel-'+tab.dataset.panel).classList.add('active');
+  tab.addEventListener('click',()=>activateTab(tab));
+  tab.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();activateTab(tab)}
+    const tabs=[...document.querySelectorAll('.nav-tab')];
+    const idx=tabs.indexOf(tab);
+    if(e.key==='ArrowRight'&&idx<tabs.length-1){tabs[idx+1].focus()}
+    if(e.key==='ArrowLeft'&&idx>0){tabs[idx-1].focus()}
   });
 });
 
@@ -615,12 +878,20 @@ function parseRSSXml(xmlText){
   }catch(e){return []}
 }
 
+const MAJOR_KEYWORDS=['strike','attack','bomb','missile','killed','dead','explosion','retaliation','nuclear','invasion','ceasefire','surrender','shot down','intercept','sanctions','blockade','evacuate','casualt'];
+
 async function fetchNews(){
+  // Spin refresh buttons
+  const refreshBtns=document.querySelectorAll('.refresh-btn');
+  refreshBtns.forEach(b=>b.classList.add('spinning'));
+
   const containers=['newsFeed','newsFeedFull'];
   containers.forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.innerHTML='<div class="loading"><div class="spinner"></div>Fetching latest news...</div>';
   });
+  const tlEl=document.getElementById('newsTimeline');
+  if(tlEl) tlEl.innerHTML='<div class="loading"><div class="spinner"></div>Building timeline...</div>';
 
   let allItems=[];
   const results=await Promise.allSettled(RSS_FEEDS.map(async feed=>{
@@ -629,6 +900,15 @@ async function fetchNews(){
   }));
 
   results.forEach(r=>{if(r.status==='fulfilled')allItems.push(...r.value)});
+
+  // Deduplicate by normalized title (strip whitespace/case)
+  const seen=new Set();
+  allItems=allItems.filter(item=>{
+    const key=item.title.toLowerCase().replace(/\s+/g,' ').trim();
+    if(seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 
   // Filter for Iran/war related
   const keywords=['iran','tehran','hormuz','hezbollah','israel','strike','missile','war','bomb','attack','military','pentagon','trump','irgc','khamenei','netanyahu','gulf','qatar','naval','drone','oil','crude','strait','conflict','lebanon','beirut'];
@@ -645,7 +925,7 @@ async function fetchNews(){
     const time=timeAgo(new Date(item.pubDate));
     const isBreaking=item.title.toLowerCase().includes('breaking');
     return `
-      <div class="news-item" onclick="window.open('${item.link}','_blank')">
+      <div class="news-item" tabindex="0" onclick="openLink('${escAttr(safeUrl(item.link))}')" onkeydown="if(event.key==='Enter')openLink('${escAttr(safeUrl(item.link))}')">
         <div class="news-meta">
           <span class="news-source ${item.sourceCls||'src-default'}">${item.sourceName||'NEWS'}</span>
           <span class="news-time">${time}</span>
@@ -659,141 +939,267 @@ async function fetchNews(){
     const el=document.getElementById(id);
     if(el) el.innerHTML=html||'<div class="loading">No news items found. Try refreshing.</div>';
   });
+
+  // Build timeline
+  buildTimeline(filtered.slice(0,60));
+
+  // Stop spinning & show last-updated timestamp
+  refreshBtns.forEach(b=>b.classList.remove('spinning'));
+  const updatedTime=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+  const feedCount=results.filter(r=>r.status==='fulfilled').length;
+  const updatedText=`Updated ${updatedTime} · ${filtered.length} items · ${feedCount}/${RSS_FEEDS.length} feeds`;
+  document.querySelectorAll('.news-updated').forEach(el=>el.textContent=updatedText);
+
+  // Update breaking news marquee
+  const breaking=filtered.filter(i=>i.title.toLowerCase().includes('breaking')).slice(0,8);
+  const marqueeBar=document.getElementById('marqueeBar');
+  const marqueeText=document.getElementById('marqueeText');
+  if(breaking.length>0){
+    marqueeText.textContent=breaking.map(i=>'>>> '+i.title).join('     ');
+    marqueeBar.style.display='flex';
+  }else{
+    // Show top 3 most recent as urgent ticker
+    const urgent=filtered.filter(i=>MAJOR_KEYWORDS.some(k=>i.title.toLowerCase().includes(k))).slice(0,5);
+    if(urgent.length>0){
+      marqueeText.textContent=urgent.map(i=>'>>> '+i.title).join('     ');
+      marqueeBar.style.display='flex';
+    }else{
+      marqueeBar.style.display='none';
+    }
+  }
+
+  // Check for breaking news sound alert
+  checkForNewBreaking(filtered);
+
+  // Update news tab badge (if not currently viewing news)
+  const newCount=filtered.length-lastSeenCounts.news;
+  if(newCount>0&&lastSeenCounts.news>0) updateBadge('news',newCount);
+  lastSeenCounts.news=filtered.length;
+}
+
+function buildTimeline(items){
+  const tlEl=document.getElementById('newsTimeline');
+  if(!tlEl) return;
+
+  // Group by date
+  const now=new Date();
+  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const yesterday=new Date(today);yesterday.setDate(today.getDate()-1);
+  const groups={};
+
+  items.forEach(item=>{
+    const d=new Date(item.pubDate);
+    let label;
+    if(d>=today) label='Today';
+    else if(d>=yesterday) label='Yesterday';
+    else{
+      label=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    }
+    if(!groups[label]) groups[label]=[];
+    groups[label].push(item);
+  });
+
+  let html='';
+  for(const[label,events] of Object.entries(groups)){
+    html+=`<div class="timeline-group"><div class="timeline-date">${label}</div>`;
+    events.forEach(item=>{
+      const d=new Date(item.pubDate);
+      const hhmm=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+      const titleLower=item.title.toLowerCase();
+      const isBreaking=titleLower.includes('breaking');
+      const isMajor=!isBreaking&&MAJOR_KEYWORDS.some(k=>titleLower.includes(k));
+      const cls=isBreaking?'tl-breaking':isMajor?'tl-major':'';
+      html+=`
+        <div class="tl-item ${cls}" tabindex="0" onclick="openLink('${escAttr(safeUrl(item.link))}')" onkeydown="if(event.key==='Enter')openLink('${escAttr(safeUrl(item.link))}')">
+          <div class="tl-time">${hhmm}</div>
+          <div class="tl-title">${isBreaking?'<span class="breaking-tag">BREAKING</span>':''}${escHtml(item.title)}</div>
+          <div class="tl-source">${item.sourceName||'NEWS'}</div>
+        </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  tlEl.innerHTML=html||'<div class="loading">No timeline events.</div>';
 }
 
 // ===== VIDEO CLIPS =====
-const INVIDIOUS_APIS=[
-  'https://inv.nadeko.net',
-  'https://yewtu.be',
-  'https://invidious.nerdvpn.de',
-  'https://invidious.privacyredirect.com',
-  'https://vid.puffyan.us',
-];
-const VIDEO_SEARCHES=[
-  'Iran war 2026','Iran Israel strikes','Strait of Hormuz military',
-  'Tehran bombing footage','Iran missile attack','US Iran conflict',
-];
+const REDDIT_SUBS=['CombatFootage','worldnews','iran','MiddleEastNews','UkraineWarVideoReport'];
+const REDDIT_QUERIES=['iran war','iran strike','iran missile','tehran','hormuz'];
+let allVideoClips=[];
+let currentVideoSource='all';
+
+function switchVideoSource(src){
+  currentVideoSource=src;
+  document.querySelectorAll('.vid-src-tab').forEach(t=>{
+    t.classList.toggle('active',t.dataset.source===src);
+  });
+  renderVideoClips();
+}
+
+async function fetchYouTubeVideos(sortBy){
+  const searches=['Iran war','Iran Israel strikes','Tehran bombing','Strait of Hormuz military'];
+  let videos=[];
+  for(const q of searches){
+    try{
+      const res=await fetch(`/api/videos?q=${encodeURIComponent(q)}&sort=${sortBy}&max=12`,{signal:AbortSignal.timeout(10000)});
+      if(res.ok){
+        const data=await res.json();
+        if(data.videos) videos.push(...data.videos.map(v=>({...v,source:'youtube'})));
+      }
+    }catch(e){continue}
+    if(videos.length>=20) break;
+  }
+  return videos;
+}
+
+async function fetchRedditVideos(){
+  let posts=[];
+  const fetches=REDDIT_SUBS.slice(0,3).map(async sub=>{
+    for(const q of REDDIT_QUERIES.slice(0,2)){
+      try{
+        const res=await fetch(
+          `https://www.reddit.com/r/${sub}/search.json?q=${encodeURIComponent(q)}&sort=new&t=week&limit=15&restrict_sr=1`,
+          {signal:AbortSignal.timeout(8000),headers:{'Accept':'application/json'}}
+        );
+        if(!res.ok) continue;
+        const data=await res.json();
+        const items=(data?.data?.children||[])
+          .map(c=>c.data)
+          .filter(p=>p.is_video||p.domain==='v.redd.it'||p.domain==='youtube.com'||p.domain==='youtu.be'||
+                     (p.url&&(p.url.includes('youtube.com/watch')||p.url.includes('youtu.be/')||p.url.includes('v.redd.it')||p.url.includes('streamable.com'))));
+        posts.push(...items);
+      }catch(e){continue}
+    }
+  });
+  await Promise.allSettled(fetches);
+  return posts.map(p=>{
+    const ytMatch=p.url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+    return {
+      id:p.id,
+      videoId:ytMatch?.[1]||null,
+      redditUrl:`https://www.reddit.com${p.permalink}`,
+      videoUrl:p.is_video?p.media?.reddit_video?.fallback_url:p.url,
+      title:p.title,
+      author:'r/'+p.subreddit,
+      publishedAt:new Date(p.created_utc*1000).toISOString(),
+      thumbnail:p.thumbnail&&p.thumbnail!=='self'&&p.thumbnail!=='default'?p.thumbnail:
+                (ytMatch?`https://i.ytimg.com/vi/${ytMatch[1]}/mqdefault.jpg`:''),
+      score:p.score||0,
+      comments:p.num_comments||0,
+      source:'reddit',
+      isYouTube:!!ytMatch,
+    };
+  });
+}
 
 async function fetchVideos(){
   const grid=document.getElementById('clipsGrid');
-  grid.innerHTML='<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Searching for videos...</div>';
+  const status=document.getElementById('vidStatus');
+  grid.innerHTML='<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading clips from YouTube & Reddit...</div>';
+  status.textContent='Fetching...';
 
   const sortBy=document.getElementById('videoSort').value;
-  let videos=[];
 
-  // Try Invidious instances with multiple search terms
-  for(const api of INVIDIOUS_APIS){
-    if(videos.length>=12) break;
-    for(const q of VIDEO_SEARCHES.slice(0,2)){
-      try{
-        const res=await fetch(`${api}/api/v1/search?q=${encodeURIComponent(q)}&sort_by=${sortBy}&type=video&page=1`,{signal:AbortSignal.timeout(6000)});
-        if(res.ok){
-          const data=await res.json();
-          if(Array.isArray(data)&&data.length>0){
-            videos.push(...data);
-            if(videos.length>=12) break;
-          }
-        }
-      }catch(e){break}
-    }
-    if(videos.length>0) break;
-  }
+  const [ytResult,rdResult]=await Promise.allSettled([
+    fetchYouTubeVideos(sortBy),
+    fetchRedditVideos(),
+  ]);
 
-  // Try YouTube RSS feeds from known news channels as fallback
-  if(videos.length===0){
-    const channels=[
-      {name:'Al Jazeera',id:'UCNye-wNBqNL5ZzHSJj3l8Bg'},
-      {name:'Sky News',id:'UCoMdktPbSTixAyNGwb-UYkQ'},
-      {name:'DW News',id:'UCknLrEdhRCp1aegoMqRaCZg'},
-      {name:'BBC News',id:'UC16niRr50-MSBwiO3YDb3RA'},
-      {name:'CNN',id:'UCupvZG-5ko_eiXAupbDfxWw'},
-    ];
-    const keywords=['iran','war','strike','missile','tehran','hormuz','israel','military','conflict'];
-    const rssResults=await Promise.allSettled(channels.map(async ch=>{
-      const feedUrl=`https://www.youtube.com/feeds/videos.xml?channel_id=${ch.id}`;
-      // Try CORS proxies
-      for(const proxy of [`https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`,`https://corsproxy.io/?${encodeURIComponent(feedUrl)}`]){
-        try{
-          const res=await fetch(proxy,{signal:AbortSignal.timeout(6000)});
-          if(!res.ok) continue;
-          const text=await res.text();
-          const parser=new DOMParser();
-          const doc=parser.parseFromString(text,'text/xml');
-          const entries=doc.querySelectorAll('entry');
-          return Array.from(entries).map(e=>{
-            const videoUrl=e.querySelector('link')?.getAttribute('href')||'';
-            const videoId=videoUrl.match(/v=([^&]+)/)?.[1]||'';
-            return {
-              videoId,
-              title:e.querySelector('title')?.textContent||'',
-              author:ch.name,
-              publishedText:timeAgo(new Date(e.querySelector('published')?.textContent||'')),
-              pubDate:e.querySelector('published')?.textContent||'',
-              videoThumbnails:[{url:`https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,quality:'medium'}],
-            };
-          });
-        }catch(e){continue}
-      }
-      return [];
-    }));
-    rssResults.forEach(r=>{if(r.status==='fulfilled')videos.push(...r.value)});
-    // Filter for war-related
-    const filtered=videos.filter(v=>{
-      const t=(v.title||'').toLowerCase();
-      return keywords.some(k=>t.includes(k));
+  allVideoClips=[];
+  let ytCount=0,rdCount=0;
+
+  if(ytResult.status==='fulfilled'){
+    // Dedupe YouTube
+    const seen=new Set();
+    ytResult.value.forEach(v=>{
+      if(v.videoId&&!seen.has(v.videoId)){seen.add(v.videoId);allVideoClips.push(v);ytCount++}
     });
-    if(filtered.length>0) videos=filtered;
-    videos.sort((a,b)=>new Date(b.pubDate||0)-new Date(a.pubDate||0));
+  }
+  if(rdResult.status==='fulfilled'){
+    const seen=new Set(allVideoClips.filter(v=>v.videoId).map(v=>v.videoId));
+    rdResult.value.forEach(v=>{
+      const key=v.videoId||v.id;
+      if(!seen.has(key)){seen.add(key);allVideoClips.push(v);rdCount++}
+    });
   }
 
-  // Deduplicate by videoId
-  const seen=new Set();
-  videos=videos.filter(v=>{
-    if(!v.videoId||seen.has(v.videoId)) return false;
-    seen.add(v.videoId);return true;
-  });
+  // Sort combined results
+  allVideoClips.sort((a,b)=>new Date(b.publishedAt||0)-new Date(a.publishedAt||0));
 
-  if(!videos.length){
+  status.textContent=`${ytCount} YouTube + ${rdCount} Reddit clips loaded`;
+  renderVideoClips();
+
+  // Update video tab badge
+  const totalClips=ytCount+rdCount;
+  const newVids=totalClips-lastSeenCounts.videos;
+  if(newVids>0&&lastSeenCounts.videos>0) updateBadge('videos',newVids);
+  lastSeenCounts.videos=totalClips;
+}
+
+function renderVideoClips(){
+  const grid=document.getElementById('clipsGrid');
+  let clips=allVideoClips;
+  if(currentVideoSource==='youtube') clips=clips.filter(v=>v.source==='youtube');
+  if(currentVideoSource==='reddit') clips=clips.filter(v=>v.source==='reddit');
+
+  if(!clips.length){
     grid.innerHTML=getFallbackVideos();
     return;
   }
 
-  grid.innerHTML=videos.slice(0,24).map(v=>{
-    const thumb=v.videoThumbnails?.find(t=>t.quality==='medium')?.url||
-                v.videoThumbnails?.[0]?.url||
-                `https://i.ytimg.com/vi/${v.videoId}/mqdefault.jpg`;
-    const dur=formatDuration(v.lengthSeconds);
-    const date=v.publishedText||'';
+  grid.innerHTML=clips.slice(0,36).map(v=>{
+    const isYT=v.source==='youtube'||(v.source==='reddit'&&v.isYouTube);
+    const thumb=v.thumbnail||
+                (v.videoId?`https://i.ytimg.com/vi/${v.videoId}/mqdefault.jpg`:'');
+    const dur=v.duration?formatISO8601Duration(v.duration):'';
+    const date=v.publishedAt?timeAgo(new Date(v.publishedAt)):'';
+    const safeReddit=escAttr(safeUrl(v.redditUrl||''));
+    const safeVideo=escAttr(safeUrl(v.videoUrl||''));
+    const onclick=isYT&&v.videoId
+      ?`playModal('${escAttr(v.videoId)}')`
+      :(safeReddit?`openLink('${safeReddit}')`:`openLink('${safeVideo}')`);
+    const srcLabel=v.source==='reddit'?'REDDIT':'YT';
+    const srcCls=v.source==='reddit'?'src-reddit':'src-youtube';
+    const meta=v.source==='reddit'&&v.score?` · ▲${v.score}`:'';
     return `
-      <div class="clip-card" onclick="playModal('${v.videoId}')">
+      <div class="clip-card" onclick="${onclick}">
         <div class="clip-thumb">
-          <img src="${thumb}" alt="" loading="lazy" onerror="this.src='https://i.ytimg.com/vi/${v.videoId}/mqdefault.jpg'">
+          ${thumb?`<img src="${thumb}" alt="" loading="lazy" onerror="this.style.display='none'">`:''}
           <div class="play-btn"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
+          <div class="clip-source ${srcCls}">${srcLabel}</div>
           ${dur?`<div class="clip-duration">${dur}</div>`:''}
         </div>
         <div class="clip-info">
           <div class="clip-title">${escHtml(v.title)}</div>
-          <div class="clip-channel">${escHtml(v.author||'')}</div>
+          <div class="clip-channel">${escHtml(v.author||'')}${meta}</div>
           <div class="clip-date">${date}</div>
         </div>
       </div>
     `;
-  }).join('')||getFallbackVideos();
+  }).join('');
+}
+
+// Parse ISO 8601 duration (PT1H2M3S) to readable format
+function formatISO8601Duration(iso){
+  if(!iso) return '';
+  const m=iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if(!m) return '';
+  const h=parseInt(m[1]||0),min=parseInt(m[2]||0),s=parseInt(m[3]||0);
+  if(h) return `${h}:${String(min).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${min}:${String(s).padStart(2,'0')}`;
 }
 
 function getFallbackVideos(){
   return `
     <div style="grid-column:1/-1;padding:20px;text-align:center">
       <p style="color:var(--text2);font-family:var(--mono);font-size:.8rem;margin-bottom:16px">
-        Video search unavailable — try these direct links:
+        No clips found — try these direct links:
       </p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-        <a href="https://www.youtube.com/results?search_query=Iran+war+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">Iran War — Latest</a>
-        <a href="https://www.youtube.com/results?search_query=Iran+Israel+strikes+today&sp=EgIIAQ%253D%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">Iran Strikes Today</a>
-        <a href="https://www.youtube.com/results?search_query=Strait+of+Hormuz+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">Strait of Hormuz</a>
-        <a href="https://www.youtube.com/results?search_query=Tehran+bombing+footage+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">Tehran Footage</a>
+        <a href="https://www.youtube.com/results?search_query=Iran+war+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">YouTube — Iran War</a>
         <a href="https://www.reddit.com/r/CombatFootage/search/?q=iran&sort=new" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">r/CombatFootage</a>
-        <a href="https://twitter.com/search?q=Iran%20strike%20video&src=typed_query&f=video" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">X/Twitter Videos</a>
+        <a href="https://www.reddit.com/r/worldnews/search/?q=iran+video&sort=new" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">r/worldnews</a>
+        <a href="https://twitter.com/search?q=Iran%20strike%20video&f=video" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">X/Twitter Videos</a>
       </div>
     </div>
   `;
@@ -829,6 +1235,13 @@ function formatDuration(sec){
 function escHtml(str){
   const d=document.createElement('div');d.textContent=str||'';return d.innerHTML;
 }
+function escAttr(str){
+  return (str||'').replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function safeUrl(url){
+  try{const u=new URL(url);return['http:','https:'].includes(u.protocol)?u.href:'';}catch(e){return '';}
+}
+function openLink(url){window.open(url,'_blank','noopener,noreferrer')}
 
 // ===== LIVE STREAM CAROUSEL =====
 const STREAMS=[
@@ -838,10 +1251,11 @@ const STREAMS=[
   {name:'DW News',channel:'UCknLrEdhRCp1aegoMqRaCZg'},
   {name:'ABC News',channel:'UCBi2mrWuNuyYy4gbM6fU18Q'},
   {name:'NBC News',channel:'UCeY0bbntWzzVIaj2z3QigXg'},
-  {name:'CNN',channel:'UCupvZG-5ko_eiXAupbDfxWw'},
-  {name:'TRT World',channel:'UC7fWeaHhqgM4Lba7TEKT_lQ'},
+  {name:'AP News',channel:'UC52X5wxOL_s5yw0dQk7NtgA'},
+  {name:'TRT World',channel:'UC7fWeaHhqgM4Ry-RMpM2YYw'},
   {name:'WION',channel:'UC_gUM8rL-Lrg6O3adPW9K1g'},
-  {name:'Times of India',channel:'UCwvJ8YnP8HFMO5Oo8gPHjBQ'},
+  {name:'CRUX',channel:'UC3prwMn9aU2z5Y158ZdGyyA'},
+  {name:'Times Now',channel:'UC6RJ7-PaXg6TIH2BzZfTV7w'},
 ];
 let currentStream=0;
 
@@ -857,8 +1271,10 @@ function renderStreamNav(){
 function selectStream(idx){
   currentStream=idx;
   const s=STREAMS[idx];
-  document.getElementById('streamPlayer').src=
-    `https://www.youtube.com/embed/live_stream?channel=${s.channel}&autoplay=1&mute=1`;
+  const src=s.channel
+    ? `https://www.youtube.com/embed/live_stream?channel=${s.channel}&autoplay=1&mute=1`
+    : `https://www.youtube.com/embed/${s.video}?autoplay=1&mute=1`;
+  document.getElementById('streamPlayer').src=src;
   renderStreamNav();
   document.querySelectorAll('.stream-ch')[idx]?.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
 }
@@ -868,6 +1284,145 @@ function switchStream(dir){
   if(next<0) next=STREAMS.length-1;
   if(next>=STREAMS.length) next=0;
   selectStream(next);
+}
+
+// ===== PiP MINI PLAYER =====
+let pipActive=false;
+let pipStreamIdx=0;
+
+function showPip(){
+  const pip=document.getElementById('pipPlayer');
+  const s=STREAMS[pipStreamIdx];
+  const src=s.channel
+    ?`https://www.youtube.com/embed/live_stream?channel=${s.channel}&autoplay=1&mute=1`
+    :`https://www.youtube.com/embed/${s.video}?autoplay=1&mute=1`;
+  document.getElementById('pipFrame').src=src;
+  document.getElementById('pipChannelName').textContent=s.name;
+  pip.classList.add('show');
+  pipActive=true;
+}
+
+function closePip(){
+  const pip=document.getElementById('pipPlayer');
+  document.getElementById('pipFrame').src='';
+  pip.classList.remove('show');
+  pipActive=false;
+}
+
+function togglePipSize(){
+  document.getElementById('pipPlayer').classList.toggle('minimized');
+}
+
+function pipPrevNext(dir){
+  pipStreamIdx+=dir;
+  if(pipStreamIdx<0) pipStreamIdx=STREAMS.length-1;
+  if(pipStreamIdx>=STREAMS.length) pipStreamIdx=0;
+  showPip();
+}
+
+function pipGoFull(){
+  // Navigate to livestreams tab and close PiP
+  closePip();
+  const tab=document.querySelector('[data-panel="livestreams"]');
+  activateTab(tab);
+  selectStream(pipStreamIdx);
+}
+
+// Drag PiP player
+(function(){
+  const pip=document.getElementById('pipPlayer');
+  const ctrl=pip.querySelector('.pip-controls');
+  let dragging=false,ox,oy;
+  ctrl.addEventListener('mousedown',e=>{
+    if(e.target.closest('.pip-btn')) return;
+    dragging=true;ox=e.clientX-pip.offsetLeft;oy=e.clientY-pip.offsetTop;
+    pip.style.transition='none';
+  });
+  document.addEventListener('mousemove',e=>{
+    if(!dragging) return;
+    pip.style.left=(e.clientX-ox)+'px';pip.style.top=(e.clientY-oy)+'px';
+    pip.style.right='auto';pip.style.bottom='auto';
+  });
+  document.addEventListener('mouseup',()=>{dragging=false;pip.style.transition='all .3s ease'});
+})();
+
+// ===== BREAKING NEWS SOUND ALERT =====
+let alertSoundEnabled=false;
+let previousBreakingTitles=new Set();
+
+// Generate alert tone using Web Audio API
+function playAlertTone(){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    // Three-tone alert
+    [880,1100,880].forEach((freq,i)=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.type='square';osc.frequency.value=freq;
+      gain.gain.value=0.08;
+      osc.start(ctx.currentTime+i*0.15);
+      osc.stop(ctx.currentTime+i*0.15+0.12);
+    });
+  }catch(e){}
+}
+
+function toggleAlertSound(){
+  alertSoundEnabled=!alertSoundEnabled;
+  const btn=document.getElementById('toggleSound');
+  btn.classList.toggle('active',alertSoundEnabled);
+  btn.innerHTML=alertSoundEnabled?'&#128264; ALERTS ON':'&#128264; ALERTS';
+  if(alertSoundEnabled) playAlertTone(); // test tone on enable
+}
+
+function checkForNewBreaking(items){
+  if(!alertSoundEnabled) return;
+  const breaking=items.filter(i=>i.title.toLowerCase().includes('breaking'));
+  let hasNew=false;
+  breaking.forEach(b=>{
+    const key=b.title.toLowerCase().trim();
+    if(!previousBreakingTitles.has(key)){
+      previousBreakingTitles.add(key);
+      hasNew=true;
+    }
+  });
+  if(hasNew&&previousBreakingTitles.size>breaking.length) playAlertTone();
+}
+
+// ===== NOTIFICATION BADGES =====
+let lastSeenCounts={news:0,videos:0};
+let currentPanel='overview';
+
+function updateBadge(panel,count){
+  const tab=document.querySelector(`[data-panel="${panel}"]`);
+  if(!tab) return;
+  // Remove existing badge
+  const old=tab.querySelector('.tab-badge');
+  if(old) old.remove();
+  // Add new badge if count > 0 and not currently viewing that panel
+  if(count>0&&currentPanel!==panel){
+    const badge=document.createElement('span');
+    badge.className='tab-badge';
+    badge.textContent=count>99?'99+':count;
+    tab.appendChild(badge);
+  }
+}
+
+// ===== NIGHT OPS THEME =====
+function toggleNightOps(){
+  document.documentElement.classList.toggle('night-ops');
+  const btn=document.getElementById('toggleNightOps');
+  const isOn=document.documentElement.classList.contains('night-ops');
+  btn.classList.toggle('active',isOn);
+  btn.innerHTML=isOn?'&#127761; NV ON':'&#127761; NV';
+  localStorage.setItem('nightOps',isOn?'1':'0');
+}
+
+// Restore night ops from localStorage
+if(localStorage.getItem('nightOps')==='1'){
+  document.documentElement.classList.add('night-ops');
+  document.getElementById('toggleNightOps').classList.add('active');
+  document.getElementById('toggleNightOps').innerHTML='&#127761; NV ON';
 }
 
 // ===== INIT =====
@@ -885,6 +1440,30 @@ document.querySelector('[data-panel="livestreams"]').addEventListener('click',()
 document.querySelector('[data-panel="videos"]').addEventListener('click',()=>{
   if(document.getElementById('clipsGrid').querySelector('.loading'))fetchVideos();
 },{once:true});
+
+// Track active panel for badges + PiP behavior
+document.querySelectorAll('.nav-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    const panel=tab.dataset.panel;
+    const prevPanel=currentPanel;
+    currentPanel=panel;
+    // Clear badge on the tab we're viewing
+    const badge=tab.querySelector('.tab-badge');
+    if(badge) badge.remove();
+    // Show PiP when leaving livestreams (if stream was playing)
+    if(prevPanel==='livestreams'&&panel!=='livestreams'){
+      const mainPlayer=document.getElementById('streamPlayer');
+      if(mainPlayer.src&&mainPlayer.src!==window.location.href){
+        pipStreamIdx=currentStream;
+        showPip();
+      }
+    }
+    // Hide PiP when returning to livestreams
+    if(panel==='livestreams'&&pipActive){
+      closePip();
+    }
+  });
+});
 
 // Auto-refresh news every 3 minutes
 setInterval(fetchNews,180000);
