@@ -822,63 +822,87 @@ function setMaritimeSrc(lat,lon,zoom){
 function setAirSrc(url){document.getElementById('airFrame').src=url}
 
 // ===== NEWS FEED =====
-// Using rss2json.com free tier or allorigins as CORS proxy for RSS feeds
-const RSS_FEEDS=[
-  {name:'Al Jazeera',cls:'src-aljazeera',url:'https://www.aljazeera.com/xml/rss/all.xml'},
-  {name:'BBC',cls:'src-bbc',url:'https://feeds.bbci.co.uk/news/world/middle_east/rss.xml'},
-  {name:'Reuters',cls:'src-reuters',url:'https://www.reutersagency.com/feed/'},
-  {name:'NPR',cls:'src-npr',url:'https://feeds.npr.org/1004/rss.xml'},
-];
+const MAJOR_KEYWORDS=['strike','attack','bomb','missile','killed','dead','explosion','retaliation','nuclear','invasion','ceasefire','surrender','shot down','intercept','sanctions','blockade','evacuate','casualt'];
 
-async function fetchRSS(feedUrl){
-  // Try rss2json first (returns structured JSON)
+// Try server-side API first; fall back to client-side CORS proxies
+async function fetchNewsItems(){
+  // 1. Try our own serverless API (avoids CORS, most reliable)
   try{
-    const proxy=`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}&count=20`;
-    const res=await fetch(proxy);
+    const res=await fetch('/api/news',{signal:AbortSignal.timeout(12000)});
     if(res.ok){
       const data=await res.json();
-      if(data.items&&data.items.length>0) return data.items;
+      if(data.items&&data.items.length>0) return {items:data.items,feedCount:data.feedCount,totalFeeds:data.totalFeeds,source:'api'};
     }
   }catch(e){}
 
-  // Fallback: fetch raw RSS via allorigins CORS proxy and parse XML
-  try{
-    const proxy2=`https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`;
-    const res=await fetch(proxy2);
-    if(res.ok){
-      const text=await res.text();
-      return parseRSSXml(text);
-    }
-  }catch(e){}
+  // 2. Fallback: fetch RSS via CORS proxies client-side
+  const RSS_FEEDS=[
+    {name:'Al Jazeera',cls:'src-aljazeera',url:'https://www.aljazeera.com/xml/rss/all.xml'},
+    {name:'BBC',cls:'src-bbc',url:'https://feeds.bbci.co.uk/news/world/middle_east/rss.xml'},
+    {name:'Reuters',cls:'src-reuters',url:'https://feeds.reuters.com/reuters/worldNews'},
+    {name:'NPR',cls:'src-npr',url:'https://feeds.npr.org/1004/rss.xml'},
+  ];
 
-  // Fallback 2: corsproxy.io
-  try{
-    const proxy3=`https://corsproxy.io/?${encodeURIComponent(feedUrl)}`;
-    const res=await fetch(proxy3);
-    if(res.ok){
-      const text=await res.text();
-      return parseRSSXml(text);
+  async function fetchRSS(feedUrl){
+    for(const makeUrl of [
+      u=>`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(u)}&count=20`,
+      u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+      u=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
+    ]){
+      try{
+        const res=await fetch(makeUrl(feedUrl),{signal:AbortSignal.timeout(8000)});
+        if(!res.ok) continue;
+        const ct=res.headers.get('content-type')||'';
+        if(ct.includes('json')){
+          const data=await res.json();
+          if(data.items&&data.items.length>0) return data.items;
+        }else{
+          const text=await res.text();
+          const items=parseRSSXml(text);
+          if(items.length>0) return items;
+        }
+      }catch(e){}
     }
-  }catch(e){}
+    return [];
+  }
 
-  return [];
+  function parseRSSXml(xmlText){
+    try{
+      const parser=new DOMParser();
+      const doc=parser.parseFromString(xmlText,'text/xml');
+      const items=doc.querySelectorAll('item');
+      return Array.from(items).map(item=>({
+        title:item.querySelector('title')?.textContent||'',
+        link:item.querySelector('link')?.textContent||'',
+        pubDate:item.querySelector('pubDate')?.textContent||'',
+      }));
+    }catch(e){return []}
+  }
+
+  let allItems=[];
+  const results=await Promise.allSettled(RSS_FEEDS.map(async feed=>{
+    const items=await fetchRSS(feed.url);
+    return items.map(item=>({...item,sourceName:feed.name,sourceCls:feed.cls}));
+  }));
+  results.forEach(r=>{if(r.status==='fulfilled')allItems.push(...r.value)});
+
+  // Deduplicate
+  const seen=new Set();
+  allItems=allItems.filter(item=>{
+    const key=item.title.toLowerCase().replace(/\s+/g,' ').trim();
+    if(seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  // Filter for conflict keywords
+  const keywords=['iran','tehran','hormuz','hezbollah','israel','strike','missile','war','bomb','attack','military','pentagon','trump','irgc','khamenei','netanyahu','gulf','naval','drone','oil','crude','strait','conflict','lebanon','beirut','nuclear','sanction'];
+  let filtered=allItems.filter(item=>keywords.some(k=>item.title.toLowerCase().includes(k)));
+  filtered.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));
+  if(filtered.length===0) filtered=allItems.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate)).slice(0,30);
+
+  return {items:filtered.slice(0,80),feedCount:results.filter(r=>r.status==='fulfilled'&&r.value.length>0).length,totalFeeds:RSS_FEEDS.length,source:'proxy'};
 }
-
-function parseRSSXml(xmlText){
-  try{
-    const parser=new DOMParser();
-    const doc=parser.parseFromString(xmlText,'text/xml');
-    const items=doc.querySelectorAll('item');
-    return Array.from(items).map(item=>({
-      title:item.querySelector('title')?.textContent||'',
-      link:item.querySelector('link')?.textContent||'',
-      description:item.querySelector('description')?.textContent||'',
-      pubDate:item.querySelector('pubDate')?.textContent||'',
-    }));
-  }catch(e){return []}
-}
-
-const MAJOR_KEYWORDS=['strike','attack','bomb','missile','killed','dead','explosion','retaliation','nuclear','invasion','ceasefire','surrender','shot down','intercept','sanctions','blockade','evacuate','casualt'];
 
 async function fetchNews(){
   // Spin refresh buttons
@@ -893,33 +917,7 @@ async function fetchNews(){
   const tlEl=document.getElementById('newsTimeline');
   if(tlEl) tlEl.innerHTML='<div class="loading"><div class="spinner"></div>Building timeline...</div>';
 
-  let allItems=[];
-  const results=await Promise.allSettled(RSS_FEEDS.map(async feed=>{
-    const items=await fetchRSS(feed.url);
-    return items.map(item=>({...item,sourceName:feed.name,sourceCls:feed.cls}));
-  }));
-
-  results.forEach(r=>{if(r.status==='fulfilled')allItems.push(...r.value)});
-
-  // Deduplicate by normalized title (strip whitespace/case)
-  const seen=new Set();
-  allItems=allItems.filter(item=>{
-    const key=item.title.toLowerCase().replace(/\s+/g,' ').trim();
-    if(seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-
-  // Filter for Iran/war related
-  const keywords=['iran','tehran','hormuz','hezbollah','israel','strike','missile','war','bomb','attack','military','pentagon','trump','irgc','khamenei','netanyahu','gulf','qatar','naval','drone','oil','crude','strait','conflict','lebanon','beirut'];
-  let filtered=allItems.filter(item=>{
-    const text=(item.title+' '+(item.description||'')).toLowerCase();
-    return keywords.some(k=>text.includes(k));
-  });
-
-  // Sort by date
-  filtered.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));
-  if(filtered.length===0) filtered=allItems.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate)).slice(0,30);
+  const {items:filtered,feedCount,totalFeeds}=await fetchNewsItems();
 
   const html=filtered.slice(0,60).map(item=>{
     const time=timeAgo(new Date(item.pubDate));
@@ -946,8 +944,7 @@ async function fetchNews(){
   // Stop spinning & show last-updated timestamp
   refreshBtns.forEach(b=>b.classList.remove('spinning'));
   const updatedTime=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
-  const feedCount=results.filter(r=>r.status==='fulfilled').length;
-  const updatedText=`Updated ${updatedTime} · ${filtered.length} items · ${feedCount}/${RSS_FEEDS.length} feeds`;
+  const updatedText=`Updated ${updatedTime} · ${filtered.length} items · ${feedCount}/${totalFeeds} feeds`;
   document.querySelectorAll('.news-updated').forEach(el=>el.textContent=updatedText);
 
   // Update breaking news marquee
