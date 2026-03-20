@@ -315,14 +315,15 @@
   <div class="full-frame">
     <div class="section-head">
       <span>⚓ STRAIT OF HORMUZ — MARITIME TRAFFIC</span>
-      <div style="display:flex;gap:8px">
-        <button class="overlay-btn" onclick="setMaritimeSrc('https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8')">Hormuz Strait</button>
-        <button class="overlay-btn" onclick="setMaritimeSrc('https://www.marinetraffic.com/en/ais/home/centerx:50.5/centery:26.0/zoom:7')">Persian Gulf Wide</button>
-        <button class="overlay-btn" onclick="setMaritimeSrc('https://www.marinetraffic.com/en/ais/home/centerx:43.0/centery:14.0/zoom:6')">Red Sea / Bab el-Mandeb</button>
-        <button class="overlay-btn" onclick="setMaritimeSrc('https://www.vesselfinder.com/?rlat=26.3&rlon=56.7&zoom=8')">VesselFinder Alt</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="overlay-btn" onclick="setMaritimeMap(26.3,56.7,8)">Hormuz Strait</button>
+        <button class="overlay-btn" onclick="setMaritimeMap(26.0,50.5,7)">Persian Gulf Wide</button>
+        <button class="overlay-btn" onclick="setMaritimeMap(14.0,43.0,6)">Red Sea / Bab el-Mandeb</button>
+        <button class="overlay-btn" onclick="setMaritimeMap(33.5,34.5,7)">Eastern Med</button>
+        <button class="overlay-btn" onclick="window.open('https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8','_blank')">Open MarineTraffic</button>
       </div>
     </div>
-    <iframe id="maritimeFrame" src="https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
+    <div id="maritimeMapContainer" style="width:100%;height:calc(100% - 34px)"></div>
   </div>
 </div>
 
@@ -539,7 +540,17 @@ document.querySelectorAll('.nav-tab').forEach(tab=>{
 
 // ===== MAP SOURCE SWITCHERS =====
 function setMapSrc(url){document.getElementById('warmapFrame').src=url}
-function setMaritimeSrc(url){document.getElementById('maritimeFrame').src=url}
+function setMaritimeMap(lat,lon,zoom){
+  const c=document.getElementById('maritimeMapContainer');
+  c.innerHTML='';
+  const s1=document.createElement('script');
+  s1.textContent='var width="100%";var height="'+c.offsetHeight+'";var latitude="'+lat+'";var longitude="'+lon+'";var zoom="'+zoom+'";var names=true;';
+  c.appendChild(s1);
+  const s2=document.createElement('script');
+  s2.src='https://www.vesselfinder.com/aismap.js';
+  c.appendChild(s2);
+}
+function initMaritimeMap(){setMaritimeMap(26.3,56.7,8)}
 function setAirSrc(url){document.getElementById('airFrame').src=url}
 
 // ===== NEWS FEED =====
@@ -753,6 +764,10 @@ updateClock();
 setInterval(updateClock,1000);
 setInterval(updateDayCount,60000);
 fetchNews();
+// Lazy-load maritime map when tab is clicked
+document.querySelector('[data-panel="maritime"]').addEventListener('click',()=>{
+  if(!document.getElementById('maritimeMapContainer').querySelector('script'))initMaritimeMap();
+},{once:true});
 // Lazy-load videos when tab is clicked
 document.querySelector('[data-panel="videos"]').addEventListener('click',()=>{
   if(document.getElementById('clipsGrid').querySelector('.loading'))fetchVideos();
