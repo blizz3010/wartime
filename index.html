@@ -1,584 +1,725 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Middle East Conflict Tracker | Live Updates</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --iran: #239e3b;
-            --israel: #0038b8;
-            --usa: #bf0a30;
-            --dark: #0a0a0f;
-            --card-bg: #12121a;
-        }
-        body {
-            background: var(--dark);
-            color: #e0e0e0;
-            font-family: 'Segoe UI', sans-serif;
-        }
-        .hero {
-            background: linear-gradient(135deg, #1a1a2e 0%, #0a0a0f 100%);
-            padding: 20px 0;
-            border-bottom: 2px solid #333;
-        }
-        .live-indicator {
-            display: inline-flex;
-            align-items: center;
-            background: #dc2626;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        .card {
-            background: var(--card-bg);
-            border: 1px solid #2a2a3a;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-        .card-header {
-            background: #1a1a25;
-            border-bottom: 1px solid #2a2a3a;
-            padding: 12px 16px;
-            font-weight: 600;
-        }
-        .video-container {
-            position: relative;
-            padding-bottom: 56.25%;
-            height: 0;
-            overflow: hidden;
-            border-radius: 8px;
-        }
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        .news-item {
-            padding: 12px 0;
-            border-bottom: 1px solid #2a2a3a;
-        }
-        .news-item:last-child {
-            border-bottom: none;
-        }
-        .news-source {
-            font-size: 0.75rem;
-            color: #888;
-            text-transform: uppercase;
-        }
-        .news-title {
-            font-size: 0.95rem;
-            color: #fff;
-            text-decoration: none;
-        }
-        .news-title:hover {
-            color: #4a9eff;
-        }
-        .news-time {
-            font-size: 0.7rem;
-            color: #666;
-        }
-        .map-container {
-            height: 400px;
-            background: #1a1a25;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .stat-box {
-            text-align: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #12121a 100%);
-            border-radius: 12px;
-            border: 1px solid #2a2a3a;
-        }
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-        }
-        .stat-label {
-            font-size: 0.8rem;
-            color: #888;
-            text-transform: uppercase;
-        }
-        .iran-color { color: var(--iran); }
-        .israel-color { color: var(--israel); }
-        .usa-color { color: var(--usa); }
-        .refresh-time {
-            font-size: 0.7rem;
-            color: #555;
-        }
-        
-        /* Video Slider */
-        .video-slider-container {
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-            padding: 20px;
-            background: #0a0a0f;
-        }
-        .video-slider {
-            display: flex;
-            gap: 20px;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            padding-bottom: 10px;
-        }
-        .video-slide {
-            flex: 0 0 200px;
-            scroll-snap-align: start;
-            background: #1a1a25;
-            border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-        .video-slide:hover {
-            transform: scale(1.05);
-        }
-        .video-thumbnail {
-            height: 120px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #0a0a0f 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #4a9eff;
-            position: relative;
-        }
-        .video-thumbnail::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.3);
-        }
-        .video-thumbnail i {
-            position: relative;
-            z-index: 1;
-        }
-        .video-title {
-            padding: 10px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .video-time {
-            padding: 0 10px 10px;
-            font-size: 0.7rem;
-            color: #666;
-        }
-        
-        /* Video Carousel */
-        .video-carousel {
-            position: relative;
-            display: flex;
-            align-items: center;
-            background: #0a0a0f;
-            padding: 15px 0;
-            overflow: hidden;
-        }
-        .carousel-track {
-            display: flex;
-            gap: 15px;
-            overflow-x: auto;
-            scroll-behavior: smooth;
-            scrollbar-width: none;
-            padding: 0 50px;
-        }
-        .carousel-track::-webkit-scrollbar {
-            display: none;
-        }
-        .clip-card {
-            flex: 0 0 220px;
-            background: #1a1a25;
-            border-radius: 10px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-        .clip-card:hover {
-            transform: translateY(-5px);
-        }
-        .clip-thumb {
-            height: 130px;
-            background: linear-gradient(135deg, #1a1a2e, #0a0a0f);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        .clip-thumb i {
-            color: #4a9eff;
-            z-index: 1;
-        }
-        .live-badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: #dc2626;
-            color: white;
-            font-size: 0.6rem;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 4px;
-        }
-        .clip-info {
-            padding: 12px;
-        }
-        .clip-title {
-            font-size: 0.8rem;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .clip-time {
-            font-size: 0.7rem;
-            color: #dc2626;
-            margin-top: 4px;
-        }
-        .carousel-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            padding: 15px 10px;
-            cursor: pointer;
-            z-index: 10;
-            transition: background 0.3s;
-        }
-        .carousel-btn:hover {
-            background: rgba(255,255,255,0.2);
-        }
-        .carousel-btn.prev { left: 0; }
-        .carousel-btn.next { right: 0; }
-        .source-aljazeera { color: #cc0000; }
-        .source-bbc { color: #bb1919; }
-        .source-cbs { color: #1a1a1a; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WARTIME — Iran Conflict Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#080a0e;--surface:#0d1117;--surface2:#161b22;--surface3:#1c2333;
+    --border:#21262d;--border2:#30363d;
+    --text:#e6edf3;--text2:#8b949e;--text3:#484f58;
+    --red:#f85149;--red-dim:#3d1214;
+    --orange:#d29922;--orange-dim:#2d2006;
+    --green:#3fb950;--green-dim:#0d2818;
+    --blue:#58a6ff;--blue-dim:#0c2d6b;
+    --purple:#bc8cff;
+    --iran:#239e3b;--usa:#bf0a30;--israel:#0038b8;
+    --mono:'JetBrains Mono',monospace;--sans:'DM Sans',system-ui,sans-serif;
+  }
+  html{font-size:14px;background:var(--bg);color:var(--text);font-family:var(--sans);scrollbar-width:thin;scrollbar-color:var(--border) var(--bg)}
+  body{min-height:100vh;background:var(--bg)}
+  a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+
+  /* HEADER */
+  .header{
+    position:sticky;top:0;z-index:100;
+    background:rgba(8,10,14,0.92);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+    padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  }
+  .header-left{display:flex;align-items:center;gap:12px}
+  .logo{font-family:var(--mono);font-weight:700;font-size:1.15rem;letter-spacing:2px;color:var(--red)}
+  .logo span{color:var(--text3);font-weight:400;letter-spacing:0}
+  .live-pill{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--red-dim);border:1px solid rgba(248,81,73,0.4);
+    color:var(--red);padding:3px 10px;border-radius:100px;
+    font-family:var(--mono);font-size:0.7rem;font-weight:600;letter-spacing:1px;
+  }
+  .live-dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:blink 1.5s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  .header-right{display:flex;align-items:center;gap:12px;font-size:.75rem;color:var(--text2);font-family:var(--mono)}
+  .day-count{color:var(--orange);font-weight:700;font-size:.85rem}
+
+  /* NAV TABS */
+  .nav-tabs{
+    display:flex;gap:0;background:var(--surface);border-bottom:1px solid var(--border);
+    overflow-x:auto;scrollbar-width:none;
+  }
+  .nav-tabs::-webkit-scrollbar{display:none}
+  .nav-tab{
+    padding:10px 20px;font-size:.8rem;font-weight:600;color:var(--text2);
+    cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;
+    transition:all .2s;font-family:var(--mono);letter-spacing:.5px;
+  }
+  .nav-tab:hover{color:var(--text);background:var(--surface2)}
+  .nav-tab.active{color:var(--red);border-bottom-color:var(--red);background:var(--surface2)}
+  .nav-tab .tab-icon{margin-right:6px;font-size:.9rem}
+
+  /* PANELS */
+  .panel{display:none;padding:0}
+  .panel.active{display:block}
+
+  /* GRID LAYOUT */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border)}
+  .grid-cell{background:var(--surface);padding:0;position:relative;overflow:hidden}
+
+  /* SECTION HEADERS */
+  .section-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border);
+    font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:1px;
+    color:var(--text2);text-transform:uppercase;
+  }
+  .section-head .badge{
+    font-size:.6rem;padding:2px 6px;border-radius:3px;
+    background:var(--red-dim);color:var(--red);border:1px solid rgba(248,81,73,0.3);
+  }
+
+  /* IFRAME CONTAINERS */
+  .iframe-wrap{position:relative;width:100%;height:100%;min-height:500px}
+  .iframe-wrap iframe{width:100%;height:100%;border:0;position:absolute;top:0;left:0}
+  .iframe-wrap.short{min-height:400px}
+  .iframe-wrap.tall{min-height:600px}
+  .iframe-wrap.yt{min-height:320px}
+
+  /* NEWS FEED */
+  .news-feed{height:calc(100vh - 96px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) var(--surface)}
+  .news-item{
+    padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;
+    transition:background .15s;
+  }
+  .news-item:hover{background:var(--surface2)}
+  .news-meta{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+  .news-source{
+    font-family:var(--mono);font-size:.6rem;font-weight:700;letter-spacing:.5px;
+    padding:2px 6px;border-radius:3px;text-transform:uppercase;
+  }
+  .src-aljazeera{background:#3d1a0a;color:#e8713a}
+  .src-bbc{background:#3d1214;color:#f85149}
+  .src-reuters{background:#2d2006;color:#d29922}
+  .src-cnn{background:#0c2d6b;color:#58a6ff}
+  .src-npr{background:#1a2d0a;color:#6fbf49}
+  .src-fox{background:#2d2006;color:#d29922}
+  .src-nbc{background:#1a0a3d;color:#bc8cff}
+  .src-guardian{background:#0d2818;color:#3fb950}
+  .src-jpost{background:#0c2d6b;color:#58a6ff}
+  .src-default{background:var(--surface3);color:var(--text2)}
+  .news-time{font-size:.65rem;color:var(--text3);font-family:var(--mono)}
+  .news-title{font-size:.85rem;font-weight:600;line-height:1.4;color:var(--text)}
+  .news-item:hover .news-title{color:var(--blue)}
+  .breaking-tag{
+    display:inline-block;background:var(--red);color:#fff;
+    font-family:var(--mono);font-size:.55rem;font-weight:700;
+    padding:1px 5px;border-radius:2px;margin-right:4px;letter-spacing:.5px;
+  }
+
+  /* VIDEO CLIPS */
+  .clips-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--border)}
+  .clip-card{background:var(--surface);overflow:hidden;cursor:pointer;transition:background .15s}
+  .clip-card:hover{background:var(--surface2)}
+  .clip-thumb{position:relative;padding-bottom:56.25%;background:var(--surface2)}
+  .clip-thumb img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}
+  .clip-thumb .play-btn{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:48px;height:48px;border-radius:50%;background:rgba(248,81,73,0.9);
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .2s;
+  }
+  .clip-card:hover .play-btn{transform:translate(-50%,-50%) scale(1.1)}
+  .play-btn svg{width:18px;height:18px;fill:#fff;margin-left:2px}
+  .clip-duration{
+    position:absolute;bottom:6px;right:6px;
+    background:rgba(0,0,0,0.85);color:#fff;
+    font-family:var(--mono);font-size:.6rem;padding:2px 5px;border-radius:3px;
+  }
+  .clip-info{padding:10px 12px}
+  .clip-title{font-size:.8rem;font-weight:600;line-height:1.3;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .clip-channel{font-size:.65rem;color:var(--text2)}
+  .clip-date{font-size:.6rem;color:var(--text3);font-family:var(--mono)}
+
+  /* STAT TICKER */
+  .ticker{
+    display:flex;gap:0;background:var(--surface);border-bottom:1px solid var(--border);
+    overflow-x:auto;scrollbar-width:none;
+  }
+  .ticker::-webkit-scrollbar{display:none}
+  .tick{
+    flex:1;min-width:160px;padding:10px 16px;border-right:1px solid var(--border);
+    text-align:center;
+  }
+  .tick-label{font-family:var(--mono);font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+  .tick-value{font-family:var(--mono);font-size:1rem;font-weight:700}
+  .tick-value.red{color:var(--red)}.tick-value.orange{color:var(--orange)}.tick-value.green{color:var(--green)}.tick-value.blue{color:var(--blue)}
+
+  /* LOADING */
+  .loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text3);font-family:var(--mono);font-size:.75rem;gap:8px}
+  .spinner{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .6s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* FULLSCREEN LAYOUT */
+  .full-frame{height:calc(100vh - 96px);position:relative}
+  .full-frame iframe{width:100%;height:100%;border:0}
+  .full-frame-overlay{
+    position:absolute;bottom:16px;right:16px;z-index:10;
+    display:flex;gap:8px;
+  }
+  .overlay-btn{
+    padding:6px 12px;background:rgba(13,17,23,0.9);border:1px solid var(--border);
+    border-radius:6px;color:var(--text2);font-family:var(--mono);font-size:.65rem;
+    cursor:pointer;transition:all .15s;backdrop-filter:blur(8px);
+  }
+  .overlay-btn:hover{background:var(--surface2);color:var(--text);border-color:var(--border2)}
+
+  /* MODAL */
+  .modal-overlay{
+    position:fixed;top:0;left:0;right:0;bottom:0;z-index:1000;
+    background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;
+    padding:20px;
+  }
+  .modal-overlay.show{display:flex}
+  .modal-content{
+    width:100%;max-width:900px;aspect-ratio:16/9;position:relative;
+    background:#000;border-radius:8px;overflow:hidden;
+  }
+  .modal-content iframe{width:100%;height:100%;border:0}
+  .modal-close{
+    position:absolute;top:-36px;right:0;background:none;border:none;
+    color:var(--text2);font-size:1.5rem;cursor:pointer;padding:4px;
+  }
+  .modal-close:hover{color:var(--text)}
+
+  /* SIDEBAR SPLIT for news+map */
+  .split-layout{display:grid;grid-template-columns:380px 1fr;height:calc(100vh - 96px)}
+  .split-layout .sidebar{border-right:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
+  .split-layout .main-area{overflow:hidden;position:relative}
+
+  /* RESPONSIVE */
+  @media(max-width:900px){
+    .split-layout{grid-template-columns:1fr}
+    .grid-2,.grid-3{grid-template-columns:1fr}
+    .split-layout .sidebar{height:50vh}
+    .split-layout .main-area{height:50vh}
+  }
+  @media(max-width:600px){
+    .header{padding:10px 12px}
+    .nav-tab{padding:8px 12px;font-size:.7rem}
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-track{background:var(--surface)}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  ::-webkit-scrollbar-thumb:hover{background:var(--border2)}
+
+  /* Links panel */
+  .links-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:20px}
+  .link-card{
+    background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+    padding:16px;transition:all .15s;
+  }
+  .link-card:hover{border-color:var(--border2);background:var(--surface3)}
+  .link-card h3{font-size:.9rem;margin-bottom:6px;color:var(--text)}
+  .link-card p{font-size:.75rem;color:var(--text2);line-height:1.4;margin-bottom:10px}
+  .link-card a{font-family:var(--mono);font-size:.7rem}
+
+  /* Refresh button */
+  .refresh-btn{
+    background:none;border:1px solid var(--border);color:var(--text2);
+    padding:4px 10px;border-radius:4px;font-family:var(--mono);font-size:.6rem;
+    cursor:pointer;transition:all .15s;
+  }
+  .refresh-btn:hover{border-color:var(--red);color:var(--red)}
+  .refresh-btn.spinning svg{animation:spin .6s linear infinite}
+</style>
 </head>
 <body>
-    <!-- Hero -->
-    <div class="hero">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="mb-1"><i class="fas fa-globe-americas"></i> Middle East Conflict Tracker</h1>
-                    <p class="mb-0 text-muted">Iran vs USA/Israel | Live Updates</p>
-                </div>
-                <div class="text-end">
-                    <span class="live-indicator"><span class="dot me-1">●</span> LIVE</span>
-                    <p class="mb-0 refresh-time" id="lastUpdate">Last update: --</p>
-                </div>
-            </div>
-        </div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo">WARTIME <span>/ dashboard</span></div>
+    <div class="live-pill"><span class="live-dot"></span>LIVE</div>
+  </div>
+  <div class="header-right">
+    <span>DAY <span class="day-count" id="dayCount">--</span></span>
+    <span id="clock">--:--:-- UTC</span>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="tick"><div class="tick-label">Conflict</div><div class="tick-value red">US-IL vs IRAN</div></div>
+  <div class="tick"><div class="tick-label">Strait of Hormuz</div><div class="tick-value orange">CLOSED</div></div>
+  <div class="tick"><div class="tick-label">Brent Crude</div><div class="tick-value orange" id="tickOil">~$105-115/bbl</div></div>
+  <div class="tick"><div class="tick-label">Threat Level</div><div class="tick-value red">CRITICAL</div></div>
+  <div class="tick"><div class="tick-label">Iran Internet</div><div class="tick-value red">~4% NORMAL</div></div>
+  <div class="tick"><div class="tick-label">Started</div><div class="tick-value blue">FEB 28, 2026</div></div>
+</div>
+
+<!-- NAV -->
+<div class="nav-tabs">
+  <div class="nav-tab active" data-panel="overview"><span class="tab-icon">◉</span>OVERVIEW</div>
+  <div class="nav-tab" data-panel="warmap"><span class="tab-icon">⊕</span>WAR MAP</div>
+  <div class="nav-tab" data-panel="maritime"><span class="tab-icon">⚓</span>MARITIME</div>
+  <div class="nav-tab" data-panel="airtraffic"><span class="tab-icon">✈</span>AIR TRAFFIC</div>
+  <div class="nav-tab" data-panel="news"><span class="tab-icon">▤</span>NEWS FEED</div>
+  <div class="nav-tab" data-panel="videos"><span class="tab-icon">▶</span>VIDEO CLIPS</div>
+  <div class="nav-tab" data-panel="livestreams"><span class="tab-icon">◉</span>LIVE STREAMS</div>
+  <div class="nav-tab" data-panel="resources"><span class="tab-icon">≡</span>RESOURCES</div>
+</div>
+
+<!-- ==================== OVERVIEW PANEL ==================== -->
+<div class="panel active" id="panel-overview">
+  <div class="split-layout">
+    <div class="sidebar">
+      <div class="section-head">
+        <span>⚡ LATEST NEWS</span>
+        <button class="refresh-btn" onclick="fetchNews()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
+      </div>
+      <div class="news-feed" id="newsFeed">
+        <div class="loading"><div class="spinner"></div>Loading news...</div>
+      </div>
     </div>
-
-    <div class="container py-4">
-        <!-- Stats Row -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <div class="stat-box">
-                    <div class="stat-value iran-color">IRAN</div>
-                    <div class="stat-label">Tehran</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-box">
-                    <div class="stat-value israel-color">ISRAEL</div>
-                    <div class="stat-label">Tel Aviv</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-box">
-                    <div class="stat-value usa-color">USA</div>
-                    <div class="stat-label">Supporting Israel</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-box">
-                    <div class="stat-value" style="color: #888;">ACTIVE</div>
-                    <div class="stat-label">Conflict Zone</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Live Videos -->
-        <div class="row g-4 mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fab fa-youtube text-danger me-2"></i> Live Coverage
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="video-container">
-                            <iframe src="https://www.youtube.com/embed/a3bRna1ikkA?autoplay=1&mute=1" allowfullscreen></iframe>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fab fa-youtube text-danger me-2"></i> Sky News Live
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="video-container">
-                            <iframe src="https://www.youtube.com/embed/km0I02pLhUM?autoplay=1&mute=1" allowfullscreen></iframe>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- News Feed -->
-        <div class="row g-4">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-newspaper me-2"></i> Live News</span>
-                        <button class="btn btn-sm btn-outline-primary" onclick="refreshNews()">
-                            <i class="fas fa-sync-alt"></i> Refresh
-                        </button>
-                    </div>
-                    <div class="card-body" id="newsFeed">
-                        <div class="text-center py-4">
-                            <div class="spinner-border text-primary" role="status"></div>
-                            <p class="mt-2">Loading news...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Map & Info -->
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-map-marked-alt me-2"></i> Conflict Map
-                    </div>
-                    <div class="card-body p-0">
-                        <iframe 
-                            src="https://www.openstreetmap.org/export/embed.html?bbox=40.0,25.0,60.0,45.0&layer=mapnik&marker=35.7,51.4"
-                            width="100%" 
-                            height="400" 
-                            style="border:0; border-radius: 8px;" 
-                            allowfullscreen 
-                            loading="lazy">
-                        </iframe>
-                    </div>
-                </div>
-
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <i class="fas fa-crosshairs me-2"></i> Key Targets
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table table-dark table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Location</th>
-                                    <th>Country</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>Tehran</td><td>🇮🇷 Iran</td><td class="text-danger">Under Attack</td></tr>
-                                <tr><td>Tel Aviv</td><td>🇮🇱 Israel</td><td class="text-warning">Targeted</td></tr>
-                                <tr><td>Isfahan</td><td>🇮🇷 Iran</td><td class="text-danger">Strikes Reported</td></tr>
-                                <tr><td>Haifa</td><td>🇮🇱 Israel</td><td class="text-warning">Under Fire</td></tr>
-                                <tr><td>Al Udeid</td><td>🇶🇦 Qatar</td><td class="text-info">US Base</td></tr>
-                            </tbody>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Video Clips Carousel -->
-        <div class="card mt-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-film me-2"></i> Latest Video Clips <span class="badge bg-danger ms-2">LIVE</span></span>
-                <span class="text-muted" style="font-size: 0.7rem;">Feb 28, 2026</span>
-            </div>
-            <div class="card-body p-0">
-                <div class="video-carousel">
-                    <button class="carousel-btn prev" onclick="slideCarousel(-1)">&#10094;</button>
-                    <div class="carousel-track" id="clipCarousel">
-                        <div class="clip-card">
-                            <div class="clip-thumb" onclick="playVideo('LIVE1')">
-                                <span class="live-badge">LIVE</span>
-                                <i class="fas fa-play-circle fa-3x"></i>
-                            </div>
-                            <div class="clip-info">
-                                <div class="clip-title">BREAKING: Israel & US Launch Attack on Iran</div>
-                                <div class="clip-time">Feb 28, 2026</div>
-                            </div>
-                        </div>
-                        <div class="clip-card">
-                            <div class="clip-thumb" onclick="playVideo('LIVE2')">
-                                <span class="live-badge">LIVE</span>
-                                <i class="fas fa-play-circle fa-3x"></i>
-                            </div>
-                            <div class="clip-info">
-                                <div class="clip-title">LIVE: Explosions Rock Tehran</div>
-                                <div class="clip-time">Feb 28, 2026</div>
-                            </div>
-                        </div>
-                        <div class="clip-card">
-                            <div class="clip-thumb" onclick="playVideo('LIVE3')">
-                                <span class="live-badge">NEW</span>
-                                <i class="fas fa-play-circle fa-3x"></i>
-                            </div>
-                            <div class="clip-info">
-                                <div class="clip-title">Tehran Under Fire: US & Israel Target IRGC</div>
-                                <div class="clip-time">Feb 28, 2026</div>
-                            </div>
-                        </div>
-                        <div class="clip-card">
-                            <div class="clip-thumb" onclick="playVideo('LIVE4')">
-                                <span class="live-badge">NEW</span>
-                                <i class="fas fa-play-circle fa-3x"></i>
-                            </div>
-                            <div class="clip-info">
-                                <div class="clip-title">Iran Begins Revenge: Missiles Launched</div>
-                                <div class="clip-time">Feb 28, 2026</div>
-                            </div>
-                        </div>
-                        <div class="clip-card">
-                            <div class="clip-thumb" onclick="playVideo('LIVE5')">
-                                <span class="live-badge">LIVE</span>
-                                <i class="fas fa-play-circle fa-3x"></i>
-                            </div>
-                            <div class="clip-info">
-                                <div class="clip-title">LIVE: Iran Hits Israel - Sirens in Tel Aviv</div>
-                                <div class="clip-time">Feb 28, 2026</div>
-                            </div>
-                        </div>
-                        <div class="clip-card">
-                            <div class="clip-thumb" onclick="playVideo('LIVE6')">
-                                <span class="live-badge">NEW</span>
-                                <i class="fas fa-play-circle fa-3x"></i>
-                            </div>
-                            <div class="clip-info">
-                                <div class="clip-title">Iran Counter Strike: Missiles Towards Israel</div>
-                                <div class="clip-time">Feb 28, 2026</div>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="carousel-btn next" onclick="slideCarousel(1)">&#10095;</button>
-                </div>
-            </div>
-        </div>
-        <div class="text-center py-4 text-muted">
-            <p class="mb-0"><small>Data from Al Jazeera, BBC, CBS News | Refreshes every 5 minutes</small></p>
-            <p class="mb-0"><small>For informational purposes only</small></p>
-        </div>
+    <div class="main-area">
+      <div class="section-head"><span>🗺 LIVE WAR MAP — LIVEUAMAP</span><span class="badge">LIVE</span></div>
+      <iframe src="https://iran.liveuamap.com/" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
     </div>
+  </div>
+</div>
 
-    <script>
-        const newsSources = [
-            { name: 'Al Jazeera', url: 'https://www.aljazeera.com/news/liveblog/2026/2/28/live-israel-launches-attacks-on-iran', color: 'source-aljazeera' },
-            { name: 'BBC', url: 'https://www.bbc.com/news/live/cn5ge95q6y7t', color: 'source-bbc' },
-            { name: 'CBS', url: 'https://www.cbsnews.com/live-updates/israel-us-attack-iran-trump-says-major-combat-operations/', color: 'source-cbs' }
-        ];
+<!-- ==================== WAR MAP PANEL ==================== -->
+<div class="panel" id="panel-warmap">
+  <div class="full-frame">
+    <div class="section-head">
+      <span>🗺 IRAN WAR MAP — LIVEUAMAP</span>
+      <div style="display:flex;gap:8px;">
+        <button class="overlay-btn" onclick="setMapSrc('https://iran.liveuamap.com/')">Iran Map</button>
+        <button class="overlay-btn" onclick="setMapSrc('https://israelpalestine.liveuamap.com/')">Israel-Palestine</button>
+        <button class="overlay-btn" onclick="setMapSrc('https://acleddata.com/iran-crisis-live/')">ACLED Data</button>
+        <button class="overlay-btn" onclick="setMapSrc('https://iranstrikemap.com/')">Strike Map</button>
+      </div>
+    </div>
+    <iframe id="warmapFrame" src="https://iran.liveuamap.com/" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
+  </div>
+</div>
 
-        async function fetchNews() {
-            const newsFeed = document.getElementById('newsFeed');
-            newsFeed.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
-            
-            // Simulated news (in production, you'd use a real news API)
-            const news = [
-                { source: 'Al Jazeera', time: '3 min ago', title: 'Multiple explosions heard in Tehran as Israel and US launch attacks' },
-                { source: 'BBC', time: '15 min ago', title: 'Trump announces "major combat operations" underway against Iran' },
-                { source: 'CBS', time: '22 min ago', title: 'US embassies in Middle East issue shelter-in-place alerts' },
-                { source: 'Al Jazeera', time: '35 min ago', title: 'Iranian forces retaliate by targeting Israel and bases hosting US troops' },
-                { source: 'News18', time: '1 hour ago', title: 'Iran says "Time To Defend Homeland" as conflict escalates' },
-                { source: 'BBC', time: '2 hours ago', title: 'Fourth night of exchanges between Israel and Iran' },
-                { source: 'Al Jazeera', time: '3 hours ago', title: 'Escalation: Iran launches missile attacks on Tel Aviv' }
-            ];
+<!-- ==================== MARITIME PANEL ==================== -->
+<div class="panel" id="panel-maritime">
+  <div class="full-frame">
+    <div class="section-head">
+      <span>⚓ STRAIT OF HORMUZ — MARITIME TRAFFIC</span>
+      <div style="display:flex;gap:8px">
+        <button class="overlay-btn" onclick="setMaritimeSrc('https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8')">Hormuz Strait</button>
+        <button class="overlay-btn" onclick="setMaritimeSrc('https://www.marinetraffic.com/en/ais/home/centerx:50.5/centery:26.0/zoom:7')">Persian Gulf Wide</button>
+        <button class="overlay-btn" onclick="setMaritimeSrc('https://www.marinetraffic.com/en/ais/home/centerx:43.0/centery:14.0/zoom:6')">Red Sea / Bab el-Mandeb</button>
+        <button class="overlay-btn" onclick="setMaritimeSrc('https://www.vesselfinder.com/?rlat=26.3&rlon=56.7&zoom=8')">VesselFinder Alt</button>
+      </div>
+    </div>
+    <iframe id="maritimeFrame" src="https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
+  </div>
+</div>
 
-            let html = '';
-            news.forEach(item => {
-                const colorClass = item.source === 'Al Jazeera' ? 'source-aljazeera' : item.source === 'BBC' ? 'source-bbc' : 'source-cbs';
-                html += `
-                    <div class="news-item">
-                        <div class="news-source ${colorClass}">${item.source}</div>
-                        <a href="#" class="news-title d-block">${item.title}</a>
-                        <div class="news-time">${item.time}</div>
-                    </div>
-                `;
-            });
+<!-- ==================== AIR TRAFFIC PANEL ==================== -->
+<div class="panel" id="panel-airtraffic">
+  <div class="full-frame">
+    <div class="section-head">
+      <span>✈ AIR TRAFFIC — FLIGHTRADAR24</span>
+      <div style="display:flex;gap:8px">
+        <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/26.51,53.58/6')">Persian Gulf</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/32.08,53.69/5')">Iran Airspace</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/31.77,35.22/7')">Israel Area</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/33.89,35.50/8')">Lebanon</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0')">ADS-B Exchange</button>
+      </div>
+    </div>
+    <iframe id="airFrame" src="https://www.flightradar24.com/26.51,53.58/6" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
+  </div>
+</div>
 
-            newsFeed.innerHTML = html;
-            document.getElementById('lastUpdate').textContent = 'Last update: ' + new Date().toLocaleTimeString();
-        }
+<!-- ==================== NEWS FEED PANEL ==================== -->
+<div class="panel" id="panel-news">
+  <div class="split-layout">
+    <div class="sidebar">
+      <div class="section-head">
+        <span>📰 ALL NEWS SOURCES</span>
+        <button class="refresh-btn" onclick="fetchNews()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+      </div>
+      <div class="news-feed" id="newsFeedFull">
+        <div class="loading"><div class="spinner"></div>Loading news...</div>
+      </div>
+    </div>
+    <div class="main-area" id="newsPreview" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--text3)">
+      <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V9a2 2 0 012-2h2a2 2 0 012 2v9a2 2 0 01-2 2h-2zM5 12h7M5 16h7"/></svg>
+      <span style="font-family:var(--mono);font-size:.75rem">Click a news item to read the full article</span>
+    </div>
+  </div>
+</div>
 
-        function refreshNews() {
-            fetchNews();
-        }
+<!-- ==================== VIDEO CLIPS PANEL ==================== -->
+<div class="panel" id="panel-videos">
+  <div class="section-head">
+    <span>▶ LATEST VIDEO CLIPS — Iran War</span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <select id="videoSort" style="background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:.65rem;padding:3px 8px;border-radius:4px" onchange="fetchVideos()">
+        <option value="date">Sort: Latest</option>
+        <option value="relevance">Sort: Relevance</option>
+        <option value="viewCount">Sort: Views</option>
+      </select>
+      <button class="refresh-btn" onclick="fetchVideos()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+    </div>
+  </div>
+  <div style="padding:12px 16px;font-family:var(--mono);font-size:.65rem;color:var(--text3);border-bottom:1px solid var(--border)">
+    Showing YouTube results for "Iran war 2026" — click to play. Sorted by upload date.
+  </div>
+  <div class="clips-grid" id="clipsGrid">
+    <div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading video clips...</div>
+  </div>
+</div>
 
-        // Auto-refresh every 5 minutes
-        fetchNews();
-        setInterval(fetchNews, 300000);
-        
-        // Video player functions
-        function playVideo(videoId) {
-            // Real Feb 28, 2026 video IDs
-            const videoMap = {
-                'LIVE1': 'ok6ZeZhDgUs',   // BREAKING: Israel attack Iran
-                'LIVE2': 'M2HaX42q1nk',   // LIVE: Explosions Rock Tehran
-                'LIVE3': 'GPm4YZ6yMSI',   // Tehran Under Fire
-                'LIVE4': 'lKG1H8WAaEA',   // Iran Begins Revenge
-                'LIVE5': 'WVOujIGDbak',   // LIVE: Iran Hits Israel
-                'LIVE6': 'Tdgw_VNmP-g'    // Iran Strikes Israel
-            };
-            const ytId = videoMap[videoId] || videoId;
-            document.getElementById('videoFrame').src = 'https://www.youtube.com/embed/' + ytId + '?autoplay=1';
-            var myModal = new bootstrap.Modal(document.getElementById('videoModal'));
-            myModal.show();
-        }
-        
-        function slideCarousel(direction) {
-            const track = document.getElementById('clipCarousel');
-            track.scrollLeft += direction * 240;
-        }
-        
-        document.getElementById('videoModal').addEventListener('hidden.bs.modal', function () {
-            document.getElementById('videoFrame').src = '';
-        });
-    </script>
-<!-- Video Modal -->
-        <div class="modal fade" id="videoModal" tabindex="-1">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content bg-dark">
-                    <div class="modal-header border-0">
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body p-0">
-                        <div class="video-container" style="border-radius: 0;">
-                            <iframe id="videoFrame" src="" allowfullscreen allow="autoplay"></iframe>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!-- ==================== LIVE STREAMS PANEL ==================== -->
+<div class="panel" id="panel-livestreams">
+  <div class="section-head"><span>◉ LIVE NEWS STREAMS</span><span class="badge">LIVE</span></div>
+  <div class="grid-2" style="height:calc(100vh - 130px)">
+    <div class="grid-cell">
+      <div class="section-head" style="background:var(--surface)"><span>AL JAZEERA ENGLISH</span></div>
+      <div style="position:relative;padding-bottom:56.25%">
+        <iframe src="https://www.youtube.com/embed/gCNeDWCI0vo?autoplay=0&mute=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="autoplay" allowfullscreen loading="lazy"></iframe>
+      </div>
+    </div>
+    <div class="grid-cell">
+      <div class="section-head" style="background:var(--surface)"><span>SKY NEWS</span></div>
+      <div style="position:relative;padding-bottom:56.25%">
+        <iframe src="https://www.youtube.com/embed/9Auq9mYxFEE?autoplay=0&mute=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="autoplay" allowfullscreen loading="lazy"></iframe>
+      </div>
+    </div>
+    <div class="grid-cell">
+      <div class="section-head" style="background:var(--surface)"><span>FRANCE 24 ENGLISH</span></div>
+      <div style="position:relative;padding-bottom:56.25%">
+        <iframe src="https://www.youtube.com/embed/u9foazt_MYg?autoplay=0&mute=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="autoplay" allowfullscreen loading="lazy"></iframe>
+      </div>
+    </div>
+    <div class="grid-cell">
+      <div class="section-head" style="background:var(--surface)"><span>DW NEWS</span></div>
+      <div style="position:relative;padding-bottom:56.25%">
+        <iframe src="https://www.youtube.com/embed/GE_SfNVNyqk?autoplay=0&mute=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="autoplay" allowfullscreen loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== RESOURCES PANEL ==================== -->
+<div class="panel" id="panel-resources">
+  <div class="section-head"><span>≡ BOOKMARKS & RESOURCES</span></div>
+  <div class="links-grid">
+    <div class="link-card">
+      <h3>🗺 Liveuamap — Iran</h3>
+      <p>Real-time conflict map with geolocated news reports, strikes, and military movements across Iran.</p>
+      <a href="https://iran.liveuamap.com/" target="_blank">iran.liveuamap.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>🗺 Iran Strike Map</h3>
+      <p>Independent OSINT tracker with 115+ confirmed strikes, leader status, and verified video.</p>
+      <a href="https://iranstrikemap.com/" target="_blank">iranstrikemap.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>🗺 ACLED Iran Crisis</h3>
+      <p>Armed Conflict Location & Event Data — updated daily map of all strikes and retaliations.</p>
+      <a href="https://acleddata.com/iran-crisis-live/" target="_blank">acleddata.com/iran-crisis-live →</a>
+    </div>
+    <div class="link-card">
+      <h3>🗺 ISW/CTP ArcGIS Map</h3>
+      <p>Institute for the Study of War interactive strike map companion to their daily conflict coverage.</p>
+      <a href="https://storymaps.arcgis.com/stories/089bc1a2fe684405a67d67f13bd31324" target="_blank">storymaps.arcgis.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>⚓ MarineTraffic — Hormuz</h3>
+      <p>Live AIS ship positions in the Strait of Hormuz and Persian Gulf. Watch vessel movements in real time.</p>
+      <a href="https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8" target="_blank">marinetraffic.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>⚓ VesselFinder</h3>
+      <p>Alternative maritime tracker. Good for cross-referencing ship positions and vessel details.</p>
+      <a href="https://www.vesselfinder.com/" target="_blank">vesselfinder.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>✈ Flightradar24</h3>
+      <p>Live air traffic data. Monitor flight paths, NOTAMs, and airspace closures over the conflict zone.</p>
+      <a href="https://www.flightradar24.com/26.51,53.58/5" target="_blank">flightradar24.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>✈ ADS-B Exchange</h3>
+      <p>Unfiltered flight tracking including military aircraft. No data filtering unlike commercial trackers.</p>
+      <a href="https://globe.adsbexchange.com/" target="_blank">adsbexchange.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>📰 Al Jazeera Live Blog</h3>
+      <p>Minute-by-minute updates on the US-Israel war on Iran. Multiple daily live blogs with video.</p>
+      <a href="https://www.aljazeera.com/where/iran/" target="_blank">aljazeera.com/where/iran →</a>
+    </div>
+    <div class="link-card">
+      <h3>📰 CNN Live Updates</h3>
+      <p>CNN's live update page with maps, charts, and rolling coverage of the Iran conflict.</p>
+      <a href="https://www.cnn.com/world/middleeast/iran" target="_blank">cnn.com/world/middleeast/iran →</a>
+    </div>
+    <div class="link-card">
+      <h3>📰 NBC News Live Blog</h3>
+      <p>Continuously updated live blog with reporting from correspondents across the region.</p>
+      <a href="https://www.nbcnews.com/world/iran" target="_blank">nbcnews.com/world/iran →</a>
+    </div>
+    <div class="link-card">
+      <h3>📰 BBC News — Iran</h3>
+      <p>BBC's Iran coverage hub with analysis, explainers, and correspondent reports.</p>
+      <a href="https://www.bbc.com/news/topics/c4wp8v0jnx2t" target="_blank">bbc.com/news →</a>
+    </div>
+    <div class="link-card">
+      <h3>📰 NewsNow Iran</h3>
+      <p>Aggregated news feed from hundreds of sources. Great for seeing all coverage at once.</p>
+      <a href="https://www.newsnow.com/us/World/Middle+East/Iran" target="_blank">newsnow.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>📰 JFeed Live</h3>
+      <p>Minute-by-minute live ticker with breaking updates from Israeli and international sources.</p>
+      <a href="https://www.jfeed.com/latest-news" target="_blank">jfeed.com/latest-news →</a>
+    </div>
+    <div class="link-card">
+      <h3>📊 Iran War Map (AI)</h3>
+      <p>AI-powered conflict monitor with tension tracker, prediction market odds, and OSINT feed.</p>
+      <a href="https://iranwarmap.com/" target="_blank">iranwarmap.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>📊 Live War Maps Feed</h3>
+      <p>Real-time war updates with oil market data ticker and live event feed.</p>
+      <a href="https://livewarmaps.com/live-war-feed.html" target="_blank">livewarmaps.com →</a>
+    </div>
+  </div>
+</div>
+
+<!-- VIDEO MODAL -->
+<div class="modal-overlay" id="videoModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <iframe id="modalFrame" src="" allow="autoplay;encrypted-media" allowfullscreen></iframe>
+  </div>
+</div>
+
+<script>
+// ===== DAY COUNTER =====
+function updateDayCount(){
+  const start=new Date('2026-02-28T00:00:00Z');
+  const now=new Date();
+  const days=Math.floor((now-start)/(1000*60*60*24))+1;
+  document.getElementById('dayCount').textContent=days;
+}
+
+// ===== CLOCK =====
+function updateClock(){
+  const now=new Date();
+  document.getElementById('clock').textContent=
+    now.toUTCString().split(' ')[4]+' UTC';
+}
+
+// ===== TAB NAVIGATION =====
+document.querySelectorAll('.nav-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-'+tab.dataset.panel).classList.add('active');
+  });
+});
+
+// ===== MAP SOURCE SWITCHERS =====
+function setMapSrc(url){document.getElementById('warmapFrame').src=url}
+function setMaritimeSrc(url){document.getElementById('maritimeFrame').src=url}
+function setAirSrc(url){document.getElementById('airFrame').src=url}
+
+// ===== NEWS FEED =====
+// Using rss2json.com free tier or allorigins as CORS proxy for RSS feeds
+const RSS_FEEDS=[
+  {name:'Al Jazeera',cls:'src-aljazeera',url:'https://www.aljazeera.com/xml/rss/all.xml'},
+  {name:'BBC',cls:'src-bbc',url:'https://feeds.bbci.co.uk/news/world/middle_east/rss.xml'},
+  {name:'Reuters',cls:'src-reuters',url:'https://www.reutersagency.com/feed/'},
+  {name:'NPR',cls:'src-npr',url:'https://feeds.npr.org/1004/rss.xml'},
+];
+
+async function fetchRSS(feedUrl){
+  try{
+    const proxy=`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}&count=20`;
+    const res=await fetch(proxy);
+    if(!res.ok) return [];
+    const data=await res.json();
+    return data.items||[];
+  }catch(e){return []}
+}
+
+async function fetchNews(){
+  const containers=['newsFeed','newsFeedFull'];
+  containers.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.innerHTML='<div class="loading"><div class="spinner"></div>Fetching latest news...</div>';
+  });
+
+  let allItems=[];
+  const results=await Promise.allSettled(RSS_FEEDS.map(async feed=>{
+    const items=await fetchRSS(feed.url);
+    return items.map(item=>({...item,sourceName:feed.name,sourceCls:feed.cls}));
+  }));
+
+  results.forEach(r=>{if(r.status==='fulfilled')allItems.push(...r.value)});
+
+  // Filter for Iran/war related
+  const keywords=['iran','tehran','hormuz','hezbollah','israel','strike','missile','war','bomb','attack','military','pentagon','trump','irgc','khamenei','netanyahu','gulf','qatar','naval','drone','oil','crude','strait','conflict','lebanon','beirut'];
+  let filtered=allItems.filter(item=>{
+    const text=(item.title+' '+(item.description||'')).toLowerCase();
+    return keywords.some(k=>text.includes(k));
+  });
+
+  // Sort by date
+  filtered.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));
+  if(filtered.length===0) filtered=allItems.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate)).slice(0,30);
+
+  const html=filtered.slice(0,60).map(item=>{
+    const time=timeAgo(new Date(item.pubDate));
+    const isBreaking=item.title.toLowerCase().includes('breaking');
+    return `
+      <div class="news-item" onclick="window.open('${item.link}','_blank')">
+        <div class="news-meta">
+          <span class="news-source ${item.sourceCls||'src-default'}">${item.sourceName||'NEWS'}</span>
+          <span class="news-time">${time}</span>
         </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <div class="news-title">${isBreaking?'<span class="breaking-tag">BREAKING</span>':''}${escHtml(item.title)}</div>
+      </div>
+    `;
+  }).join('');
+
+  containers.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.innerHTML=html||'<div class="loading">No news items found. Try refreshing.</div>';
+  });
+}
+
+// ===== VIDEO CLIPS =====
+// Uses YouTube's RSS/Atom feed via proxy for search results
+async function fetchVideos(){
+  const grid=document.getElementById('clipsGrid');
+  grid.innerHTML='<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Searching YouTube...</div>';
+
+  const sortBy=document.getElementById('videoSort').value;
+  // Use Invidious API as a free YouTube search proxy
+  const apis=[
+    'https://inv.nadeko.net',
+    'https://invidious.nerdvpn.de',
+    'https://yt.artemislena.eu',
+  ];
+
+  let videos=[];
+  for(const api of apis){
+    try{
+      const res=await fetch(`${api}/api/v1/search?q=Iran+war+2026&sort_by=${sortBy}&type=video&page=1`,{signal:AbortSignal.timeout(8000)});
+      if(res.ok){
+        videos=await res.json();
+        break;
+      }
+    }catch(e){continue}
+  }
+
+  if(!videos.length){
+    // Fallback: hardcoded recent video IDs from known channels
+    grid.innerHTML=getFallbackVideos();
+    return;
+  }
+
+  grid.innerHTML=videos.slice(0,24).map(v=>{
+    const thumb=v.videoThumbnails?.find(t=>t.quality==='medium')?.url||
+                v.videoThumbnails?.[0]?.url||'';
+    const dur=formatDuration(v.lengthSeconds);
+    const date=v.publishedText||'';
+    return `
+      <div class="clip-card" onclick="playModal('${v.videoId}')">
+        <div class="clip-thumb">
+          <img src="${thumb}" alt="" loading="lazy" onerror="this.style.display='none'">
+          <div class="play-btn"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
+          ${dur?`<div class="clip-duration">${dur}</div>`:''}
+        </div>
+        <div class="clip-info">
+          <div class="clip-title">${escHtml(v.title)}</div>
+          <div class="clip-channel">${escHtml(v.author||'')}</div>
+          <div class="clip-date">${date}</div>
+        </div>
+      </div>
+    `;
+  }).join('')||getFallbackVideos();
+}
+
+function getFallbackVideos(){
+  // Curated fallback searches via YouTube embed search
+  return `
+    <div style="grid-column:1/-1;padding:20px;text-align:center">
+      <p style="color:var(--text2);font-family:var(--mono);font-size:.8rem;margin-bottom:16px">
+        Video API unavailable — use these direct YouTube search links:
+      </p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+        <a href="https://www.youtube.com/results?search_query=Iran+war+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">🔍 Iran War 2026 — Latest</a>
+        <a href="https://www.youtube.com/results?search_query=Iran+Israel+strikes+today&sp=EgIIAQ%253D%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">🔍 Iran Strikes Today</a>
+        <a href="https://www.youtube.com/results?search_query=Strait+of+Hormuz+closed+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">🔍 Strait of Hormuz</a>
+        <a href="https://www.youtube.com/results?search_query=Iran+war+live+stream&sp=EgJAAQ%253D%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">🔍 Live Streams</a>
+        <a href="https://www.youtube.com/results?search_query=Tehran+bombing+footage+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">🔍 Tehran Footage</a>
+      </div>
+    </div>
+  `;
+}
+
+// ===== VIDEO MODAL =====
+function playModal(videoId){
+  document.getElementById('modalFrame').src=`https://www.youtube.com/embed/${videoId}?autoplay=1`;
+  document.getElementById('videoModal').classList.add('show');
+}
+function closeModal(){
+  document.getElementById('modalFrame').src='';
+  document.getElementById('videoModal').classList.remove('show');
+}
+document.getElementById('videoModal').addEventListener('click',e=>{
+  if(e.target===e.currentTarget)closeModal();
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+// ===== UTILITIES =====
+function timeAgo(date){
+  const s=Math.floor((new Date()-date)/1000);
+  if(s<60)return 'just now';
+  if(s<3600)return Math.floor(s/60)+'m ago';
+  if(s<86400)return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
+}
+function formatDuration(sec){
+  if(!sec)return '';
+  const m=Math.floor(sec/60),s=sec%60;
+  return m+':'+String(s).padStart(2,'0');
+}
+function escHtml(str){
+  const d=document.createElement('div');d.textContent=str||'';return d.innerHTML;
+}
+
+// ===== INIT =====
+updateDayCount();
+updateClock();
+setInterval(updateClock,1000);
+setInterval(updateDayCount,60000);
+fetchNews();
+// Lazy-load videos when tab is clicked
+document.querySelector('[data-panel="videos"]').addEventListener('click',()=>{
+  if(document.getElementById('clipsGrid').querySelector('.loading'))fetchVideos();
+},{once:true});
+
+// Auto-refresh news every 3 minutes
+setInterval(fetchNews,180000);
+</script>
 </body>
 </html>
