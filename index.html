@@ -446,6 +446,13 @@
 
   /* Links panel */
   .links-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:20px}
+  .links-section-head{
+    grid-column:1/-1;
+    font-family:var(--mono);font-size:.6rem;font-weight:700;letter-spacing:2px;
+    text-transform:uppercase;color:var(--text3);
+    padding:8px 0 4px;border-bottom:1px solid var(--border);margin-top:8px;
+  }
+  .links-section-head:first-child{margin-top:0}
   .link-card{
     background:var(--surface2);border:1px solid var(--border);border-radius:8px;
     padding:16px;transition:all .15s;
@@ -587,6 +594,10 @@
         <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/simple/26.51,53.58/6')">FR24 Persian Gulf</button>
         <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/simple/32.08,53.69/5')">FR24 Iran</button>
         <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/simple/31.77,35.22/7')">FR24 Israel</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://airplanes.live/?lat=26.5&lon=53.6&zoom=6')">Airplanes.Live Gulf</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://airplanes.live/?lat=32.08&lon=53.69&zoom=5')">Airplanes.Live Iran</button>
+        <button class="overlay-btn" onclick="window.open('https://www.itamilradar.com/','_blank')">ITAMilRadar ↗</button>
+        <button class="overlay-btn" onclick="window.open('https://www.ads-b.nl/','_blank')">ADS-B.NL ↗</button>
       </div>
     </div>
     <iframe id="airFrame" src="https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
@@ -667,27 +678,90 @@
 <!-- ==================== RESOURCES PANEL ==================== -->
 <div class="panel" id="panel-resources">
   <div class="section-head"><span>≡ BOOKMARKS & RESOURCES</span></div>
-  <div class="links-grid">
-    <div class="link-card">
-      <h3>🗺 Liveuamap — Iran</h3>
-      <p>Real-time conflict map with geolocated news reports, strikes, and military movements across Iran.</p>
-      <a href="https://iran.liveuamap.com/" target="_blank">iran.liveuamap.com →</a>
-    </div>
+  <div class="links-grid" style="overflow-y:auto;max-height:calc(100vh - 96px)">
+
+    <div class="links-section-head">🎯 Iran-Specific Trackers</div>
     <div class="link-card">
       <h3>🗺 Iran Strike Map</h3>
       <p>Independent OSINT tracker with 115+ confirmed strikes, leader status, and verified video.</p>
       <a href="https://iranstrikemap.com/" target="_blank">iranstrikemap.com →</a>
     </div>
     <div class="link-card">
+      <h3>🗺 Liveuamap — Iran</h3>
+      <p>Real-time conflict map with geolocated news reports, strikes, and military movements across Iran.</p>
+      <a href="https://iran.liveuamap.com/" target="_blank">iran.liveuamap.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>📡 IranWarLive</h3>
+      <p>Automated OSINT engine pulling from Reuters, AP, Al Jazeera, and CENTCOM. Politically agnostic, no unverified claims. Live map with casualty data.</p>
+      <a href="https://iranwarlive.com/" target="_blank">iranwarlive.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>📡 IranMonitor</h3>
+      <p>Real-time dashboard combining news sentiment, X/Twitter feeds, flight radar, prediction markets, and Iran internet connectivity monitoring.</p>
+      <a href="https://www.iranmonitor.org/" target="_blank">iranmonitor.org →</a>
+    </div>
+    <div class="link-card">
+      <h3>📡 IranWarMap (AI)</h3>
+      <p>AI-powered conflict monitor with live events, tension tracker, prediction market odds, and OSINT briefings.</p>
+      <a href="https://iranwarmap.com/" target="_blank">iranwarmap.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>📡 DefogWar</h3>
+      <p>Real-time OSINT conflict tracker geolocating airstrikes, missile launches, drone attacks, and ground incursions with sourced video and satellite imagery.</p>
+      <a href="https://defogwar.com/" target="_blank">defogwar.com →</a>
+    </div>
+
+    <div class="links-section-head">🗺 Conflict Maps & Dashboards</div>
+    <div class="link-card">
       <h3>🗺 ACLED Iran Crisis</h3>
-      <p>Armed Conflict Location & Event Data — updated daily map of all strikes and retaliations.</p>
+      <p>Armed Conflict Location & Event Data — rigorous, daily-updated map of all strikes and retaliations. Used by researchers and governments worldwide.</p>
       <a href="https://acleddata.com/iran-crisis-live/" target="_blank">acleddata.com/iran-crisis-live →</a>
     </div>
     <div class="link-card">
       <h3>🗺 ISW/CTP ArcGIS Map</h3>
-      <p>Institute for the Study of War interactive strike map companion to their daily conflict coverage.</p>
+      <p>Institute for the Study of War interactive strike map companion to their daily conflict analysis reports.</p>
       <a href="https://storymaps.arcgis.com/stories/089bc1a2fe684405a67d67f13bd31324" target="_blank">storymaps.arcgis.com →</a>
     </div>
+    <div class="link-card">
+      <h3>📊 Global Conflict Awareness</h3>
+      <p>Real-time OSINT dashboard drawing from 89 sources in 17 languages, auto-updated every 5 minutes. 400+ geolocated strike events on interactive map.</p>
+      <a href="https://globalconflictawareness.com/" target="_blank">globalconflictawareness.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>📊 Live War Maps Feed</h3>
+      <p>Real-time war updates with oil market data ticker and live event feed.</p>
+      <a href="https://livewarmaps.com/live-war-feed.html" target="_blank">livewarmaps.com →</a>
+    </div>
+
+    <div class="links-section-head">✈ Aircraft Tracking</div>
+    <div class="link-card">
+      <h3>✈ ADS-B Exchange</h3>
+      <p>Unfiltered flight tracking including military aircraft. No data suppression unlike commercial trackers. The go-to for spotting sensitive flights.</p>
+      <a href="https://globe.adsbexchange.com/" target="_blank">adsbexchange.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>✈ Airplanes.Live</h3>
+      <p>Independent, community-operated ADS-B/MLAT tracker that explicitly does not filter or obfuscate military aircraft. Includes replay functionality.</p>
+      <a href="https://airplanes.live/" target="_blank">airplanes.live →</a>
+    </div>
+    <div class="link-card">
+      <h3>✈ ITAMilRadar</h3>
+      <p>Italian-run tracker focused on military aviation globally — particularly NATO air activity. Known for early spotting of sensitive military flight patterns.</p>
+      <a href="https://www.itamilradar.com/" target="_blank">itamilradar.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>✈ ADS-B.NL</h3>
+      <p>Dedicated military aircraft tracker built on the ADS-B Exchange feed, filtered to show only military-registered aircraft.</p>
+      <a href="https://www.ads-b.nl/" target="_blank">ads-b.nl →</a>
+    </div>
+    <div class="link-card">
+      <h3>✈ Flightradar24</h3>
+      <p>Live air traffic data. Monitor flight paths, NOTAMs, and airspace closures over the conflict zone.</p>
+      <a href="https://www.flightradar24.com/26.51,53.58/5" target="_blank">flightradar24.com →</a>
+    </div>
+
+    <div class="links-section-head">⚓ Maritime Tracking</div>
     <div class="link-card">
       <h3>⚓ MarineTraffic — Hormuz</h3>
       <p>Live AIS ship positions in the Strait of Hormuz and Persian Gulf. Watch vessel movements in real time.</p>
@@ -695,33 +769,74 @@
     </div>
     <div class="link-card">
       <h3>⚓ VesselFinder</h3>
-      <p>Alternative maritime tracker. Good for cross-referencing ship positions and vessel details.</p>
+      <p>Alternative maritime tracker with clean interface. Good for cross-referencing ship positions and vessel details.</p>
       <a href="https://www.vesselfinder.com/" target="_blank">vesselfinder.com →</a>
     </div>
     <div class="link-card">
-      <h3>✈ Flightradar24</h3>
-      <p>Live air traffic data. Monitor flight paths, NOTAMs, and airspace closures over the conflict zone.</p>
-      <a href="https://www.flightradar24.com/26.51,53.58/5" target="_blank">flightradar24.com →</a>
+      <h3>⚓ Cruising Earth — Military Ships</h3>
+      <p>Dedicated military vessel tracker with AIS data filtered for naval ships. Includes a US Navy fleet sub-tracker covering 172 active trackable ships.</p>
+      <a href="https://www.cruisingearth.com/military-ship-tracker/" target="_blank">cruisingearth.com →</a>
     </div>
     <div class="link-card">
-      <h3>✈ ADS-B Exchange</h3>
-      <p>Unfiltered flight tracking including military aircraft. No data filtering unlike commercial trackers.</p>
-      <a href="https://globe.adsbexchange.com/" target="_blank">adsbexchange.com →</a>
+      <h3>⚓ NOSI — Naval OSINT</h3>
+      <p>Naval Open Source Intelligence hub aggregating maritime reporting from USNI News and RUSI, focused on military naval operations and maritime security.</p>
+      <a href="https://nosi.org/" target="_blank">nosi.org →</a>
+    </div>
+
+    <div class="links-section-head">🎬 Combat Footage & Official Video</div>
+    <div class="link-card">
+      <h3>🎬 FUNKER530</h3>
+      <p>Long-running military video site aggregating combat footage and veteran content. One of the most established non-Reddit combat footage platforms with 5M+ followers.</p>
+      <a href="https://funker530.com/" target="_blank">funker530.com →</a>
     </div>
     <div class="link-card">
-      <h3>📰 Al Jazeera Live Blog</h3>
-      <p>Minute-by-minute updates on the US-Israel war on Iran. Multiple daily live blogs with video.</p>
+      <h3>🎬 DVIDS — Defense Visual</h3>
+      <p>Official U.S. Department of Defense platform distributing unclassified military imagery, video, and audio from operations worldwide. Authoritative official documentation.</p>
+      <a href="https://www.dvidshub.net/" target="_blank">dvidshub.net →</a>
+    </div>
+    <div class="link-card">
+      <h3>🎬 r/CombatFootage</h3>
+      <p>Reddit's largest combat footage community. Active moderation for source verification. Search for Iran-specific clips.</p>
+      <a href="https://www.reddit.com/r/CombatFootage/search/?q=iran&sort=new" target="_blank">reddit.com/r/CombatFootage →</a>
+    </div>
+
+    <div class="links-section-head">🔍 OSINT Platforms</div>
+    <div class="link-card">
+      <h3>🔍 Bellingcat</h3>
+      <p>The leading open-source investigative outlet. Investigates war crimes, military activity, and disinformation using OSINT. Also publishes their full OSINT toolkit.</p>
+      <a href="https://www.bellingcat.com/" target="_blank">bellingcat.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>🔍 GeoConfirmed</h3>
+      <p>Crowdsourced geolocation database for conflict imagery. Cross-references Bellingcat and Centre for Information Resilience for verification.</p>
+      <a href="https://geoconfirmed.org/" target="_blank">geoconfirmed.org →</a>
+    </div>
+
+    <div class="links-section-head">📰 Military Analysis & News</div>
+    <div class="link-card">
+      <h3>📰 The War Zone (TWZ)</h3>
+      <p>The leading independent military news and analysis outlet. Deep investigative reporting on defense technology, procurement, and geopolitics. ~9M monthly visits.</p>
+      <a href="https://www.twz.com/" target="_blank">twz.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>📰 Breaking Defense</h3>
+      <p>Washington D.C.-based outlet covering Pentagon strategy, defense acquisition, and military technology policy. Heavily sourced from inside the defense establishment.</p>
+      <a href="https://www.breakingdefense.com/" target="_blank">breakingdefense.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>📰 Task & Purpose</h3>
+      <p>Military news site aimed at the veteran and active-duty community. Covers equipment, operations, and personnel issues in accessible language.</p>
+      <a href="https://www.taskandpurpose.com/" target="_blank">taskandpurpose.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>📰 Janes</h3>
+      <p>One of the oldest and most authoritative defense intelligence publishers. Country-level analysis of military equipment, order of battle, and procurement.</p>
+      <a href="https://www.janes.com/osint-insights/defence-news" target="_blank">janes.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>📰 Al Jazeera — Iran</h3>
+      <p>Minute-by-minute updates on the US-Israel war on Iran. Multiple daily live blogs with video and correspondent reports.</p>
       <a href="https://www.aljazeera.com/where/iran/" target="_blank">aljazeera.com/where/iran →</a>
-    </div>
-    <div class="link-card">
-      <h3>📰 CNN Live Updates</h3>
-      <p>CNN's live update page with maps, charts, and rolling coverage of the Iran conflict.</p>
-      <a href="https://www.cnn.com/world/middleeast/iran" target="_blank">cnn.com/world/middleeast/iran →</a>
-    </div>
-    <div class="link-card">
-      <h3>📰 NBC News Live Blog</h3>
-      <p>Continuously updated live blog with reporting from correspondents across the region.</p>
-      <a href="https://www.nbcnews.com/world/iran" target="_blank">nbcnews.com/world/iran →</a>
     </div>
     <div class="link-card">
       <h3>📰 BBC News — Iran</h3>
@@ -738,16 +853,36 @@
       <p>Minute-by-minute live ticker with breaking updates from Israeli and international sources.</p>
       <a href="https://www.jfeed.com/latest-news" target="_blank">jfeed.com/latest-news →</a>
     </div>
+
+    <div class="links-section-head">🛰 Satellite Imagery</div>
     <div class="link-card">
-      <h3>📊 Iran War Map (AI)</h3>
-      <p>AI-powered conflict monitor with tension tracker, prediction market odds, and OSINT feed.</p>
-      <a href="https://iranwarmap.com/" target="_blank">iranwarmap.com →</a>
+      <h3>🛰 Sentinel Hub (ESA)</h3>
+      <p>European Space Agency's free Sentinel satellite data platform. Copernicus Browser provides multispectral imagery globally. Standard OSINT tool for monitoring infrastructure damage.</p>
+      <a href="https://www.sentinel-hub.com/" target="_blank">sentinel-hub.com →</a>
     </div>
     <div class="link-card">
-      <h3>📊 Live War Maps Feed</h3>
-      <p>Real-time war updates with oil market data ticker and live event feed.</p>
-      <a href="https://livewarmaps.com/live-war-feed.html" target="_blank">livewarmaps.com →</a>
+      <h3>🛰 Planet Labs</h3>
+      <p>World's largest small-satellite fleet with daily global revisit rates. Used by journalists and OSINT researchers for monitoring conflict zone changes.</p>
+      <a href="https://www.planet.com/geospatial-intelligence/" target="_blank">planet.com →</a>
     </div>
+
+    <div class="links-section-head">☢ Nuclear & Missile Monitoring</div>
+    <div class="link-card">
+      <h3>☢ Nuclear Threat Initiative (NTI)</h3>
+      <p>Nonprofit tracking nuclear, biological, and emerging technology threats. Maintains country-level profiles on Iran's nuclear and missile programs.</p>
+      <a href="https://www.nti.org/" target="_blank">nti.org →</a>
+    </div>
+    <div class="link-card">
+      <h3>☢ Bulletin of the Atomic Scientists</h3>
+      <p>Publishers of the Doomsday Clock and the Nuclear Notebook — the most authoritative public accounting of global nuclear arsenals, compiled by the Federation of American Scientists.</p>
+      <a href="https://thebulletin.org/" target="_blank">thebulletin.org →</a>
+    </div>
+    <div class="link-card">
+      <h3>☢ Arms Control Association</h3>
+      <p>Authoritative nonprofit publishing policy analysis and factsheets on nuclear weapons, arms treaties, and missile programs since 1971.</p>
+      <a href="https://www.armscontrol.org/" target="_blank">armscontrol.org →</a>
+    </div>
+
   </div>
 </div>
 
@@ -841,6 +976,8 @@ async function fetchNewsItems(){
     {name:'BBC',cls:'src-bbc',url:'https://feeds.bbci.co.uk/news/world/middle_east/rss.xml'},
     {name:'Reuters',cls:'src-reuters',url:'https://feeds.reuters.com/reuters/worldNews'},
     {name:'NPR',cls:'src-npr',url:'https://feeds.npr.org/1004/rss.xml'},
+    {name:'War Zone',cls:'src-default',url:'https://www.twz.com/feed'},
+    {name:'Breaking Defense',cls:'src-default',url:'https://breakingdefense.com/feed/'},
   ];
 
   async function fetchRSS(feedUrl){

@@ -5,6 +5,8 @@ const RSS_FEEDS = [
   { name: 'NPR', cls: 'src-npr', url: 'https://feeds.npr.org/1004/rss.xml' },
   { name: 'Guardian', cls: 'src-guardian', url: 'https://www.theguardian.com/world/middleeast/rss' },
   { name: 'JPost', cls: 'src-jpost', url: 'https://www.jpost.com/Rss/RssFeedsMiddleEast.aspx' },
+  { name: 'War Zone', cls: 'src-default', url: 'https://www.twz.com/feed' },
+  { name: 'Breaking Defense', cls: 'src-default', url: 'https://breakingdefense.com/feed/' },
 ];
 
 function parseRSSXml(xmlText) {
