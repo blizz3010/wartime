@@ -330,16 +330,18 @@
 <div class="panel" id="panel-airtraffic">
   <div class="full-frame">
     <div class="section-head">
-      <span>✈ AIR TRAFFIC — FLIGHTRADAR24</span>
-      <div style="display:flex;gap:8px">
-        <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/26.51,53.58/6')">Persian Gulf</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/32.08,53.69/5')">Iran Airspace</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/31.77,35.22/7')">Israel Area</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/33.89,35.50/8')">Lebanon</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0')">ADS-B Exchange</button>
+      <span>✈ AIR TRAFFIC TRACKING</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0')" title="Unfiltered - shows military aircraft">ADS-B Persian Gulf</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=32.08&lon=53.69&zoom=5.0')">ADS-B Iran</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=31.77&lon=35.22&zoom=7.0')">ADS-B Israel</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=33.89&lon=35.50&zoom=7.0')">ADS-B Lebanon</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/simple/26.51,53.58/6')">FR24 Persian Gulf</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/simple/32.08,53.69/5')">FR24 Iran</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/simple/31.77,35.22/7')">FR24 Israel</button>
       </div>
     </div>
-    <iframe id="airFrame" src="https://www.flightradar24.com/26.51,53.58/6" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
+    <iframe id="airFrame" src="https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
   </div>
 </div>
 
