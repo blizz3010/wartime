@@ -349,15 +349,15 @@
 </div>
 
 <!-- NAV -->
-<div class="nav-tabs">
-  <div class="nav-tab active" data-panel="overview"><span class="tab-icon">◉</span>OVERVIEW</div>
-  <div class="nav-tab" data-panel="warmap"><span class="tab-icon">⊕</span>WAR MAP</div>
-  <div class="nav-tab" data-panel="maritime"><span class="tab-icon">⚓</span>MARITIME</div>
-  <div class="nav-tab" data-panel="airtraffic"><span class="tab-icon">✈</span>AIR TRAFFIC</div>
-  <div class="nav-tab" data-panel="news"><span class="tab-icon">▤</span>NEWS FEED</div>
-  <div class="nav-tab" data-panel="videos"><span class="tab-icon">▶</span>VIDEO CLIPS</div>
-  <div class="nav-tab" data-panel="livestreams"><span class="tab-icon">◉</span>LIVE STREAMS</div>
-  <div class="nav-tab" data-panel="resources"><span class="tab-icon">≡</span>RESOURCES</div>
+<div class="nav-tabs" role="tablist">
+  <div class="nav-tab active" role="tab" tabindex="0" data-panel="overview"><span class="tab-icon">◉</span>OVERVIEW</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="warmap"><span class="tab-icon">⊕</span>WAR MAP</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="maritime"><span class="tab-icon">⚓</span>MARITIME</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="airtraffic"><span class="tab-icon">✈</span>AIR TRAFFIC</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="news"><span class="tab-icon">▤</span>NEWS FEED</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="videos"><span class="tab-icon">▶</span>VIDEO CLIPS</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="livestreams"><span class="tab-icon">◉</span>LIVE STREAMS</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="resources"><span class="tab-icon">≡</span>RESOURCES</div>
 </div>
 
 <!-- ==================== OVERVIEW PANEL ==================== -->
@@ -365,7 +365,7 @@
   <div class="split-layout">
     <div class="sidebar">
       <div class="section-head">
-        <span>⚡ LATEST NEWS</span>
+        <span>⚡ LATEST NEWS <span class="news-updated" id="newsUpdated1" style="font-weight:400;color:var(--text3);margin-left:8px"></span></span>
         <button class="refresh-btn" onclick="fetchNews()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
       </div>
       <div class="news-feed" id="newsFeed">
@@ -436,7 +436,7 @@
   <div class="split-layout">
     <div class="sidebar">
       <div class="section-head">
-        <span>📰 ALL NEWS SOURCES</span>
+        <span>📰 ALL NEWS SOURCES <span class="news-updated" id="newsUpdated2" style="font-weight:400;color:var(--text3);margin-left:8px"></span></span>
         <button class="refresh-btn" onclick="fetchNews()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
       </div>
       <div class="news-feed" id="newsFeedFull">
@@ -614,12 +614,20 @@ function updateClock(){
 }
 
 // ===== TAB NAVIGATION =====
+function activateTab(tab){
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  tab.classList.add('active');
+  document.getElementById('panel-'+tab.dataset.panel).classList.add('active');
+}
 document.querySelectorAll('.nav-tab').forEach(tab=>{
-  tab.addEventListener('click',()=>{
-    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('panel-'+tab.dataset.panel).classList.add('active');
+  tab.addEventListener('click',()=>activateTab(tab));
+  tab.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();activateTab(tab)}
+    const tabs=[...document.querySelectorAll('.nav-tab')];
+    const idx=tabs.indexOf(tab);
+    if(e.key==='ArrowRight'&&idx<tabs.length-1){tabs[idx+1].focus()}
+    if(e.key==='ArrowLeft'&&idx>0){tabs[idx-1].focus()}
   });
 });
 
@@ -690,6 +698,10 @@ function parseRSSXml(xmlText){
 const MAJOR_KEYWORDS=['strike','attack','bomb','missile','killed','dead','explosion','retaliation','nuclear','invasion','ceasefire','surrender','shot down','intercept','sanctions','blockade','evacuate','casualt'];
 
 async function fetchNews(){
+  // Spin refresh buttons
+  const refreshBtns=document.querySelectorAll('.refresh-btn');
+  refreshBtns.forEach(b=>b.classList.add('spinning'));
+
   const containers=['newsFeed','newsFeedFull'];
   containers.forEach(id=>{
     const el=document.getElementById(id);
@@ -706,6 +718,15 @@ async function fetchNews(){
 
   results.forEach(r=>{if(r.status==='fulfilled')allItems.push(...r.value)});
 
+  // Deduplicate by normalized title (strip whitespace/case)
+  const seen=new Set();
+  allItems=allItems.filter(item=>{
+    const key=item.title.toLowerCase().replace(/\s+/g,' ').trim();
+    if(seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
   // Filter for Iran/war related
   const keywords=['iran','tehran','hormuz','hezbollah','israel','strike','missile','war','bomb','attack','military','pentagon','trump','irgc','khamenei','netanyahu','gulf','qatar','naval','drone','oil','crude','strait','conflict','lebanon','beirut'];
   let filtered=allItems.filter(item=>{
@@ -721,7 +742,7 @@ async function fetchNews(){
     const time=timeAgo(new Date(item.pubDate));
     const isBreaking=item.title.toLowerCase().includes('breaking');
     return `
-      <div class="news-item" onclick="window.open('${item.link}','_blank')">
+      <div class="news-item" tabindex="0" onclick="openLink('${escAttr(safeUrl(item.link))}')" onkeydown="if(event.key==='Enter')openLink('${escAttr(safeUrl(item.link))}')">
         <div class="news-meta">
           <span class="news-source ${item.sourceCls||'src-default'}">${item.sourceName||'NEWS'}</span>
           <span class="news-time">${time}</span>
@@ -738,6 +759,13 @@ async function fetchNews(){
 
   // Build timeline
   buildTimeline(filtered.slice(0,60));
+
+  // Stop spinning & show last-updated timestamp
+  refreshBtns.forEach(b=>b.classList.remove('spinning'));
+  const updatedTime=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+  const feedCount=results.filter(r=>r.status==='fulfilled').length;
+  const updatedText=`Updated ${updatedTime} · ${filtered.length} items · ${feedCount}/${RSS_FEEDS.length} feeds`;
+  document.querySelectorAll('.news-updated').forEach(el=>el.textContent=updatedText);
 }
 
 function buildTimeline(items){
@@ -773,7 +801,7 @@ function buildTimeline(items){
       const isMajor=!isBreaking&&MAJOR_KEYWORDS.some(k=>titleLower.includes(k));
       const cls=isBreaking?'tl-breaking':isMajor?'tl-major':'';
       html+=`
-        <div class="tl-item ${cls}" onclick="window.open('${item.link}','_blank')">
+        <div class="tl-item ${cls}" tabindex="0" onclick="openLink('${escAttr(safeUrl(item.link))}')" onkeydown="if(event.key==='Enter')openLink('${escAttr(safeUrl(item.link))}')">
           <div class="tl-time">${hhmm}</div>
           <div class="tl-title">${isBreaking?'<span class="breaking-tag">BREAKING</span>':''}${escHtml(item.title)}</div>
           <div class="tl-source">${item.sourceName||'NEWS'}</div>
@@ -910,9 +938,11 @@ function renderVideoClips(){
                 (v.videoId?`https://i.ytimg.com/vi/${v.videoId}/mqdefault.jpg`:'');
     const dur=v.duration?formatISO8601Duration(v.duration):'';
     const date=v.publishedAt?timeAgo(new Date(v.publishedAt)):'';
+    const safeReddit=escAttr(safeUrl(v.redditUrl||''));
+    const safeVideo=escAttr(safeUrl(v.videoUrl||''));
     const onclick=isYT&&v.videoId
-      ?`playModal('${v.videoId}')`
-      :(v.redditUrl?`window.open('${v.redditUrl}','_blank')`:`window.open('${v.videoUrl||'#'}','_blank')`);
+      ?`playModal('${escAttr(v.videoId)}')`
+      :(safeReddit?`openLink('${safeReddit}')`:`openLink('${safeVideo}')`);
     const srcLabel=v.source==='reddit'?'REDDIT':'YT';
     const srcCls=v.source==='reddit'?'src-reddit':'src-youtube';
     const meta=v.source==='reddit'&&v.score?` · ▲${v.score}`:'';
@@ -990,6 +1020,13 @@ function formatDuration(sec){
 function escHtml(str){
   const d=document.createElement('div');d.textContent=str||'';return d.innerHTML;
 }
+function escAttr(str){
+  return (str||'').replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function safeUrl(url){
+  try{const u=new URL(url);return['http:','https:'].includes(u.protocol)?u.href:'';}catch(e){return '';}
+}
+function openLink(url){window.open(url,'_blank','noopener,noreferrer')}
 
 // ===== LIVE STREAM CAROUSEL =====
 const STREAMS=[
