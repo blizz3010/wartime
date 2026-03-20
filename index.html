@@ -550,12 +550,50 @@ const RSS_FEEDS=[
 ];
 
 async function fetchRSS(feedUrl){
+  // Try rss2json first (returns structured JSON)
   try{
     const proxy=`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}&count=20`;
     const res=await fetch(proxy);
-    if(!res.ok) return [];
-    const data=await res.json();
-    return data.items||[];
+    if(res.ok){
+      const data=await res.json();
+      if(data.items&&data.items.length>0) return data.items;
+    }
+  }catch(e){}
+
+  // Fallback: fetch raw RSS via allorigins CORS proxy and parse XML
+  try{
+    const proxy2=`https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`;
+    const res=await fetch(proxy2);
+    if(res.ok){
+      const text=await res.text();
+      return parseRSSXml(text);
+    }
+  }catch(e){}
+
+  // Fallback 2: corsproxy.io
+  try{
+    const proxy3=`https://corsproxy.io/?${encodeURIComponent(feedUrl)}`;
+    const res=await fetch(proxy3);
+    if(res.ok){
+      const text=await res.text();
+      return parseRSSXml(text);
+    }
+  }catch(e){}
+
+  return [];
+}
+
+function parseRSSXml(xmlText){
+  try{
+    const parser=new DOMParser();
+    const doc=parser.parseFromString(xmlText,'text/xml');
+    const items=doc.querySelectorAll('item');
+    return Array.from(items).map(item=>({
+      title:item.querySelector('title')?.textContent||'',
+      link:item.querySelector('link')?.textContent||'',
+      description:item.querySelector('description')?.textContent||'',
+      pubDate:item.querySelector('pubDate')?.textContent||'',
+    }));
   }catch(e){return []}
 }
 
