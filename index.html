@@ -838,6 +838,11 @@ const STREAMS=[
   {name:'DW News',channel:'UCknLrEdhRCp1aegoMqRaCZg'},
   {name:'ABC News',channel:'UCBi2mrWuNuyYy4gbM6fU18Q'},
   {name:'NBC News',channel:'UCeY0bbntWzzVIaj2z3QigXg'},
+  {name:'AP News',video:'OnvtvLq9tOU'},
+  {name:'TRT World',video:'ABfFhWzWs0s'},
+  {name:'WION',video:'mEGTTguiY1k'},
+  {name:'CRUX',video:'pq0HP4UhzRw'},
+  {name:'Times of India',video:'auUZjuiGg1o'},
 ];
 let currentStream=0;
 
@@ -853,8 +858,10 @@ function renderStreamNav(){
 function selectStream(idx){
   currentStream=idx;
   const s=STREAMS[idx];
-  document.getElementById('streamPlayer').src=
-    `https://www.youtube.com/embed/live_stream?channel=${s.channel}&autoplay=1&mute=1`;
+  const src=s.channel
+    ? `https://www.youtube.com/embed/live_stream?channel=${s.channel}&autoplay=1&mute=1`
+    : `https://www.youtube.com/embed/${s.video}?autoplay=1&mute=1`;
+  document.getElementById('streamPlayer').src=src;
   renderStreamNav();
   document.querySelectorAll('.stream-ch')[idx]?.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
 }
