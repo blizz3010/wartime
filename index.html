@@ -144,6 +144,25 @@
   .clip-channel{font-size:.65rem;color:var(--text2)}
   .clip-date{font-size:.6rem;color:var(--text3);font-family:var(--mono)}
 
+  /* VIDEO SOURCE TABS */
+  .vid-source-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:4px;overflow:hidden}
+  .vid-src-tab{
+    padding:3px 10px;background:none;border:none;border-right:1px solid var(--border);
+    color:var(--text3);font-family:var(--mono);font-size:.6rem;cursor:pointer;
+    transition:all .15s;letter-spacing:.5px;
+  }
+  .vid-src-tab:last-child{border-right:none}
+  .vid-src-tab:hover{background:var(--surface2);color:var(--text2)}
+  .vid-src-tab.active{background:var(--red-dim);color:var(--red)}
+  .clip-card .clip-source{
+    position:absolute;top:6px;left:6px;
+    background:rgba(0,0,0,0.85);color:var(--text2);
+    font-family:var(--mono);font-size:.55rem;padding:2px 6px;border-radius:3px;
+    letter-spacing:.5px;
+  }
+  .clip-card .clip-source.src-reddit{color:#ff4500}
+  .clip-card .clip-source.src-youtube{color:#f00}
+
   /* STAT TICKER */
   .ticker{
     display:flex;gap:0;background:var(--surface);border-bottom:1px solid var(--border);
@@ -396,8 +415,13 @@
 <!-- ==================== VIDEO CLIPS PANEL ==================== -->
 <div class="panel" id="panel-videos">
   <div class="section-head">
-    <span>▶ LATEST VIDEO CLIPS — Iran War</span>
+    <span>▶ VIDEO CLIPS</span>
     <div style="display:flex;gap:8px;align-items:center">
+      <div class="vid-source-tabs">
+        <button class="vid-src-tab active" data-source="all" onclick="switchVideoSource('all')">ALL</button>
+        <button class="vid-src-tab" data-source="youtube" onclick="switchVideoSource('youtube')">YOUTUBE</button>
+        <button class="vid-src-tab" data-source="reddit" onclick="switchVideoSource('reddit')">REDDIT</button>
+      </div>
       <select id="videoSort" style="background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:.65rem;padding:3px 8px;border-radius:4px" onchange="fetchVideos()">
         <option value="date">Sort: Latest</option>
         <option value="relevance">Sort: Relevance</option>
@@ -406,8 +430,8 @@
       <button class="refresh-btn" onclick="fetchVideos()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
     </div>
   </div>
-  <div style="padding:12px 16px;font-family:var(--mono);font-size:.65rem;color:var(--text3);border-bottom:1px solid var(--border)">
-    Showing YouTube results for "Iran war 2026" — click to play. Sorted by upload date.
+  <div id="vidStatus" style="padding:8px 16px;font-family:var(--mono);font-size:.6rem;color:var(--text3);border-bottom:1px solid var(--border)">
+    Loading clips from YouTube &amp; Reddit...
   </div>
   <div class="clips-grid" id="clipsGrid">
     <div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading video clips...</div>
@@ -662,138 +686,175 @@ async function fetchNews(){
 }
 
 // ===== VIDEO CLIPS =====
-const INVIDIOUS_APIS=[
-  'https://inv.nadeko.net',
-  'https://yewtu.be',
-  'https://invidious.nerdvpn.de',
-  'https://invidious.privacyredirect.com',
-  'https://vid.puffyan.us',
-];
-const VIDEO_SEARCHES=[
-  'Iran war 2026','Iran Israel strikes','Strait of Hormuz military',
-  'Tehran bombing footage','Iran missile attack','US Iran conflict',
-];
+const REDDIT_SUBS=['CombatFootage','worldnews','iran','MiddleEastNews','UkraineWarVideoReport'];
+const REDDIT_QUERIES=['iran war','iran strike','iran missile','tehran','hormuz'];
+let allVideoClips=[];
+let currentVideoSource='all';
+
+function switchVideoSource(src){
+  currentVideoSource=src;
+  document.querySelectorAll('.vid-src-tab').forEach(t=>{
+    t.classList.toggle('active',t.dataset.source===src);
+  });
+  renderVideoClips();
+}
+
+async function fetchYouTubeVideos(sortBy){
+  const searches=['Iran war','Iran Israel strikes','Tehran bombing','Strait of Hormuz military'];
+  let videos=[];
+  for(const q of searches){
+    try{
+      const res=await fetch(`/api/videos?q=${encodeURIComponent(q)}&sort=${sortBy}&max=12`,{signal:AbortSignal.timeout(10000)});
+      if(res.ok){
+        const data=await res.json();
+        if(data.videos) videos.push(...data.videos.map(v=>({...v,source:'youtube'})));
+      }
+    }catch(e){continue}
+    if(videos.length>=20) break;
+  }
+  return videos;
+}
+
+async function fetchRedditVideos(){
+  let posts=[];
+  const fetches=REDDIT_SUBS.slice(0,3).map(async sub=>{
+    for(const q of REDDIT_QUERIES.slice(0,2)){
+      try{
+        const res=await fetch(
+          `https://www.reddit.com/r/${sub}/search.json?q=${encodeURIComponent(q)}&sort=new&t=week&limit=15&restrict_sr=1`,
+          {signal:AbortSignal.timeout(8000),headers:{'Accept':'application/json'}}
+        );
+        if(!res.ok) continue;
+        const data=await res.json();
+        const items=(data?.data?.children||[])
+          .map(c=>c.data)
+          .filter(p=>p.is_video||p.domain==='v.redd.it'||p.domain==='youtube.com'||p.domain==='youtu.be'||
+                     (p.url&&(p.url.includes('youtube.com/watch')||p.url.includes('youtu.be/')||p.url.includes('v.redd.it')||p.url.includes('streamable.com'))));
+        posts.push(...items);
+      }catch(e){continue}
+    }
+  });
+  await Promise.allSettled(fetches);
+  return posts.map(p=>{
+    const ytMatch=p.url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+    return {
+      id:p.id,
+      videoId:ytMatch?.[1]||null,
+      redditUrl:`https://www.reddit.com${p.permalink}`,
+      videoUrl:p.is_video?p.media?.reddit_video?.fallback_url:p.url,
+      title:p.title,
+      author:'r/'+p.subreddit,
+      publishedAt:new Date(p.created_utc*1000).toISOString(),
+      thumbnail:p.thumbnail&&p.thumbnail!=='self'&&p.thumbnail!=='default'?p.thumbnail:
+                (ytMatch?`https://i.ytimg.com/vi/${ytMatch[1]}/mqdefault.jpg`:''),
+      score:p.score||0,
+      comments:p.num_comments||0,
+      source:'reddit',
+      isYouTube:!!ytMatch,
+    };
+  });
+}
 
 async function fetchVideos(){
   const grid=document.getElementById('clipsGrid');
-  grid.innerHTML='<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Searching for videos...</div>';
+  const status=document.getElementById('vidStatus');
+  grid.innerHTML='<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading clips from YouTube & Reddit...</div>';
+  status.textContent='Fetching...';
 
   const sortBy=document.getElementById('videoSort').value;
-  let videos=[];
 
-  // Try Invidious instances with multiple search terms
-  for(const api of INVIDIOUS_APIS){
-    if(videos.length>=12) break;
-    for(const q of VIDEO_SEARCHES.slice(0,2)){
-      try{
-        const res=await fetch(`${api}/api/v1/search?q=${encodeURIComponent(q)}&sort_by=${sortBy}&type=video&page=1`,{signal:AbortSignal.timeout(6000)});
-        if(res.ok){
-          const data=await res.json();
-          if(Array.isArray(data)&&data.length>0){
-            videos.push(...data);
-            if(videos.length>=12) break;
-          }
-        }
-      }catch(e){break}
-    }
-    if(videos.length>0) break;
-  }
+  const [ytResult,rdResult]=await Promise.allSettled([
+    fetchYouTubeVideos(sortBy),
+    fetchRedditVideos(),
+  ]);
 
-  // Try YouTube RSS feeds from known news channels as fallback
-  if(videos.length===0){
-    const channels=[
-      {name:'Al Jazeera',id:'UCNye-wNBqNL5ZzHSJj3l8Bg'},
-      {name:'Sky News',id:'UCoMdktPbSTixAyNGwb-UYkQ'},
-      {name:'DW News',id:'UCknLrEdhRCp1aegoMqRaCZg'},
-      {name:'BBC News',id:'UC16niRr50-MSBwiO3YDb3RA'},
-      {name:'CNN',id:'UCupvZG-5ko_eiXAupbDfxWw'},
-    ];
-    const keywords=['iran','war','strike','missile','tehran','hormuz','israel','military','conflict'];
-    const rssResults=await Promise.allSettled(channels.map(async ch=>{
-      const feedUrl=`https://www.youtube.com/feeds/videos.xml?channel_id=${ch.id}`;
-      // Try CORS proxies
-      for(const proxy of [`https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`,`https://corsproxy.io/?${encodeURIComponent(feedUrl)}`]){
-        try{
-          const res=await fetch(proxy,{signal:AbortSignal.timeout(6000)});
-          if(!res.ok) continue;
-          const text=await res.text();
-          const parser=new DOMParser();
-          const doc=parser.parseFromString(text,'text/xml');
-          const entries=doc.querySelectorAll('entry');
-          return Array.from(entries).map(e=>{
-            const videoUrl=e.querySelector('link')?.getAttribute('href')||'';
-            const videoId=videoUrl.match(/v=([^&]+)/)?.[1]||'';
-            return {
-              videoId,
-              title:e.querySelector('title')?.textContent||'',
-              author:ch.name,
-              publishedText:timeAgo(new Date(e.querySelector('published')?.textContent||'')),
-              pubDate:e.querySelector('published')?.textContent||'',
-              videoThumbnails:[{url:`https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,quality:'medium'}],
-            };
-          });
-        }catch(e){continue}
-      }
-      return [];
-    }));
-    rssResults.forEach(r=>{if(r.status==='fulfilled')videos.push(...r.value)});
-    // Filter for war-related
-    const filtered=videos.filter(v=>{
-      const t=(v.title||'').toLowerCase();
-      return keywords.some(k=>t.includes(k));
+  allVideoClips=[];
+  let ytCount=0,rdCount=0;
+
+  if(ytResult.status==='fulfilled'){
+    // Dedupe YouTube
+    const seen=new Set();
+    ytResult.value.forEach(v=>{
+      if(v.videoId&&!seen.has(v.videoId)){seen.add(v.videoId);allVideoClips.push(v);ytCount++}
     });
-    if(filtered.length>0) videos=filtered;
-    videos.sort((a,b)=>new Date(b.pubDate||0)-new Date(a.pubDate||0));
+  }
+  if(rdResult.status==='fulfilled'){
+    const seen=new Set(allVideoClips.filter(v=>v.videoId).map(v=>v.videoId));
+    rdResult.value.forEach(v=>{
+      const key=v.videoId||v.id;
+      if(!seen.has(key)){seen.add(key);allVideoClips.push(v);rdCount++}
+    });
   }
 
-  // Deduplicate by videoId
-  const seen=new Set();
-  videos=videos.filter(v=>{
-    if(!v.videoId||seen.has(v.videoId)) return false;
-    seen.add(v.videoId);return true;
-  });
+  // Sort combined results
+  allVideoClips.sort((a,b)=>new Date(b.publishedAt||0)-new Date(a.publishedAt||0));
 
-  if(!videos.length){
+  status.textContent=`${ytCount} YouTube + ${rdCount} Reddit clips loaded`;
+  renderVideoClips();
+}
+
+function renderVideoClips(){
+  const grid=document.getElementById('clipsGrid');
+  let clips=allVideoClips;
+  if(currentVideoSource==='youtube') clips=clips.filter(v=>v.source==='youtube');
+  if(currentVideoSource==='reddit') clips=clips.filter(v=>v.source==='reddit');
+
+  if(!clips.length){
     grid.innerHTML=getFallbackVideos();
     return;
   }
 
-  grid.innerHTML=videos.slice(0,24).map(v=>{
-    const thumb=v.videoThumbnails?.find(t=>t.quality==='medium')?.url||
-                v.videoThumbnails?.[0]?.url||
-                `https://i.ytimg.com/vi/${v.videoId}/mqdefault.jpg`;
-    const dur=formatDuration(v.lengthSeconds);
-    const date=v.publishedText||'';
+  grid.innerHTML=clips.slice(0,36).map(v=>{
+    const isYT=v.source==='youtube'||(v.source==='reddit'&&v.isYouTube);
+    const thumb=v.thumbnail||
+                (v.videoId?`https://i.ytimg.com/vi/${v.videoId}/mqdefault.jpg`:'');
+    const dur=v.duration?formatISO8601Duration(v.duration):'';
+    const date=v.publishedAt?timeAgo(new Date(v.publishedAt)):'';
+    const onclick=isYT&&v.videoId
+      ?`playModal('${v.videoId}')`
+      :(v.redditUrl?`window.open('${v.redditUrl}','_blank')`:`window.open('${v.videoUrl||'#'}','_blank')`);
+    const srcLabel=v.source==='reddit'?'REDDIT':'YT';
+    const srcCls=v.source==='reddit'?'src-reddit':'src-youtube';
+    const meta=v.source==='reddit'&&v.score?` · ▲${v.score}`:'';
     return `
-      <div class="clip-card" onclick="playModal('${v.videoId}')">
+      <div class="clip-card" onclick="${onclick}">
         <div class="clip-thumb">
-          <img src="${thumb}" alt="" loading="lazy" onerror="this.src='https://i.ytimg.com/vi/${v.videoId}/mqdefault.jpg'">
+          ${thumb?`<img src="${thumb}" alt="" loading="lazy" onerror="this.style.display='none'">`:''}
           <div class="play-btn"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
+          <div class="clip-source ${srcCls}">${srcLabel}</div>
           ${dur?`<div class="clip-duration">${dur}</div>`:''}
         </div>
         <div class="clip-info">
           <div class="clip-title">${escHtml(v.title)}</div>
-          <div class="clip-channel">${escHtml(v.author||'')}</div>
+          <div class="clip-channel">${escHtml(v.author||'')}${meta}</div>
           <div class="clip-date">${date}</div>
         </div>
       </div>
     `;
-  }).join('')||getFallbackVideos();
+  }).join('');
+}
+
+// Parse ISO 8601 duration (PT1H2M3S) to readable format
+function formatISO8601Duration(iso){
+  if(!iso) return '';
+  const m=iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if(!m) return '';
+  const h=parseInt(m[1]||0),min=parseInt(m[2]||0),s=parseInt(m[3]||0);
+  if(h) return `${h}:${String(min).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${min}:${String(s).padStart(2,'0')}`;
 }
 
 function getFallbackVideos(){
   return `
     <div style="grid-column:1/-1;padding:20px;text-align:center">
       <p style="color:var(--text2);font-family:var(--mono);font-size:.8rem;margin-bottom:16px">
-        Video search unavailable — try these direct links:
+        No clips found — try these direct links:
       </p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-        <a href="https://www.youtube.com/results?search_query=Iran+war+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">Iran War — Latest</a>
-        <a href="https://www.youtube.com/results?search_query=Iran+Israel+strikes+today&sp=EgIIAQ%253D%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">Iran Strikes Today</a>
-        <a href="https://www.youtube.com/results?search_query=Strait+of+Hormuz+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">Strait of Hormuz</a>
-        <a href="https://www.youtube.com/results?search_query=Tehran+bombing+footage+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">Tehran Footage</a>
+        <a href="https://www.youtube.com/results?search_query=Iran+war+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">YouTube — Iran War</a>
         <a href="https://www.reddit.com/r/CombatFootage/search/?q=iran&sort=new" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">r/CombatFootage</a>
-        <a href="https://twitter.com/search?q=Iran%20strike%20video&src=typed_query&f=video" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">X/Twitter Videos</a>
+        <a href="https://www.reddit.com/r/worldnews/search/?q=iran+video&sort=new" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">r/worldnews</a>
+        <a href="https://twitter.com/search?q=Iran%20strike%20video&f=video" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">X/Twitter Videos</a>
       </div>
     </div>
   `;
