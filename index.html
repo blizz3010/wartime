@@ -163,6 +163,44 @@
   .clip-card .clip-source.src-reddit{color:#ff4500}
   .clip-card .clip-source.src-youtube{color:#f00}
 
+  /* EVENT TIMELINE */
+  .timeline{height:calc(100vh - 130px);overflow-y:auto;padding:20px 20px 20px 28px;scrollbar-width:thin;scrollbar-color:var(--border) var(--surface)}
+  .timeline-group{margin-bottom:24px}
+  .timeline-date{
+    font-family:var(--mono);font-size:.6rem;letter-spacing:1px;text-transform:uppercase;
+    color:var(--text3);margin-bottom:12px;padding-left:20px;
+  }
+  .tl-item{
+    position:relative;padding:10px 14px 10px 20px;margin-left:8px;
+    border-left:2px solid var(--border);cursor:pointer;transition:background .15s;
+  }
+  .tl-item:hover{background:var(--surface2);border-radius:0 6px 6px 0}
+  .tl-item::before{
+    content:'';position:absolute;left:-5px;top:14px;
+    width:8px;height:8px;border-radius:50%;background:var(--border2);
+    border:2px solid var(--bg);
+  }
+  .tl-item.tl-breaking{border-left-color:var(--red)}
+  .tl-item.tl-breaking::before{background:var(--red);box-shadow:0 0 8px rgba(248,81,73,0.5)}
+  .tl-item.tl-major{border-left-color:var(--orange)}
+  .tl-item.tl-major::before{background:var(--orange)}
+  .tl-item .tl-time{
+    font-family:var(--mono);font-size:.55rem;color:var(--text3);margin-bottom:3px;
+  }
+  .tl-item .tl-title{font-size:.78rem;font-weight:600;line-height:1.35;color:var(--text)}
+  .tl-item:hover .tl-title{color:var(--blue)}
+  .tl-item .tl-source{
+    font-family:var(--mono);font-size:.55rem;color:var(--text3);margin-top:4px;
+  }
+  .tl-legend{
+    display:flex;gap:14px;padding:10px 16px;border-bottom:1px solid var(--border);
+    font-family:var(--mono);font-size:.55rem;color:var(--text3);
+  }
+  .tl-legend-dot{
+    display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;
+    vertical-align:middle;
+  }
+
   /* STAT TICKER */
   .ticker{
     display:flex;gap:0;background:var(--surface);border-bottom:1px solid var(--border);
@@ -405,9 +443,19 @@
         <div class="loading"><div class="spinner"></div>Loading news...</div>
       </div>
     </div>
-    <div class="main-area" id="newsPreview" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--text3)">
-      <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V9a2 2 0 012-2h2a2 2 0 012 2v9a2 2 0 01-2 2h-2zM5 12h7M5 16h7"/></svg>
-      <span style="font-family:var(--mono);font-size:.75rem">Click a news item to read the full article</span>
+    <div class="main-area">
+      <div class="section-head" style="background:var(--surface)">
+        <span>EVENT TIMELINE</span>
+        <span class="badge">LIVE</span>
+      </div>
+      <div class="tl-legend">
+        <span><span class="tl-legend-dot" style="background:var(--red)"></span>BREAKING</span>
+        <span><span class="tl-legend-dot" style="background:var(--orange)"></span>MAJOR</span>
+        <span><span class="tl-legend-dot" style="background:var(--border2)"></span>UPDATE</span>
+      </div>
+      <div class="timeline" id="newsTimeline">
+        <div class="loading"><div class="spinner"></div>Building timeline...</div>
+      </div>
     </div>
   </div>
 </div>
@@ -639,12 +687,16 @@ function parseRSSXml(xmlText){
   }catch(e){return []}
 }
 
+const MAJOR_KEYWORDS=['strike','attack','bomb','missile','killed','dead','explosion','retaliation','nuclear','invasion','ceasefire','surrender','shot down','intercept','sanctions','blockade','evacuate','casualt'];
+
 async function fetchNews(){
   const containers=['newsFeed','newsFeedFull'];
   containers.forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.innerHTML='<div class="loading"><div class="spinner"></div>Fetching latest news...</div>';
   });
+  const tlEl=document.getElementById('newsTimeline');
+  if(tlEl) tlEl.innerHTML='<div class="loading"><div class="spinner"></div>Building timeline...</div>';
 
   let allItems=[];
   const results=await Promise.allSettled(RSS_FEEDS.map(async feed=>{
@@ -683,6 +735,54 @@ async function fetchNews(){
     const el=document.getElementById(id);
     if(el) el.innerHTML=html||'<div class="loading">No news items found. Try refreshing.</div>';
   });
+
+  // Build timeline
+  buildTimeline(filtered.slice(0,60));
+}
+
+function buildTimeline(items){
+  const tlEl=document.getElementById('newsTimeline');
+  if(!tlEl) return;
+
+  // Group by date
+  const now=new Date();
+  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const yesterday=new Date(today);yesterday.setDate(today.getDate()-1);
+  const groups={};
+
+  items.forEach(item=>{
+    const d=new Date(item.pubDate);
+    let label;
+    if(d>=today) label='Today';
+    else if(d>=yesterday) label='Yesterday';
+    else{
+      label=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    }
+    if(!groups[label]) groups[label]=[];
+    groups[label].push(item);
+  });
+
+  let html='';
+  for(const[label,events] of Object.entries(groups)){
+    html+=`<div class="timeline-group"><div class="timeline-date">${label}</div>`;
+    events.forEach(item=>{
+      const d=new Date(item.pubDate);
+      const hhmm=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+      const titleLower=item.title.toLowerCase();
+      const isBreaking=titleLower.includes('breaking');
+      const isMajor=!isBreaking&&MAJOR_KEYWORDS.some(k=>titleLower.includes(k));
+      const cls=isBreaking?'tl-breaking':isMajor?'tl-major':'';
+      html+=`
+        <div class="tl-item ${cls}" onclick="window.open('${item.link}','_blank')">
+          <div class="tl-time">${hhmm}</div>
+          <div class="tl-title">${isBreaking?'<span class="breaking-tag">BREAKING</span>':''}${escHtml(item.title)}</div>
+          <div class="tl-source">${item.sourceName||'NEWS'}</div>
+        </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  tlEl.innerHTML=html||'<div class="loading">No timeline events.</div>';
 }
 
 // ===== VIDEO CLIPS =====
