@@ -212,6 +212,34 @@
     .nav-tab{padding:8px 12px;font-size:.7rem}
   }
 
+  /* STREAM CAROUSEL */
+  .stream-nav{
+    display:flex;align-items:stretch;background:var(--surface);border-bottom:1px solid var(--border);
+  }
+  .stream-nav-arrow{
+    background:var(--surface2);border:none;color:var(--text2);font-size:1.2rem;padding:0 16px;
+    cursor:pointer;transition:all .15s;flex-shrink:0;
+  }
+  .stream-nav-arrow:hover{background:var(--surface3);color:var(--text)}
+  .stream-channels{
+    display:flex;flex:1;overflow-x:auto;scrollbar-width:none;gap:0;
+  }
+  .stream-channels::-webkit-scrollbar{display:none}
+  .stream-ch{
+    padding:10px 20px;font-family:var(--mono);font-size:.7rem;letter-spacing:.5px;
+    cursor:pointer;white-space:nowrap;border-right:1px solid var(--border);
+    color:var(--text2);transition:all .15s;position:relative;
+  }
+  .stream-ch:hover{background:var(--surface2);color:var(--text)}
+  .stream-ch.active{color:var(--red);background:var(--red-dim)}
+  .stream-ch.active::after{
+    content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--red);
+  }
+  .stream-ch .live-dot-sm{
+    display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--red);
+    margin-right:6px;animation:blink 1.5s infinite;
+  }
+
   /* Custom scrollbar */
   ::-webkit-scrollbar{width:6px}
   ::-webkit-scrollbar-track{background:var(--surface)}
@@ -316,14 +344,14 @@
     <div class="section-head">
       <span>⚓ STRAIT OF HORMUZ — MARITIME TRAFFIC</span>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="overlay-btn" onclick="setMaritimeMap(26.3,56.7,8)">Hormuz Strait</button>
-        <button class="overlay-btn" onclick="setMaritimeMap(26.0,50.5,7)">Persian Gulf Wide</button>
-        <button class="overlay-btn" onclick="setMaritimeMap(14.0,43.0,6)">Red Sea / Bab el-Mandeb</button>
-        <button class="overlay-btn" onclick="setMaritimeMap(33.5,34.5,7)">Eastern Med</button>
+        <button class="overlay-btn" onclick="setMaritimeSrc(26.3,56.7,8)">Hormuz Strait</button>
+        <button class="overlay-btn" onclick="setMaritimeSrc(26.0,50.5,7)">Persian Gulf Wide</button>
+        <button class="overlay-btn" onclick="setMaritimeSrc(14.0,43.0,6)">Red Sea / Bab el-Mandeb</button>
+        <button class="overlay-btn" onclick="setMaritimeSrc(33.5,34.5,7)">Eastern Med</button>
         <button class="overlay-btn" onclick="window.open('https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8','_blank')">Open MarineTraffic</button>
       </div>
     </div>
-    <div id="maritimeMapContainer" style="width:100%;height:calc(100% - 34px)"></div>
+    <iframe id="maritimeFrame" src="https://www.vesselfinder.com/aismap?lat=26.3&lon=56.7&zoom=8&width=1600&height=900&names=true" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
   </div>
 </div>
 
@@ -388,31 +416,16 @@
 
 <!-- ==================== LIVE STREAMS PANEL ==================== -->
 <div class="panel" id="panel-livestreams">
-  <div class="section-head"><span>◉ LIVE NEWS STREAMS</span><span class="badge">LIVE</span></div>
-  <div class="grid-2" style="height:calc(100vh - 130px)">
-    <div class="grid-cell">
-      <div class="section-head" style="background:var(--surface)"><span>AL JAZEERA ENGLISH</span></div>
-      <div style="position:relative;padding-bottom:56.25%">
-        <iframe src="https://www.youtube.com/embed/gCNeDWCI0vo?autoplay=0&mute=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="autoplay" allowfullscreen loading="lazy"></iframe>
-      </div>
+  <div style="height:calc(100vh - 96px);display:flex;flex-direction:column">
+    <!-- Channel selector bar -->
+    <div class="stream-nav">
+      <button class="stream-nav-arrow" onclick="switchStream(-1)">&#9664;</button>
+      <div class="stream-channels" id="streamChannels"></div>
+      <button class="stream-nav-arrow" onclick="switchStream(1)">&#9654;</button>
     </div>
-    <div class="grid-cell">
-      <div class="section-head" style="background:var(--surface)"><span>SKY NEWS</span></div>
-      <div style="position:relative;padding-bottom:56.25%">
-        <iframe src="https://www.youtube.com/embed/9Auq9mYxFEE?autoplay=0&mute=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="autoplay" allowfullscreen loading="lazy"></iframe>
-      </div>
-    </div>
-    <div class="grid-cell">
-      <div class="section-head" style="background:var(--surface)"><span>FRANCE 24 ENGLISH</span></div>
-      <div style="position:relative;padding-bottom:56.25%">
-        <iframe src="https://www.youtube.com/embed/u9foazt_MYg?autoplay=0&mute=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="autoplay" allowfullscreen loading="lazy"></iframe>
-      </div>
-    </div>
-    <div class="grid-cell">
-      <div class="section-head" style="background:var(--surface)"><span>DW NEWS</span></div>
-      <div style="position:relative;padding-bottom:56.25%">
-        <iframe src="https://www.youtube.com/embed/GE_SfNVNyqk?autoplay=0&mute=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="autoplay" allowfullscreen loading="lazy"></iframe>
-      </div>
+    <!-- Main player -->
+    <div style="flex:1;position:relative;background:#000">
+      <iframe id="streamPlayer" src="" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="autoplay;encrypted-media" allowfullscreen></iframe>
     </div>
   </div>
 </div>
@@ -540,17 +553,9 @@ document.querySelectorAll('.nav-tab').forEach(tab=>{
 
 // ===== MAP SOURCE SWITCHERS =====
 function setMapSrc(url){document.getElementById('warmapFrame').src=url}
-function setMaritimeMap(lat,lon,zoom){
-  const c=document.getElementById('maritimeMapContainer');
-  c.innerHTML='';
-  const s1=document.createElement('script');
-  s1.textContent='var width="100%";var height="'+c.offsetHeight+'";var latitude="'+lat+'";var longitude="'+lon+'";var zoom="'+zoom+'";var names=true;';
-  c.appendChild(s1);
-  const s2=document.createElement('script');
-  s2.src='https://www.vesselfinder.com/aismap.js';
-  c.appendChild(s2);
+function setMaritimeSrc(lat,lon,zoom){
+  document.getElementById('maritimeFrame').src=`https://www.vesselfinder.com/aismap?lat=${lat}&lon=${lon}&zoom=${zoom}&width=1600&height=900&names=true`;
 }
-function initMaritimeMap(){setMaritimeMap(26.3,56.7,8)}
 function setAirSrc(url){document.getElementById('airFrame').src=url}
 
 // ===== NEWS FEED =====
@@ -657,45 +662,112 @@ async function fetchNews(){
 }
 
 // ===== VIDEO CLIPS =====
-// Uses YouTube's RSS/Atom feed via proxy for search results
+const INVIDIOUS_APIS=[
+  'https://inv.nadeko.net',
+  'https://yewtu.be',
+  'https://invidious.nerdvpn.de',
+  'https://invidious.privacyredirect.com',
+  'https://vid.puffyan.us',
+];
+const VIDEO_SEARCHES=[
+  'Iran war 2026','Iran Israel strikes','Strait of Hormuz military',
+  'Tehran bombing footage','Iran missile attack','US Iran conflict',
+];
+
 async function fetchVideos(){
   const grid=document.getElementById('clipsGrid');
-  grid.innerHTML='<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Searching YouTube...</div>';
+  grid.innerHTML='<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Searching for videos...</div>';
 
   const sortBy=document.getElementById('videoSort').value;
-  // Use Invidious API as a free YouTube search proxy
-  const apis=[
-    'https://inv.nadeko.net',
-    'https://invidious.nerdvpn.de',
-    'https://yt.artemislena.eu',
-  ];
-
   let videos=[];
-  for(const api of apis){
-    try{
-      const res=await fetch(`${api}/api/v1/search?q=Iran+war+2026&sort_by=${sortBy}&type=video&page=1`,{signal:AbortSignal.timeout(8000)});
-      if(res.ok){
-        videos=await res.json();
-        break;
-      }
-    }catch(e){continue}
+
+  // Try Invidious instances with multiple search terms
+  for(const api of INVIDIOUS_APIS){
+    if(videos.length>=12) break;
+    for(const q of VIDEO_SEARCHES.slice(0,2)){
+      try{
+        const res=await fetch(`${api}/api/v1/search?q=${encodeURIComponent(q)}&sort_by=${sortBy}&type=video&page=1`,{signal:AbortSignal.timeout(6000)});
+        if(res.ok){
+          const data=await res.json();
+          if(Array.isArray(data)&&data.length>0){
+            videos.push(...data);
+            if(videos.length>=12) break;
+          }
+        }
+      }catch(e){break}
+    }
+    if(videos.length>0) break;
   }
 
+  // Try YouTube RSS feeds from known news channels as fallback
+  if(videos.length===0){
+    const channels=[
+      {name:'Al Jazeera',id:'UCNye-wNBqNL5ZzHSJj3l8Bg'},
+      {name:'Sky News',id:'UCoMdktPbSTixAyNGwb-UYkQ'},
+      {name:'DW News',id:'UCknLrEdhRCp1aegoMqRaCZg'},
+      {name:'BBC News',id:'UC16niRr50-MSBwiO3YDb3RA'},
+      {name:'CNN',id:'UCupvZG-5ko_eiXAupbDfxWw'},
+    ];
+    const keywords=['iran','war','strike','missile','tehran','hormuz','israel','military','conflict'];
+    const rssResults=await Promise.allSettled(channels.map(async ch=>{
+      const feedUrl=`https://www.youtube.com/feeds/videos.xml?channel_id=${ch.id}`;
+      // Try CORS proxies
+      for(const proxy of [`https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`,`https://corsproxy.io/?${encodeURIComponent(feedUrl)}`]){
+        try{
+          const res=await fetch(proxy,{signal:AbortSignal.timeout(6000)});
+          if(!res.ok) continue;
+          const text=await res.text();
+          const parser=new DOMParser();
+          const doc=parser.parseFromString(text,'text/xml');
+          const entries=doc.querySelectorAll('entry');
+          return Array.from(entries).map(e=>{
+            const videoUrl=e.querySelector('link')?.getAttribute('href')||'';
+            const videoId=videoUrl.match(/v=([^&]+)/)?.[1]||'';
+            return {
+              videoId,
+              title:e.querySelector('title')?.textContent||'',
+              author:ch.name,
+              publishedText:timeAgo(new Date(e.querySelector('published')?.textContent||'')),
+              pubDate:e.querySelector('published')?.textContent||'',
+              videoThumbnails:[{url:`https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,quality:'medium'}],
+            };
+          });
+        }catch(e){continue}
+      }
+      return [];
+    }));
+    rssResults.forEach(r=>{if(r.status==='fulfilled')videos.push(...r.value)});
+    // Filter for war-related
+    const filtered=videos.filter(v=>{
+      const t=(v.title||'').toLowerCase();
+      return keywords.some(k=>t.includes(k));
+    });
+    if(filtered.length>0) videos=filtered;
+    videos.sort((a,b)=>new Date(b.pubDate||0)-new Date(a.pubDate||0));
+  }
+
+  // Deduplicate by videoId
+  const seen=new Set();
+  videos=videos.filter(v=>{
+    if(!v.videoId||seen.has(v.videoId)) return false;
+    seen.add(v.videoId);return true;
+  });
+
   if(!videos.length){
-    // Fallback: hardcoded recent video IDs from known channels
     grid.innerHTML=getFallbackVideos();
     return;
   }
 
   grid.innerHTML=videos.slice(0,24).map(v=>{
     const thumb=v.videoThumbnails?.find(t=>t.quality==='medium')?.url||
-                v.videoThumbnails?.[0]?.url||'';
+                v.videoThumbnails?.[0]?.url||
+                `https://i.ytimg.com/vi/${v.videoId}/mqdefault.jpg`;
     const dur=formatDuration(v.lengthSeconds);
     const date=v.publishedText||'';
     return `
       <div class="clip-card" onclick="playModal('${v.videoId}')">
         <div class="clip-thumb">
-          <img src="${thumb}" alt="" loading="lazy" onerror="this.style.display='none'">
+          <img src="${thumb}" alt="" loading="lazy" onerror="this.src='https://i.ytimg.com/vi/${v.videoId}/mqdefault.jpg'">
           <div class="play-btn"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
           ${dur?`<div class="clip-duration">${dur}</div>`:''}
         </div>
@@ -710,18 +782,18 @@ async function fetchVideos(){
 }
 
 function getFallbackVideos(){
-  // Curated fallback searches via YouTube embed search
   return `
     <div style="grid-column:1/-1;padding:20px;text-align:center">
       <p style="color:var(--text2);font-family:var(--mono);font-size:.8rem;margin-bottom:16px">
-        Video API unavailable — use these direct YouTube search links:
+        Video search unavailable — try these direct links:
       </p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-        <a href="https://www.youtube.com/results?search_query=Iran+war+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">🔍 Iran War 2026 — Latest</a>
-        <a href="https://www.youtube.com/results?search_query=Iran+Israel+strikes+today&sp=EgIIAQ%253D%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">🔍 Iran Strikes Today</a>
-        <a href="https://www.youtube.com/results?search_query=Strait+of+Hormuz+closed+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">🔍 Strait of Hormuz</a>
-        <a href="https://www.youtube.com/results?search_query=Iran+war+live+stream&sp=EgJAAQ%253D%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">🔍 Live Streams</a>
-        <a href="https://www.youtube.com/results?search_query=Tehran+bombing+footage+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">🔍 Tehran Footage</a>
+        <a href="https://www.youtube.com/results?search_query=Iran+war+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">Iran War — Latest</a>
+        <a href="https://www.youtube.com/results?search_query=Iran+Israel+strikes+today&sp=EgIIAQ%253D%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">Iran Strikes Today</a>
+        <a href="https://www.youtube.com/results?search_query=Strait+of+Hormuz+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">Strait of Hormuz</a>
+        <a href="https://www.youtube.com/results?search_query=Tehran+bombing+footage+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">Tehran Footage</a>
+        <a href="https://www.reddit.com/r/CombatFootage/search/?q=iran&sort=new" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">r/CombatFootage</a>
+        <a href="https://twitter.com/search?q=Iran%20strike%20video&src=typed_query&f=video" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">X/Twitter Videos</a>
       </div>
     </div>
   `;
@@ -758,15 +830,56 @@ function escHtml(str){
   const d=document.createElement('div');d.textContent=str||'';return d.innerHTML;
 }
 
+// ===== LIVE STREAM CAROUSEL =====
+const STREAMS=[
+  {name:'Al Jazeera',channel:'UCNye-wNBqNL5ZzHSJj3l8Bg'},
+  {name:'Sky News',channel:'UCoMdktPbSTixAyNGwb-UYkQ'},
+  {name:'France 24',channel:'UCQfwfsi5VrQ8yKZ-UWmAEFg'},
+  {name:'DW News',channel:'UCknLrEdhRCp1aegoMqRaCZg'},
+  {name:'ABC News',channel:'UCBi2mrWuNuyYy4gbM6fU18Q'},
+  {name:'NBC News',channel:'UCeY0bbntWzzVIaj2z3QigXg'},
+  {name:'CNN',channel:'UCupvZG-5ko_eiXAupbDfxWw'},
+  {name:'TRT World',channel:'UC7fWeaHhqgM4Lba7TEKT_lQ'},
+  {name:'WION',channel:'UC_gUM8rL-Lrg6O3adPW9K1g'},
+  {name:'Times of India',channel:'UCwvJ8YnP8HFMO5Oo8gPHjBQ'},
+];
+let currentStream=0;
+
+function renderStreamNav(){
+  const c=document.getElementById('streamChannels');
+  c.innerHTML=STREAMS.map((s,i)=>`
+    <div class="stream-ch${i===currentStream?' active':''}" onclick="selectStream(${i})">
+      <span class="live-dot-sm"></span>${s.name}
+    </div>
+  `).join('');
+}
+
+function selectStream(idx){
+  currentStream=idx;
+  const s=STREAMS[idx];
+  document.getElementById('streamPlayer').src=
+    `https://www.youtube.com/embed/live_stream?channel=${s.channel}&autoplay=1&mute=1`;
+  renderStreamNav();
+  document.querySelectorAll('.stream-ch')[idx]?.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+}
+
+function switchStream(dir){
+  let next=currentStream+dir;
+  if(next<0) next=STREAMS.length-1;
+  if(next>=STREAMS.length) next=0;
+  selectStream(next);
+}
+
 // ===== INIT =====
 updateDayCount();
 updateClock();
 setInterval(updateClock,1000);
 setInterval(updateDayCount,60000);
 fetchNews();
-// Lazy-load maritime map when tab is clicked
-document.querySelector('[data-panel="maritime"]').addEventListener('click',()=>{
-  if(!document.getElementById('maritimeMapContainer').querySelector('script'))initMaritimeMap();
+// Init stream nav (but don't load video until tab clicked)
+renderStreamNav();
+document.querySelector('[data-panel="livestreams"]').addEventListener('click',()=>{
+  if(!document.getElementById('streamPlayer').src||document.getElementById('streamPlayer').src===window.location.href)selectStream(0);
 },{once:true});
 // Lazy-load videos when tab is clicked
 document.querySelector('[data-panel="videos"]').addEventListener('click',()=>{
