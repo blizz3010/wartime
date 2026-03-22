@@ -716,17 +716,18 @@
     <div class="section-head">
       <span>✈ AIR TRAFFIC TRACKING</span>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0')" title="Unfiltered - shows military aircraft">ADS-B Persian Gulf</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=32.08&lon=53.69&zoom=5.0')">ADS-B Iran</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=31.77&lon=35.22&zoom=7.0')">ADS-B Israel</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=14.5&lon=42.5&zoom=6.0')">ADS-B Red Sea</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=29.0&lon=48.0&zoom=7.0')">ADS-B Kuwait/Iraq</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=26.5&lon=53.6&zoom=6.0&hideSideBar')" title="Unfiltered - shows military aircraft">ADS-B Persian Gulf</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=32.08&lon=53.69&zoom=5.0&hideSideBar')">ADS-B Iran</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=31.77&lon=35.22&zoom=7.0&hideSideBar')">ADS-B Israel</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=14.5&lon=42.5&zoom=6.0&hideSideBar')">ADS-B Red Sea</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=29.0&lon=48.0&zoom=7.0&hideSideBar')">ADS-B Kuwait/Iraq</button>
         <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/26.51,53.58/6','_blank')">FR24 Persian Gulf ↗</button>
         <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/32.08,53.69/5','_blank')">FR24 Iran ↗</button>
         <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/31.77,35.22/7','_blank')">FR24 Israel ↗</button>
+        <button class="overlay-btn" onclick="window.open('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0','_blank')">ADS-B Exchange ↗</button>
       </div>
     </div>
-    <iframe id="airFrame" src="https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
+    <iframe id="airFrame" src="https://globe.adsb.fi/?lat=26.5&lon=53.6&zoom=6.0&hideSideBar" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
   </div>
 </div>
 
@@ -1474,7 +1475,24 @@ async function fetchYouTubeVideos(sortBy){
 }
 
 async function fetchRedditJSON(url){
-  // Try direct first, then CORS proxies
+  // Parse the Reddit URL to extract params for our server-side proxy
+  try{
+    const u=new URL(url);
+    const pathMatch=u.pathname.match(/^\/r\/([^/]+)/);
+    if(pathMatch){
+      const sub=pathMatch[1];
+      const q=u.searchParams.get('q')||'';
+      const sort=u.searchParams.get('sort')||'new';
+      const t=u.searchParams.get('t')||'week';
+      const limit=u.searchParams.get('limit')||'15';
+      try{
+        const proxyRes=await fetch(`/api/reddit?sub=${encodeURIComponent(sub)}&q=${encodeURIComponent(q)}&sort=${sort}&t=${t}&limit=${limit}`,{signal:AbortSignal.timeout(10000)});
+        if(proxyRes.ok) return await proxyRes.json();
+      }catch(e){}
+    }
+  }catch(e){}
+
+  // Fallback: try direct + CORS proxies
   const proxies=[
     u=>u,
     u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
