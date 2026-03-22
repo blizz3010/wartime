@@ -799,8 +799,8 @@
         <option value="viewCount">Sort: Most Viewed</option>
       </select>
       <select id="videoTimeRange" style="background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:.65rem;padding:3px 8px;border-radius:4px" onchange="fetchVideos()">
-        <option value="day">Past 24h</option>
-        <option value="week" selected>Past Week</option>
+        <option value="day" selected>Past 24h</option>
+        <option value="week">Past Week</option>
         <option value="month">Past Month</option>
       </select>
       <button class="refresh-btn" onclick="fetchVideos()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
@@ -1372,10 +1372,23 @@ function stripHtml(html){
 }
 
 // ===== VIDEO CLIPS (Improved — focused on recent war clips) =====
-const REDDIT_SUBS=['CombatFootage','worldnews','iran','MiddleEastNews','geopolitics'];
-const REDDIT_QUERIES=['iran war 2026','iran strike footage','iran bombing','tehran attack','US Iran military'];
+const REDDIT_SUBS=['CombatFootage','worldnews','iran','MiddleEastNews','geopolitics','UkraineWarVideoReport'];
+const REDDIT_QUERIES=['iran war','iran strike footage','iran US military','tehran attack','strait of hormuz'];
 let allVideoClips=[];
 let currentVideoSource='all';
+
+// Content filter: block memes, parodies, reaction videos, gaming, and off-topic content
+const BLOCKED_TITLE_PATTERNS=[
+  /parody/i, /meme/i, /downfall/i, /hitler\s*reacts/i, /trump\s*reacts/i,
+  /reacts?\s*to/i, /reaction\s*video/i, /funny/i, /comedy/i, /satire/i,
+  /gameplay/i, /gaming/i, /lets?\s*play/i, /minecraft/i, /fortnite/i, /gta/i,
+  /edit|edits/i, /compilation\s*of\s*memes/i, /shitpost/i, /clickbait/i,
+  /prank/i, /challenge/i, /unboxing/i, /asmr/i, /mukbang/i,
+];
+function isBlockedContent(title){
+  if(!title) return false;
+  return BLOCKED_TITLE_PATTERNS.some(rx=>rx.test(title));
+}
 
 function switchVideoSource(src){
   currentVideoSource=src;
@@ -1386,7 +1399,7 @@ function switchVideoSource(src){
 }
 
 function getPublishedAfterDate(){
-  const range=document.getElementById('videoTimeRange')?.value||'week';
+  const range=document.getElementById('videoTimeRange')?.value||'day';
   const now=new Date();
   if(range==='day') now.setDate(now.getDate()-1);
   else if(range==='week') now.setDate(now.getDate()-7);
@@ -1395,22 +1408,22 @@ function getPublishedAfterDate(){
 }
 
 function getRedditTimeRange(){
-  const range=document.getElementById('videoTimeRange')?.value||'week';
+  const range=document.getElementById('videoTimeRange')?.value||'day';
   if(range==='day') return 'day';
   if(range==='week') return 'week';
   return 'month';
 }
 
 async function fetchYouTubeVideos(sortBy){
-  // More specific search terms focused on recent conflict footage
+  // Focused search terms — news channels, not memes
   const searches=[
-    'Iran war footage 2026',
-    'Iran strike video today',
-    'Iran Israel military operation',
-    'US strikes Iran IRGC',
-    'Strait of Hormuz blockade',
-    'Tehran air defense missile',
-    'Iran combat footage',
+    'Iran war news today',
+    'Iran US military strikes',
+    'Iran Israel operation',
+    'Strait of Hormuz navy',
+    'IRGC military',
+    'Tehran missile defense',
+    'Iran conflict footage',
   ];
   const publishedAfter=getPublishedAfterDate();
   let videos=[];
@@ -1421,7 +1434,10 @@ async function fetchYouTubeVideos(sortBy){
       const res=await fetch(`/api/videos?q=${encodeURIComponent(q)}&sort=${sortBy}&max=12&after=${encodeURIComponent(publishedAfter)}`,{signal:AbortSignal.timeout(10000)});
       if(res.ok){
         const data=await res.json();
-        if(data.videos&&data.videos.length>0) videos.push(...data.videos.map(v=>({...v,source:'youtube'})));
+        if(data.videos&&data.videos.length>0){
+          const filtered=data.videos.filter(v=>!isBlockedContent(v.title));
+          videos.push(...filtered.map(v=>({...v,source:'youtube'})));
+        }
       }
     }catch(e){continue}
     if(videos.length>=30) break;
@@ -1469,7 +1485,7 @@ async function fetchYouTubeVideos(sortBy){
     rssResults.forEach(r=>{if(r.status==='fulfilled')videos.push(...r.value)});
     // Filter for Iran-related content
     const iranKw=['iran','tehran','hormuz','irgc','strike','missile','war','conflict','military','bomb','nuclear','hezbollah','houthi'];
-    videos=videos.filter(v=>iranKw.some(k=>v.title.toLowerCase().includes(k)));
+    videos=videos.filter(v=>iranKw.some(k=>v.title.toLowerCase().includes(k))&&!isBlockedContent(v.title));
   }
   return videos;
 }
@@ -1512,22 +1528,39 @@ async function fetchRedditJSON(url){
 async function fetchRedditVideos(){
   const timeRange=getRedditTimeRange();
   let posts=[];
+  const seenUrls=new Set();
+  const seenTitles=new Set();
   const fetches=REDDIT_SUBS.map(async sub=>{
-    for(const q of REDDIT_QUERIES.slice(0,3)){ // limit queries per sub to reduce rate limiting
+    for(const q of REDDIT_QUERIES.slice(0,3)){
       try{
         const url=`https://www.reddit.com/r/${sub}/search.json?q=${encodeURIComponent(q)}&sort=new&t=${timeRange}&limit=15&restrict_sr=1`;
         const data=await fetchRedditJSON(url);
         if(!data) continue;
         const items=(data?.data?.children||[])
           .map(c=>c.data)
-          .filter(p=>p.is_video||p.domain==='v.redd.it'||p.domain==='youtube.com'||p.domain==='youtu.be'||
-                     (p.url&&(p.url.includes('youtube.com/watch')||p.url.includes('youtu.be/')||p.url.includes('v.redd.it')||p.url.includes('streamable.com'))));
+          .filter(p=>{
+            if(!(p.is_video||p.domain==='v.redd.it'||p.domain==='youtube.com'||p.domain==='youtu.be'||
+                 (p.url&&(p.url.includes('youtube.com/watch')||p.url.includes('youtu.be/')||p.url.includes('v.redd.it')||p.url.includes('streamable.com'))))) return false;
+            // Filter blocked content
+            if(isBlockedContent(p.title)) return false;
+            // Dedupe by URL (same link posted to multiple subs)
+            const normUrl=(p.url||'').replace(/[?#].*/,'').toLowerCase();
+            if(normUrl&&seenUrls.has(normUrl)) return false;
+            if(normUrl) seenUrls.add(normUrl);
+            // Dedupe by similar title (same story, different sub)
+            const normTitle=p.title.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,60);
+            if(seenTitles.has(normTitle)) return false;
+            seenTitles.add(normTitle);
+            return true;
+          });
         posts.push(...items);
       }catch(e){continue}
       if(posts.length>=30) break;
     }
   });
   await Promise.allSettled(fetches);
+  // Sort by score to keep the best version of cross-posted content
+  posts.sort((a,b)=>(b.score||0)-(a.score||0));
   return posts.map(p=>{
     const ytMatch=p.url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
     return {
@@ -1565,24 +1598,36 @@ async function fetchVideos(){
   let ytCount=0,rdCount=0;
 
   if(ytResult.status==='fulfilled'){
-    // Dedupe YouTube
+    // Dedupe YouTube by videoId
     const seen=new Set();
     ytResult.value.forEach(v=>{
       if(v.videoId&&!seen.has(v.videoId)){seen.add(v.videoId);allVideoClips.push(v);ytCount++}
     });
   }
   if(rdResult.status==='fulfilled'){
-    const seen=new Set(allVideoClips.filter(v=>v.videoId).map(v=>v.videoId));
+    // Dedupe Reddit against YouTube results (by videoId) and against each other
+    const seenIds=new Set(allVideoClips.filter(v=>v.videoId).map(v=>v.videoId));
+    const seenReddit=new Set();
     rdResult.value.forEach(v=>{
-      const key=v.videoId||v.id;
-      if(!seen.has(key)){seen.add(key);allVideoClips.push(v);rdCount++}
+      const vidKey=v.videoId||null;
+      if(vidKey&&seenIds.has(vidKey)) return; // Already in YouTube results
+      const redditKey=v.id;
+      if(seenReddit.has(redditKey)) return;
+      if(vidKey) seenIds.add(vidKey);
+      seenReddit.add(redditKey);
+      allVideoClips.push(v);rdCount++;
     });
   }
 
-  // Sort combined results
+  // Sort combined results by date
   allVideoClips.sort((a,b)=>new Date(b.publishedAt||0)-new Date(a.publishedAt||0));
 
-  status.textContent=`${ytCount} YouTube + ${rdCount} Reddit clips loaded`;
+  // Status message
+  const parts=[];
+  if(ytCount>0) parts.push(`${ytCount} YouTube`);
+  else parts.push('0 YouTube (API quota may be exceeded)');
+  parts.push(`${rdCount} Reddit`);
+  status.textContent=`${parts.join(' + ')} clips loaded`;
   renderVideoClips();
 
   // Update video tab badge
