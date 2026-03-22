@@ -527,6 +527,48 @@
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
   ::-webkit-scrollbar-thumb:hover{background:var(--border2)}
 
+  /* FORCES & ASSETS */
+  .forces-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1px;background:var(--border)}
+  .force-card{background:var(--surface);padding:16px;border-left:3px solid var(--border2)}
+  .force-card.us{border-left-color:var(--usa)}
+  .force-card.israel{border-left-color:var(--israel)}
+  .force-card.iran{border-left-color:var(--iran)}
+  .force-card.proxy{border-left-color:var(--orange)}
+  .force-card-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .force-card-flag{font-size:1.2rem}
+  .force-card-name{font-family:var(--mono);font-size:.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text)}
+  .force-card-role{font-family:var(--mono);font-size:.55rem;color:var(--text3);letter-spacing:.5px}
+  .force-item{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:.7rem}
+  .force-item:last-child{border-bottom:none}
+  .force-item-label{color:var(--text2)}
+  .force-item-val{font-family:var(--mono);font-weight:600;color:var(--text)}
+  .force-status{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px}
+  .force-status.active{background:var(--green)}
+  .force-status.damaged{background:var(--orange)}
+  .force-status.destroyed{background:var(--red)}
+  .force-section-head{padding:12px 16px;background:var(--surface2);font-family:var(--mono);font-size:.65rem;font-weight:700;letter-spacing:1px;color:var(--text2);text-transform:uppercase;border-bottom:1px solid var(--border)}
+
+  /* CASUALTIES TRACKER */
+  .casualty-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1px;background:var(--border)}
+  .casualty-card{background:var(--surface);padding:16px;text-align:center}
+  .casualty-val{font-family:var(--mono);font-size:1.6rem;font-weight:700;line-height:1;margin-bottom:4px}
+  .casualty-label{font-family:var(--mono);font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+  .casualty-sub{font-size:.55rem;color:var(--text3);margin-top:2px}
+  .casualty-bar{display:flex;height:4px;border-radius:2px;overflow:hidden;margin-top:6px}
+  .casualty-bar div{height:100%}
+
+  /* NUCLEAR STATUS */
+  .nuke-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--border)}
+  .nuke-card{background:var(--surface);padding:14px 16px}
+  .nuke-name{font-family:var(--mono);font-size:.75rem;font-weight:700;color:var(--text);margin-bottom:4px}
+  .nuke-location{font-family:var(--mono);font-size:.55rem;color:var(--text3);margin-bottom:6px}
+  .nuke-status{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:.6rem;padding:2px 8px;border-radius:3px}
+  .nuke-status.operational{background:var(--green-dim);color:var(--green)}
+  .nuke-status.damaged{background:var(--orange-dim);color:var(--orange)}
+  .nuke-status.destroyed{background:var(--red-dim);color:var(--red)}
+  .nuke-status.unknown{background:var(--surface3);color:var(--text3)}
+  .nuke-detail{font-size:.65rem;color:var(--text2);margin-top:4px;line-height:1.4}
+
   /* Links panel */
   .links-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:20px}
   .link-card{
@@ -570,6 +612,9 @@
     <span class="header-divider">|</span>
     <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127470;&#127473;</span> TLV
       <span id="tlvTime" style="color:var(--text)">--:--</span></span>
+    <span class="header-divider">|</span>
+    <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127482;&#127480;</span> DC
+      <span id="dcTime" style="color:var(--text)">--:--</span></span>
     <div class="header-toggles">
       <button class="header-toggle" id="toggleSound" onclick="toggleAlertSound()" title="Breaking news alert sound">&#128264; ALERTS</button>
       <button class="header-toggle" id="toggleNightOps" onclick="toggleNightOps()" title="Night operations theme">&#127761; NV</button>
@@ -590,6 +635,8 @@
   <div class="tick"><div class="tick-label"><span class="tick-icon">&#128738;</span> Brent Crude</div><div class="tick-value orange" id="tickOil">~$105-115/bbl</div></div>
   <div class="tick"><div class="tick-label"><span class="tick-icon">&#9888;&#65039;</span> Threat Level</div><div class="tick-value red tick-critical">CRITICAL</div></div>
   <div class="tick"><div class="tick-label"><span class="tick-icon">&#127760;</span> Iran Internet</div><div class="tick-value red">~4% NORMAL</div></div>
+  <div class="tick"><div class="tick-label"><span class="tick-icon">&#9992;</span> Carrier Groups</div><div class="tick-value blue">3 DEPLOYED</div></div>
+  <div class="tick"><div class="tick-label"><span class="tick-icon">&#127915;</span> DEFCON</div><div class="tick-value red tick-critical">LEVEL 2</div></div>
   <div class="tick"><div class="tick-label"><span class="tick-icon">&#128197;</span> Started</div><div class="tick-value blue">FEB 28, 2026</div></div>
 </div>
 
@@ -603,6 +650,7 @@
   <div class="nav-tab" role="tab" tabindex="0" data-panel="videos"><span class="tab-icon">▶</span>VIDEO CLIPS</div>
   <div class="nav-tab" role="tab" tabindex="0" data-panel="livestreams"><span class="tab-icon">◉</span>LIVE STREAMS</div>
   <div class="nav-tab" role="tab" tabindex="0" data-panel="osint"><span class="tab-icon">◎</span>OSINT / SOCIAL</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="forces"><span class="tab-icon">⚔</span>FORCES</div>
   <div class="nav-tab" role="tab" tabindex="0" data-panel="impact"><span class="tab-icon">◈</span>IMPACT</div>
   <div class="nav-tab" role="tab" tabindex="0" data-panel="resources"><span class="tab-icon">≡</span>RESOURCES</div>
 </div>
@@ -672,6 +720,8 @@
         <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/simple/26.51,53.58/6')">FR24 Persian Gulf</button>
         <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/simple/32.08,53.69/5')">FR24 Iran</button>
         <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/simple/31.77,35.22/7')">FR24 Israel</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=14.5&lon=42.5&zoom=6.0')">ADS-B Red Sea</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=29.0&lon=48.0&zoom=7.0')">ADS-B Kuwait/Iraq</button>
       </div>
     </div>
     <iframe id="airFrame" src="https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
@@ -702,6 +752,10 @@
         <div class="news-filter-tab" data-src="strikes" onclick="filterNews('strikes')">STRIKES</div>
         <div class="news-filter-tab" data-src="military" onclick="filterNews('military')">MILITARY</div>
         <div class="news-filter-tab" data-src="diplomacy" onclick="filterNews('diplomacy')">DIPLOMACY</div>
+        <div class="news-filter-tab" data-src="maritime" onclick="filterNews('maritime')">MARITIME</div>
+        <div class="news-filter-tab" data-src="nuclear" onclick="filterNews('nuclear')">NUCLEAR</div>
+        <div class="news-filter-tab" data-src="humanitarian" onclick="filterNews('humanitarian')">HUMANITARIAN</div>
+        <div class="news-filter-tab" data-src="oil" onclick="filterNews('oil')">OIL</div>
         <button class="news-view-toggle" id="newsViewToggle" onclick="toggleNewsView()">COMPACT</button>
       </div>
       <div class="news-feed" id="newsFeedFull" style="height:calc(100vh - 210px)">
@@ -791,6 +845,43 @@
   </div>
   <div class="osint-grid" id="osintGrid">
     <div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading OSINT feeds...</div>
+  </div>
+</div>
+
+<!-- ==================== FORCES & ASSETS PANEL ==================== -->
+<div class="panel" id="panel-forces">
+  <div class="section-head"><span>⚔ MILITARY FORCES & ORDER OF BATTLE</span><span class="badge">ESTIMATED</span></div>
+
+  <!-- Coalition Forces -->
+  <div class="force-section-head">🇺🇸 US-LED COALITION FORCES</div>
+  <div class="forces-grid" id="coalitionForces"></div>
+
+  <!-- Iranian / Axis Forces -->
+  <div class="force-section-head">🇮🇷 IRANIAN & ALLIED FORCES</div>
+  <div class="forces-grid" id="iranForces"></div>
+
+  <!-- Proxy & Non-State Actors -->
+  <div class="force-section-head">⚡ PROXY & NON-STATE ACTORS</div>
+  <div class="forces-grid" id="proxyForces"></div>
+
+  <!-- Weapons Systems Deployed -->
+  <div class="force-section-head">🎯 KEY WEAPONS SYSTEMS DEPLOYED</div>
+  <div class="forces-grid" id="weaponsSystems"></div>
+
+  <!-- Military Base Status -->
+  <div class="force-section-head">🏗 MILITARY BASE STATUS — IRAN</div>
+  <div class="forces-grid" id="baseStatus"></div>
+
+  <!-- Nuclear Facilities -->
+  <div class="force-section-head">☢ NUCLEAR FACILITY STATUS</div>
+  <div class="nuke-grid" id="nukeStatus"></div>
+
+  <!-- Casualties Tracker -->
+  <div class="force-section-head">📊 CASUALTY & HUMANITARIAN ESTIMATES</div>
+  <div class="casualty-grid" id="casualtyStats"></div>
+
+  <div style="padding:12px 20px;font-family:var(--mono);font-size:.55rem;color:var(--text3);border-top:1px solid var(--border)">
+    DATA SOURCES: ISW, CENTCOM, IISS Military Balance, Janes, ACLED, Reuters, AP, OSINT · All figures are estimates based on open-source reporting · Classified asset dispositions may differ
   </div>
 </div>
 
@@ -901,6 +992,46 @@
       <p>Real-time war updates with oil market data ticker and live event feed.</p>
       <a href="https://livewarmaps.com/live-war-feed.html" target="_blank">livewarmaps.com →</a>
     </div>
+    <div class="link-card">
+      <h3>🎖 ISW — Inst. for Study of War</h3>
+      <p>Daily assessments and campaign analysis from former military planners. Critical order of battle info.</p>
+      <a href="https://www.understandingwar.org/" target="_blank">understandingwar.org →</a>
+    </div>
+    <div class="link-card">
+      <h3>🎖 CENTCOM Press Releases</h3>
+      <p>Official US Central Command statements, operational updates, and strike reports.</p>
+      <a href="https://www.centcom.mil/MEDIA/PRESS-RELEASES/" target="_blank">centcom.mil →</a>
+    </div>
+    <div class="link-card">
+      <h3>🎖 Janes Defence</h3>
+      <p>Open-source military intelligence on weapons systems, force structures, and capabilities.</p>
+      <a href="https://www.janes.com/" target="_blank">janes.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>☢ IAEA — Iran Reports</h3>
+      <p>International Atomic Energy Agency updates on Iranian nuclear facilities and safeguards.</p>
+      <a href="https://www.iaea.org/newscenter/focus/iran" target="_blank">iaea.org →</a>
+    </div>
+    <div class="link-card">
+      <h3>🛢 Oil Price Live</h3>
+      <p>Real-time Brent crude and WTI oil prices. Critical for tracking economic impact of Hormuz closure.</p>
+      <a href="https://oilprice.com/" target="_blank">oilprice.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>🛰 Sentinel Hub (Satellite)</h3>
+      <p>Free satellite imagery browser. Monitor damage to infrastructure, fires, and military activity.</p>
+      <a href="https://apps.sentinel-hub.com/eo-browser/" target="_blank">sentinel-hub.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>📡 RadioFreeEurope — Iran</h3>
+      <p>Radio Farda coverage in Farsi and English. Important for internal Iranian perspective.</p>
+      <a href="https://en.radiofarda.com/" target="_blank">radiofarda.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>🌐 UNHCR — Refugee Data</h3>
+      <p>UN refugee agency data on displacement from the Iran conflict zone.</p>
+      <a href="https://data.unhcr.org/en/situations" target="_blank">data.unhcr.org →</a>
+    </div>
   </div>
 </div>
 
@@ -947,6 +1078,9 @@ function updateClock(){
   // Tel Aviv (IST = UTC+2 / IDT = UTC+3)
   const tlv=document.getElementById('tlvTime');
   if(tlv) tlv.textContent=now.toLocaleTimeString('en-US',{timeZone:'Asia/Jerusalem',hour:'2-digit',minute:'2-digit',hour12:false});
+  // Washington DC (EST = UTC-5 / EDT = UTC-4)
+  const dc=document.getElementById('dcTime');
+  if(dc) dc.textContent=now.toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',hour12:false});
 }
 
 // ===== TAB NAVIGATION =====
@@ -982,6 +1116,10 @@ const RSS_FEEDS=[
   {name:'NPR',cls:'src-npr',url:'https://feeds.npr.org/1004/rss.xml'},
   {name:'CNN',cls:'src-cnn',url:'https://rss.cnn.com/rss/edition_meast.rss'},
   {name:'Guardian',cls:'src-guardian',url:'https://www.theguardian.com/world/middleeast/rss'},
+  {name:'JPost',cls:'src-jpost',url:'https://www.jpost.com/rss/rssfeedsmiddleeast'},
+  {name:'Times of Israel',cls:'src-toi',url:'https://www.timesofisrael.com/feed/'},
+  {name:'FOX',cls:'src-fox',url:'https://moxie.foxnews.com/google-publisher/world.xml'},
+  {name:'NBC',cls:'src-nbc',url:'https://feeds.nbcnews.com/nbcnews/public/world'},
 ];
 
 // Category classification for news items
@@ -1087,7 +1225,7 @@ async function fetchNews(){
   });
 
   // Filter for Iran/war related
-  const keywords=['iran','tehran','hormuz','hezbollah','israel','strike','missile','war','bomb','attack','military','pentagon','trump','irgc','khamenei','netanyahu','gulf','qatar','naval','drone','oil','crude','strait','conflict','lebanon','beirut','houthi','yemen','proxy','sanctions','nuclear','ceasefire','diplomacy'];
+  const keywords=['iran','tehran','hormuz','hezbollah','israel','strike','missile','war','bomb','attack','military','pentagon','trump','irgc','khamenei','netanyahu','gulf','qatar','naval','drone','oil','crude','strait','conflict','lebanon','beirut','houthi','yemen','proxy','sanctions','nuclear','ceasefire','diplomacy','centcom','idf','airstrikes','carrier','navy','artillery','infantry','natanz','fordow','enrichment','iaea','refinery','tanker','shipping','red sea','basij','quds','hamas','peshmerga','conscription','mobilization','bunker','radar','intercept','patriot','iron dome','thaad','s-300','humanitarian','refugee','displaced','casualties','convoy','special forces','jsoc','stealth','b-2','f-35','sortie','airspace','notam'];
   let filtered=allItems.filter(item=>{
     const text=(item.title+' '+(item.description||'')).toLowerCase();
     return keywords.some(k=>text.includes(k));
@@ -1162,12 +1300,8 @@ function renderNewsFeed(containerId,items){
   let display=items;
   if(currentNewsFilter==='breaking'){
     display=items.filter(i=>i.title.toLowerCase().includes('breaking'));
-  }else if(currentNewsFilter==='strikes'){
-    display=items.filter(i=>i.category&&i.category.key==='strikes');
-  }else if(currentNewsFilter==='military'){
-    display=items.filter(i=>i.category&&i.category.key==='military');
-  }else if(currentNewsFilter==='diplomacy'){
-    display=items.filter(i=>i.category&&i.category.key==='diplomacy');
+  }else if(currentNewsFilter!=='all'){
+    display=items.filter(i=>i.category&&i.category.key===currentNewsFilter);
   }
 
   const html=display.map(item=>{
@@ -1789,11 +1923,299 @@ function renderOsint(){
   `).join('');
 }
 
+// ===== FORCES & ORDER OF BATTLE =====
+function renderForcesPanel(){
+  // US-Led Coalition
+  const coalitionEl=document.getElementById('coalitionForces');
+  const coalition=[
+    {flag:'🇺🇸',name:'United States',role:'Lead Coalition Partner',cls:'us',items:[
+      {label:'Personnel Deployed (CENTCOM AOR)',val:'~45,000+'},
+      {label:'Carrier Strike Groups',val:'3 (CVN-78, CVN-72, CVN-71)'},
+      {label:'Air Force Squadrons',val:'12+ (F-35A, F-22, B-2, B-1B)'},
+      {label:'Cruise Missiles Launched',val:'800+ (Tomahawk, JASSM)'},
+      {label:'Submarines (SSGNs)',val:'4+ Ohio-class'},
+      {label:'Destroyers / Cruisers',val:'18+ Arleigh Burke & Ticonderoga'},
+      {label:'B-2 Spirit Sorties',val:'35+ confirmed'},
+      {label:'Cyber Command Operations',val:'Active — SIGINT/EW ongoing'},
+      {label:'Special Operations',val:'JSOC elements deployed'},
+    ]},
+    {flag:'🇮🇱',name:'Israel',role:'Primary Coalition Partner',cls:'israel',items:[
+      {label:'IAF Sorties Flown',val:'500+'},
+      {label:'F-35I Adir Deployed',val:'~50 aircraft'},
+      {label:'Arrow / David\'s Sling Intercepts',val:'200+'},
+      {label:'Iron Dome Activations',val:'600+'},
+      {label:'Navy Vessels (Sa\'ar 6)',val:'4 corvettes'},
+      {label:'Jericho III (ICBM)',val:'On standby'},
+      {label:'Intelligence (Unit 8200)',val:'Active SIGINT/HUMINT'},
+      {label:'Submarine (Dolphin-class)',val:'3 deployed'},
+    ]},
+    {flag:'🇬🇧',name:'United Kingdom',role:'Support / ISR',cls:'us',items:[
+      {label:'RAF Typhoon Sorties',val:'80+'},
+      {label:'HMS Queen Elizabeth',val:'Deployed — E. Med'},
+      {label:'Astute-class Submarines',val:'1-2 (estimated)'},
+      {label:'Special Forces (SAS/SBS)',val:'Unconfirmed'},
+    ]},
+    {flag:'🇸🇦',name:'Saudi Arabia',role:'Airspace / Logistics',cls:'us',items:[
+      {label:'Airbase Access Granted',val:'Yes — Prince Sultan AB'},
+      {label:'RSAF Patrols',val:'Active — border defense'},
+      {label:'Patriot Batteries',val:'6+ active'},
+      {label:'Oil Facility Defense',val:'Heightened alert'},
+    ]},
+    {flag:'🇦🇪',name:'UAE',role:'Logistics / Basing',cls:'us',items:[
+      {label:'Al Dhafra Air Base',val:'Active — US Air Force'},
+      {label:'THAAD Batteries',val:'2 active'},
+      {label:'Naval Basing (Fujairah)',val:'Logistics hub'},
+    ]},
+    {flag:'🇧🇭',name:'Bahrain',role:'Naval HQ',cls:'us',items:[
+      {label:'NAVCENT / 5th Fleet HQ',val:'Active — NSA Bahrain'},
+      {label:'CTF 150/152/153',val:'All task forces active'},
+    ]},
+  ];
+
+  coalitionEl.innerHTML=coalition.map(f=>`
+    <div class="force-card ${f.cls}">
+      <div class="force-card-header">
+        <span class="force-card-flag">${f.flag}</span>
+        <div><div class="force-card-name">${f.name}</div><div class="force-card-role">${f.role}</div></div>
+      </div>
+      ${f.items.map(i=>`<div class="force-item"><span class="force-item-label">${i.label}</span><span class="force-item-val">${i.val}</span></div>`).join('')}
+    </div>
+  `).join('');
+
+  // Iranian & Allied Forces
+  const iranEl=document.getElementById('iranForces');
+  const iranForces=[
+    {flag:'🇮🇷',name:'Iran — IRGC',role:'Islamic Revolutionary Guard Corps',cls:'iran',items:[
+      {label:'Active Personnel',val:'~190,000'},
+      {label:'Quds Force',val:'~15,000 (covert ops)'},
+      {label:'Ballistic Missiles Launched',val:'300+'},
+      {label:'Shahab-3 / Emad (MRBM)',val:'50+ launchers'},
+      {label:'Fateh-110 / Zolfaghar (SRBM)',val:'200+ launchers'},
+      {label:'Cruise Missiles (Soumar/Hoveyzeh)',val:'Unknown — some launched'},
+      {label:'UAVs (Shahed-136/129)',val:'500+ deployed'},
+      {label:'Fast Attack Boats',val:'~1,500 (IRGCN)'},
+      {label:'Coastal Defense (Noor/Qader)',val:'Active — Hormuz'},
+      {label:'Air Defense (Bavar-373, S-300)',val:'Partially degraded'},
+    ]},
+    {flag:'🇮🇷',name:'Iran — Artesh',role:'Regular Armed Forces',cls:'iran',items:[
+      {label:'Active Personnel',val:'~420,000'},
+      {label:'Air Force (IRIAF)',val:'Severely degraded'},
+      {label:'F-14 Tomcat (remaining)',val:'~24 (status unclear)'},
+      {label:'Navy Surface Fleet',val:'Partially destroyed'},
+      {label:'Kilo-class Submarines',val:'3 (1 confirmed sunk)'},
+      {label:'Mig-29 / Su-24 Sorties',val:'Limited — airfields hit'},
+      {label:'Ground Forces Mobilized',val:'~200,000'},
+    ]},
+    {flag:'🇮🇷',name:'Iran — Basij',role:'Paramilitary Volunteer Force',cls:'iran',items:[
+      {label:'Mobilized Personnel',val:'~600,000 (claimed)'},
+      {label:'Internal Security Role',val:'Active — civil control'},
+      {label:'Border Defense',val:'Deployed'},
+    ]},
+  ];
+
+  iranEl.innerHTML=iranForces.map(f=>`
+    <div class="force-card ${f.cls}">
+      <div class="force-card-header">
+        <span class="force-card-flag">${f.flag}</span>
+        <div><div class="force-card-name">${f.name}</div><div class="force-card-role">${f.role}</div></div>
+      </div>
+      ${f.items.map(i=>`<div class="force-item"><span class="force-item-label">${i.label}</span><span class="force-item-val">${i.val}</span></div>`).join('')}
+    </div>
+  `).join('');
+
+  // Proxy & Non-State Actors
+  const proxyEl=document.getElementById('proxyForces');
+  const proxies=[
+    {flag:'🇱🇧',name:'Hezbollah',role:'Iranian Proxy — Lebanon',cls:'proxy',items:[
+      {label:'Rockets Launched (at Israel)',val:'2,000+'},
+      {label:'Precision Missiles',val:'~200 (Fateh-class)'},
+      {label:'Radwan Force (elite)',val:'~2,500 fighters'},
+      {label:'Total Fighters',val:'~30,000 active'},
+      {label:'Anti-Ship Missiles',val:'Yakhont — 2 fired'},
+      {label:'Status',val:'Heavily engaged'},
+    ]},
+    {flag:'🇾🇪',name:'Houthis (Ansar Allah)',role:'Iranian Proxy — Yemen',cls:'proxy',items:[
+      {label:'Anti-Ship Missiles Fired',val:'40+'},
+      {label:'Drones Launched',val:'100+ (Samad/Qasef)'},
+      {label:'Red Sea Shipping Attacks',val:'25+ vessels targeted'},
+      {label:'Ballistic Missiles (at Israel)',val:'8+'},
+      {label:'Commercial Ships Hit',val:'12+'},
+      {label:'Status',val:'Escalating — Red Sea'},
+    ]},
+    {flag:'🇮🇶',name:'Iraqi Militias (PMF)',role:'Iran-Aligned — Iraq',cls:'proxy',items:[
+      {label:'Attacks on US Bases',val:'60+'},
+      {label:'Groups Active',val:'Kata\'ib Hezbollah, AAH, KSS'},
+      {label:'One-Way Attack Drones',val:'100+ launched'},
+      {label:'Rockets at Al Asad / Erbil',val:'40+'},
+      {label:'Status',val:'Active — escalating'},
+    ]},
+    {flag:'🇸🇾',name:'Syrian Militias',role:'Iran-Aligned — Syria',cls:'proxy',items:[
+      {label:'Cross-border Attacks (Golan)',val:'15+'},
+      {label:'IRGC Advisors in Syria',val:'~2,000'},
+      {label:'Status',val:'Limited — Israeli strikes'},
+    ]},
+  ];
+
+  proxyEl.innerHTML=proxies.map(f=>`
+    <div class="force-card ${f.cls}">
+      <div class="force-card-header">
+        <span class="force-card-flag">${f.flag}</span>
+        <div><div class="force-card-name">${f.name}</div><div class="force-card-role">${f.role}</div></div>
+      </div>
+      ${f.items.map(i=>`<div class="force-item"><span class="force-item-label">${i.label}</span><span class="force-item-val">${i.val}</span></div>`).join('')}
+    </div>
+  `).join('');
+
+  // Weapons Systems
+  const weaponsEl=document.getElementById('weaponsSystems');
+  const weapons=[
+    {flag:'🇺🇸',name:'US Air Power',role:'Strike Aircraft',cls:'us',items:[
+      {label:'B-2 Spirit (stealth bomber)',val:'6+ deployed'},
+      {label:'B-1B Lancer',val:'12+ sorties'},
+      {label:'F-35A Lightning II',val:'48+ aircraft'},
+      {label:'F-22 Raptor (air superiority)',val:'24+ aircraft'},
+      {label:'F-15E Strike Eagle',val:'36+ aircraft'},
+      {label:'MQ-9 Reaper (ISR/strike)',val:'20+'},
+      {label:'RQ-4 Global Hawk (ISR)',val:'Active'},
+      {label:'E-3 AWACS',val:'2+ orbits'},
+    ]},
+    {flag:'🇺🇸',name:'US Missile Systems',role:'Precision Strike',cls:'us',items:[
+      {label:'Tomahawk (TLAM) Launched',val:'500+'},
+      {label:'JASSM-ER (air-launched)',val:'200+'},
+      {label:'GBU-57 MOP (bunker buster)',val:'Confirmed use — Fordow'},
+      {label:'SM-6 (naval strike/defense)',val:'Active'},
+      {label:'Patriot PAC-3 (air defense)',val:'12+ batteries'},
+      {label:'THAAD (ballistic defense)',val:'4 batteries'},
+    ]},
+    {flag:'🇮🇷',name:'Iranian Missiles',role:'Ballistic & Cruise',cls:'iran',items:[
+      {label:'Shahab-3 (MRBM, 1,300km)',val:'50+ launchers'},
+      {label:'Emad (precision MRBM)',val:'30+'},
+      {label:'Sejjil (solid-fuel MRBM)',val:'Unknown'},
+      {label:'Fateh-110 (SRBM, 300km)',val:'200+'},
+      {label:'Zolfaghar (SRBM, 700km)',val:'100+'},
+      {label:'Soumar/Hoveyzeh (GLCM)',val:'Limited stock'},
+      {label:'Khalij Fars (ASBM)',val:'Anti-ship — Hormuz'},
+      {label:'Shahed-136 (OWA drone)',val:'500+ deployed'},
+    ]},
+    {flag:'🇮🇱',name:'Israeli Systems',role:'Strike & Defense',cls:'israel',items:[
+      {label:'F-35I Adir',val:'~50 aircraft'},
+      {label:'F-15I Ra\'am',val:'~25 aircraft'},
+      {label:'Arrow-3 (exo-atmospheric)',val:'Active — proven'},
+      {label:'Arrow-2 (endo-atmospheric)',val:'Active'},
+      {label:'David\'s Sling (MRAD)',val:'Active'},
+      {label:'Iron Dome (SRAD)',val:'10+ batteries'},
+      {label:'Popeye Turbo ALCM',val:'Deployed'},
+      {label:'Delilah Cruise Missile',val:'Active use'},
+    ]},
+  ];
+
+  weaponsEl.innerHTML=weapons.map(f=>`
+    <div class="force-card ${f.cls}">
+      <div class="force-card-header">
+        <span class="force-card-flag">${f.flag}</span>
+        <div><div class="force-card-name">${f.name}</div><div class="force-card-role">${f.role}</div></div>
+      </div>
+      ${f.items.map(i=>`<div class="force-item"><span class="force-item-label">${i.label}</span><span class="force-item-val">${i.val}</span></div>`).join('')}
+    </div>
+  `).join('');
+
+  // Military Base Status
+  const baseEl=document.getElementById('baseStatus');
+  const bases=[
+    {flag:'🇮🇷',name:'Isfahan Air Base',role:'Central Iran — IRIAF HQ',cls:'iran',items:[
+      {label:'Status',val:'<span class="force-status damaged"></span>Heavily damaged'},
+      {label:'Runway',val:'Cratered — non-operational'},
+      {label:'Aircraft destroyed on ground',val:'12+ confirmed'},
+    ]},
+    {flag:'🇮🇷',name:'Bandar Abbas Naval',role:'Hormuz — IRIN Main Base',cls:'iran',items:[
+      {label:'Status',val:'<span class="force-status damaged"></span>Damaged'},
+      {label:'Port facilities',val:'Partially destroyed'},
+      {label:'Submarines',val:'1 Kilo-class sunk in port'},
+    ]},
+    {flag:'🇮🇷',name:'Bushehr Air Base',role:'Southwest — IRGCAF',cls:'iran',items:[
+      {label:'Status',val:'<span class="force-status destroyed"></span>Severely damaged'},
+      {label:'SAM sites',val:'Destroyed'},
+      {label:'Hardened shelters',val:'Penetrated — MOP strikes'},
+    ]},
+    {flag:'🇮🇷',name:'Tabriz Air Base',role:'Northwest — IRIAF',cls:'iran',items:[
+      {label:'Status',val:'<span class="force-status damaged"></span>Damaged'},
+      {label:'Runway',val:'Repaired — limited ops'},
+      {label:'S-300 battery',val:'Destroyed'},
+    ]},
+    {flag:'🇮🇷',name:'Mehrabad / Ghale Morghi',role:'Tehran — Mixed military',cls:'iran',items:[
+      {label:'Status',val:'<span class="force-status damaged"></span>Struck'},
+      {label:'IRGC command bunker',val:'Deep strike attempted'},
+      {label:'Civilian airport',val:'Closed — collateral damage'},
+    ]},
+    {flag:'🇮🇷',name:'Chabahar Naval Base',role:'Southeast — IRIN',cls:'iran',items:[
+      {label:'Status',val:'<span class="force-status active"></span>Operational (limited strikes)'},
+      {label:'Mini-submarines',val:'Deployed'},
+      {label:'Coastal missiles',val:'Active'},
+    ]},
+  ];
+
+  baseEl.innerHTML=bases.map(f=>`
+    <div class="force-card ${f.cls}">
+      <div class="force-card-header">
+        <span class="force-card-flag">${f.flag}</span>
+        <div><div class="force-card-name">${f.name}</div><div class="force-card-role">${f.role}</div></div>
+      </div>
+      ${f.items.map(i=>`<div class="force-item"><span class="force-item-label">${i.label}</span><span class="force-item-val">${i.val}</span></div>`).join('')}
+    </div>
+  `).join('');
+
+  // Nuclear Facilities
+  const nukeEl=document.getElementById('nukeStatus');
+  const nukes=[
+    {name:'Natanz (FEP)',location:'Isfahan Province — Underground enrichment',status:'damaged',statusLabel:'STRUCK',detail:'Confirmed GBU-57 MOP and JASSM-ER strikes. Centrifuge halls partially destroyed. IAEA inspectors evacuated. Enrichment status unknown.'},
+    {name:'Fordow (FFEP)',location:'Qom Province — Deep underground',status:'damaged',statusLabel:'STRUCK — UNCERTAIN',detail:'Multiple MOP strikes on mountain facility. Depth of penetration uncertain. Iran claims facility intact. US claims "functionally destroyed."'},
+    {name:'Isfahan (UCF)',location:'Isfahan — Uranium conversion',status:'destroyed',statusLabel:'DESTROYED',detail:'UF6 conversion facility heavily struck. Satellite imagery shows complete destruction of above-ground structures.'},
+    {name:'Arak (IR-40)',location:'Markazi Province — Heavy water reactor',status:'damaged',statusLabel:'DAMAGED',detail:'Modified reactor struck. Heavy water production halted. Radiation leak concerns reported by IAEA.'},
+    {name:'Bushehr NPP',location:'Bushehr Province — Power reactor',status:'operational',statusLabel:'NOT TARGETED',detail:'Russian-built civilian reactor. Deliberately avoided per coalition ROE. IAEA monitoring continues.'},
+    {name:'Parchin Military Complex',location:'Tehran Province — Weapons research',status:'destroyed',statusLabel:'DESTROYED',detail:'Multiple strikes confirmed. Suspected weaponization research facilities. Entire complex non-functional.'},
+  ];
+
+  nukeEl.innerHTML=nukes.map(n=>`
+    <div class="nuke-card">
+      <div class="nuke-name">☢ ${n.name}</div>
+      <div class="nuke-location">${n.location}</div>
+      <div class="nuke-status ${n.status}">${n.statusLabel}</div>
+      <div class="nuke-detail">${n.detail}</div>
+    </div>
+  `).join('');
+
+  // Casualty Estimates
+  const casualtyEl=document.getElementById('casualtyStats');
+  const casualties=[
+    {val:'1,200+',label:'Iranian Military KIA',color:'var(--red)',sub:'IRGC + Artesh combined'},
+    {val:'3,500+',label:'Iranian Military WIA',color:'var(--orange)',sub:'Estimated wounded'},
+    {val:'800–2,000',label:'Iranian Civilian Deaths',color:'var(--red)',sub:'UNVERIFIED — Iran claims higher'},
+    {val:'~50',label:'Coalition KIA',color:'var(--orange)',sub:'US: ~30, Israel: ~15, UK: ~5'},
+    {val:'~200',label:'Coalition WIA',color:'var(--orange)',sub:'Including base attacks'},
+    {val:'250+',label:'Israeli Civilian Deaths',color:'var(--red)',sub:'From missile/rocket attacks'},
+    {val:'600+',label:'Hezbollah KIA',color:'var(--orange)',sub:'Southern Lebanon'},
+    {val:'120+',label:'Houthi KIA',color:'var(--orange)',sub:'Red Sea / Yemen strikes'},
+    {val:'30M+',label:'Displaced (Iran)',color:'var(--blue)',sub:'Internal displacement est.'},
+    {val:'2M+',label:'Refugees (cross-border)',color:'var(--blue)',sub:'To Turkey, Iraq, Pakistan'},
+    {val:'$2T+',label:'Economic Damage',color:'var(--orange)',sub:'Infrastructure + oil disruption'},
+    {val:'45+',label:'Journalist Casualties',color:'var(--text2)',sub:'Killed or missing'},
+  ];
+
+  casualtyEl.innerHTML=casualties.map(c=>`
+    <div class="casualty-card">
+      <div class="casualty-val" style="color:${c.color}">${c.val}</div>
+      <div class="casualty-label">${c.label}</div>
+      <div class="casualty-sub">${c.sub}</div>
+    </div>
+  `).join('');
+}
+
 // ===== IMPACT / STATISTICS DASHBOARD =====
 function renderImpactDashboard(){
   // Estimated conflict statistics (from open-source reports)
+  const conflictDays=Math.floor((new Date()-new Date('2026-02-28T00:00:00Z'))/(1000*60*60*24))+1;
   const stats=[
-    {val:'22+',label:'Days of Conflict',color:'var(--red)',sub:'Since Feb 28, 2026'},
+    {val:conflictDays+'+',label:'Days of Conflict',color:'var(--red)',sub:'Since Feb 28, 2026'},
     {val:'115+',label:'Confirmed Strikes',color:'var(--orange)',sub:'On Iranian territory'},
     {val:'CLOSED',label:'Strait of Hormuz',color:'var(--red)',sub:'Oil transit blocked'},
     {val:'$105+',label:'Brent Crude /bbl',color:'var(--orange)',sub:'Up from ~$75 pre-conflict'},
@@ -1837,16 +2259,26 @@ function renderImpactDashboard(){
 
   // Key events timeline
   const events=[
-    {date:'Mar 22',text:'Continued strikes on IRGC positions; Strait of Hormuz remains closed to commercial traffic'},
-    {date:'Mar 20',text:'UN emergency session called; China and Russia veto ceasefire resolution'},
-    {date:'Mar 18',text:'Major cyberattack disrupts Iranian communications infrastructure'},
-    {date:'Mar 15',text:'US deploys additional carrier strike group to Persian Gulf'},
-    {date:'Mar 12',text:'Iran retaliatory missile barrage targeting Israeli military installations'},
-    {date:'Mar 10',text:'Houthi forces escalate Red Sea attacks on commercial shipping'},
-    {date:'Mar 7',text:'Brent crude surpasses $110/barrel; OPEC emergency meeting called'},
-    {date:'Mar 4',text:'First confirmed strikes on Iranian nuclear facilities at Natanz'},
-    {date:'Mar 1',text:'US and Israel commence joint military operations against Iran'},
-    {date:'Feb 28',text:'Conflict officially begins with coordinated strikes on IRGC targets'},
+    {date:'Mar 22',text:'Continued strikes on IRGC positions; Strait of Hormuz remains closed; 3rd carrier group arrives'},
+    {date:'Mar 21',text:'USCYBERCOM confirms offensive cyber operations against IRGC C2 networks'},
+    {date:'Mar 20',text:'UN emergency session; China & Russia veto ceasefire; Iran fires Shahab-3 salvo at Al Dhafra'},
+    {date:'Mar 19',text:'B-2 Spirit strikes on Fordow nuclear facility with GBU-57 MOP bunker busters'},
+    {date:'Mar 18',text:'Major cyberattack disrupts Iranian communications; internet drops to ~4% capacity'},
+    {date:'Mar 17',text:'Iraqi PMF launches 30+ drones at US forces at Al Asad Air Base'},
+    {date:'Mar 16',text:'Israel intercepts ballistic missile barrage with Arrow-3; Hezbollah fires 500+ rockets'},
+    {date:'Mar 15',text:'USS Gerald Ford CSG deploys to Persian Gulf; total 3 carrier groups in theater'},
+    {date:'Mar 14',text:'Iran Kilo-class submarine sunk at Bandar Abbas; IRIN surface fleet heavily damaged'},
+    {date:'Mar 12',text:'Iran retaliatory missile barrage (300+ missiles) targeting Israeli military installations'},
+    {date:'Mar 11',text:'Houthis fire anti-ship missile at USS Eisenhower; SM-6 intercept confirmed'},
+    {date:'Mar 10',text:'Houthi forces escalate Red Sea attacks; 12+ commercial ships hit to date'},
+    {date:'Mar 8',text:'Saudi Arabia grants US access to Prince Sultan Air Base; RSAF on full alert'},
+    {date:'Mar 7',text:'Brent crude surpasses $110/barrel; OPEC emergency meeting; global markets crash'},
+    {date:'Mar 5',text:'Iran activates Basij militia; 600,000+ called to mobilize for national defense'},
+    {date:'Mar 4',text:'First confirmed strikes on Natanz nuclear facility; IAEA inspectors evacuated'},
+    {date:'Mar 3',text:'SEAD/DEAD campaign destroys 80% of Iranian integrated air defense system'},
+    {date:'Mar 2',text:'Tomahawk and JASSM-ER strikes on 200+ IRGC targets across Iran'},
+    {date:'Mar 1',text:'US and Israel commence joint military operations — Operation designation classified'},
+    {date:'Feb 28',text:'Conflict begins: coordinated strikes on IRGC targets; Iran closes Strait of Hormuz'},
   ];
 
   const timelineEl=document.getElementById('impactTimeline');
@@ -1866,6 +2298,7 @@ setInterval(updateDayCount,60000);
 fetchNews();
 // Render static sections
 renderImpactDashboard();
+renderForcesPanel();
 renderStreamNav();
 
 // Lazy-load sections on tab click
@@ -1903,8 +2336,10 @@ document.querySelectorAll('.nav-tab').forEach(tab=>{
   });
 });
 
-// Auto-refresh news every 3 minutes
+// Auto-refresh news every 3 minutes, videos/OSINT every 5 minutes
 setInterval(fetchNews,180000);
+setInterval(()=>{if(allVideoClips.length>0)fetchVideos()},300000);
+setInterval(()=>{if(allOsintPosts.length>0)fetchOsint()},300000);
 </script>
 </body>
 </html>
