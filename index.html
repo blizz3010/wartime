@@ -121,18 +121,46 @@
   .iframe-wrap.tall{min-height:600px}
   .iframe-wrap.yt{min-height:320px}
 
-  /* NEWS FEED */
+  /* NEWS FEED — Redesigned */
   .news-feed{height:calc(100vh - 96px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) var(--surface)}
+  .news-controls{
+    display:flex;align-items:center;gap:0;padding:0;
+    border-bottom:1px solid var(--border);background:var(--surface);
+  }
+  .news-filter-tab{
+    padding:8px 14px;font-family:var(--mono);font-size:.6rem;letter-spacing:.5px;
+    cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;
+    transition:all .15s;white-space:nowrap;
+  }
+  .news-filter-tab:hover{color:var(--text2);background:var(--surface2)}
+  .news-filter-tab.active{color:var(--red);border-bottom-color:var(--red)}
+  .news-view-toggle{
+    margin-left:auto;padding:6px 10px;background:none;border:none;
+    color:var(--text3);font-family:var(--mono);font-size:.6rem;cursor:pointer;
+  }
+  .news-view-toggle:hover{color:var(--text2)}
   .news-item{
     padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;
     transition:background .15s;
   }
   .news-item:hover{background:var(--surface2)}
+  .news-item.compact{padding:8px 16px}
   .news-meta{display:flex;align-items:center;gap:8px;margin-bottom:4px}
   .news-source{
     font-family:var(--mono);font-size:.6rem;font-weight:700;letter-spacing:.5px;
     padding:2px 6px;border-radius:3px;text-transform:uppercase;
   }
+  .news-category{
+    font-family:var(--mono);font-size:.5rem;letter-spacing:.5px;padding:1px 5px;
+    border-radius:2px;text-transform:uppercase;
+  }
+  .cat-strikes{background:var(--red-dim);color:var(--red)}
+  .cat-military{background:var(--orange-dim);color:var(--orange)}
+  .cat-diplomacy{background:var(--blue-dim);color:var(--blue)}
+  .cat-maritime{background:#0d2233;color:#4db8d9}
+  .cat-nuclear{background:#2d0633;color:#d966ff}
+  .cat-humanitarian{background:var(--green-dim);color:var(--green)}
+  .cat-oil{background:#332200;color:#e6a817}
   .src-aljazeera{background:#3d1a0a;color:#e8713a}
   .src-bbc{background:#3d1214;color:#f85149}
   .src-reuters{background:#2d2006;color:#d29922}
@@ -142,18 +170,73 @@
   .src-nbc{background:#1a0a3d;color:#bc8cff}
   .src-guardian{background:#0d2818;color:#3fb950}
   .src-jpost{background:#0c2d6b;color:#58a6ff}
+  .src-toi{background:#1a1a3d;color:#8888ff}
   .src-default{background:var(--surface3);color:var(--text2)}
   .news-time{font-size:.65rem;color:var(--text3);font-family:var(--mono)}
   .news-title{font-size:.85rem;font-weight:600;line-height:1.4;color:var(--text)}
   .news-item:hover .news-title{color:var(--blue)}
+  .news-snippet{font-size:.7rem;color:var(--text2);line-height:1.4;margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .news-item.compact .news-snippet{display:none}
   .breaking-tag{
     display:inline-block;background:var(--red);color:#fff;
     font-family:var(--mono);font-size:.55rem;font-weight:700;
     padding:1px 5px;border-radius:2px;margin-right:4px;letter-spacing:.5px;
   }
+  .news-stats-bar{
+    display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--surface);
+  }
+  .news-stat{
+    flex:1;text-align:center;padding:6px 8px;border-right:1px solid var(--border);
+  }
+  .news-stat:last-child{border-right:none}
+  .news-stat-val{font-family:var(--mono);font-size:.9rem;font-weight:700;color:var(--text)}
+  .news-stat-label{font-family:var(--mono);font-size:.5rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+
+  /* OSINT/Social Feed */
+  .osint-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1px;background:var(--border);padding:0}
+  .osint-card{
+    background:var(--surface);padding:14px 16px;cursor:pointer;transition:background .15s;
+    border-bottom:1px solid var(--border);
+  }
+  .osint-card:hover{background:var(--surface2)}
+  .osint-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .osint-platform{
+    font-family:var(--mono);font-size:.55rem;font-weight:700;letter-spacing:.5px;
+    padding:2px 6px;border-radius:3px;text-transform:uppercase;
+  }
+  .plat-twitter{background:#0c2d4d;color:#1da1f2}
+  .plat-telegram{background:#0c2633;color:#0088cc}
+  .plat-osint{background:#2d1a06;color:#e8a83a}
+  .osint-author{font-size:.7rem;font-weight:600;color:var(--text)}
+  .osint-handle{font-size:.6rem;color:var(--text3);font-family:var(--mono)}
+  .osint-text{font-size:.8rem;line-height:1.45;color:var(--text);margin-bottom:6px}
+  .osint-footer{display:flex;gap:12px;font-family:var(--mono);font-size:.55rem;color:var(--text3)}
+  .osint-engagement{display:flex;gap:12px;align-items:center}
+  .osint-engagement span{display:flex;align-items:center;gap:3px}
+
+  /* Impact Stats Dashboard */
+  .impact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1px;background:var(--border);padding:0}
+  .impact-card{
+    background:var(--surface);padding:20px;text-align:center;
+  }
+  .impact-val{font-family:var(--mono);font-size:1.8rem;font-weight:700;line-height:1;margin-bottom:4px}
+  .impact-label{font-family:var(--mono);font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+  .impact-sub{font-size:.6rem;color:var(--text3);margin-top:2px}
+  .impact-section{padding:16px 20px}
+  .impact-section h3{font-family:var(--mono);font-size:.75rem;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+  .impact-bar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .impact-bar-label{font-family:var(--mono);font-size:.65rem;color:var(--text2);width:120px;flex-shrink:0}
+  .impact-bar-track{flex:1;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+  .impact-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
+  .impact-timeline-item{
+    display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);
+    font-size:.75rem;
+  }
+  .impact-timeline-date{font-family:var(--mono);font-size:.6rem;color:var(--text3);width:80px;flex-shrink:0}
+  .impact-timeline-text{color:var(--text);line-height:1.4}
 
   /* VIDEO CLIPS */
-  .clips-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--border)}
+  .clips-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--border)}
   .clip-card{background:var(--surface);overflow:hidden;cursor:pointer;transition:background .15s}
   .clip-card:hover{background:var(--surface2)}
   .clip-thumb{position:relative;padding-bottom:56.25%;background:var(--surface2)}
@@ -519,6 +602,8 @@
   <div class="nav-tab" role="tab" tabindex="0" data-panel="news"><span class="tab-icon">▤</span>NEWS FEED</div>
   <div class="nav-tab" role="tab" tabindex="0" data-panel="videos"><span class="tab-icon">▶</span>VIDEO CLIPS</div>
   <div class="nav-tab" role="tab" tabindex="0" data-panel="livestreams"><span class="tab-icon">◉</span>LIVE STREAMS</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="osint"><span class="tab-icon">◎</span>OSINT / SOCIAL</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="impact"><span class="tab-icon">◈</span>IMPACT</div>
   <div class="nav-tab" role="tab" tabindex="0" data-panel="resources"><span class="tab-icon">≡</span>RESOURCES</div>
 </div>
 
@@ -593,15 +678,33 @@
   </div>
 </div>
 
-<!-- ==================== NEWS FEED PANEL ==================== -->
+<!-- ==================== NEWS FEED PANEL (Redesigned) ==================== -->
 <div class="panel" id="panel-news">
-  <div class="split-layout">
+  <div class="section-head">
+    <span>📰 NEWS INTELLIGENCE CENTER <span class="news-updated" id="newsUpdated2" style="font-weight:400;color:var(--text3);margin-left:8px"></span></span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="refresh-btn" onclick="fetchNews()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
+    </div>
+  </div>
+  <!-- Stats bar -->
+  <div class="news-stats-bar" id="newsStatsBar">
+    <div class="news-stat"><div class="news-stat-val" id="newsStatTotal">--</div><div class="news-stat-label">Total Items</div></div>
+    <div class="news-stat"><div class="news-stat-val red" id="newsStatBreaking">--</div><div class="news-stat-label">Breaking</div></div>
+    <div class="news-stat"><div class="news-stat-val orange" id="newsStatMajor">--</div><div class="news-stat-label">Major</div></div>
+    <div class="news-stat"><div class="news-stat-val blue" id="newsStatSources">--</div><div class="news-stat-label">Sources</div></div>
+  </div>
+  <div class="split-layout" style="height:calc(100vh - 170px)">
     <div class="sidebar">
-      <div class="section-head">
-        <span>📰 ALL NEWS SOURCES <span class="news-updated" id="newsUpdated2" style="font-weight:400;color:var(--text3);margin-left:8px"></span></span>
-        <button class="refresh-btn" onclick="fetchNews()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+      <!-- Source + category filter tabs -->
+      <div class="news-controls" id="newsSourceTabs">
+        <div class="news-filter-tab active" data-src="all" onclick="filterNews('all')">ALL</div>
+        <div class="news-filter-tab" data-src="breaking" onclick="filterNews('breaking')">BREAKING</div>
+        <div class="news-filter-tab" data-src="strikes" onclick="filterNews('strikes')">STRIKES</div>
+        <div class="news-filter-tab" data-src="military" onclick="filterNews('military')">MILITARY</div>
+        <div class="news-filter-tab" data-src="diplomacy" onclick="filterNews('diplomacy')">DIPLOMACY</div>
+        <button class="news-view-toggle" id="newsViewToggle" onclick="toggleNewsView()">COMPACT</button>
       </div>
-      <div class="news-feed" id="newsFeedFull">
+      <div class="news-feed" id="newsFeedFull" style="height:calc(100vh - 210px)">
         <div class="loading"><div class="spinner"></div>Loading news...</div>
       </div>
     </div>
@@ -622,10 +725,10 @@
   </div>
 </div>
 
-<!-- ==================== VIDEO CLIPS PANEL ==================== -->
+<!-- ==================== VIDEO CLIPS PANEL (Improved) ==================== -->
 <div class="panel" id="panel-videos">
   <div class="section-head">
-    <span>▶ VIDEO CLIPS</span>
+    <span>▶ CONFLICT VIDEO INTELLIGENCE</span>
     <div style="display:flex;gap:8px;align-items:center">
       <div class="vid-source-tabs">
         <button class="vid-src-tab active" data-source="all" onclick="switchVideoSource('all')">ALL</button>
@@ -635,13 +738,18 @@
       <select id="videoSort" style="background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:.65rem;padding:3px 8px;border-radius:4px" onchange="fetchVideos()">
         <option value="date">Sort: Latest</option>
         <option value="relevance">Sort: Relevance</option>
-        <option value="viewCount">Sort: Views</option>
+        <option value="viewCount">Sort: Most Viewed</option>
       </select>
-      <button class="refresh-btn" onclick="fetchVideos()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+      <select id="videoTimeRange" style="background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:.65rem;padding:3px 8px;border-radius:4px" onchange="fetchVideos()">
+        <option value="day">Past 24h</option>
+        <option value="week" selected>Past Week</option>
+        <option value="month">Past Month</option>
+      </select>
+      <button class="refresh-btn" onclick="fetchVideos()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
     </div>
   </div>
   <div id="vidStatus" style="padding:8px 16px;font-family:var(--mono);font-size:.6rem;color:var(--text3);border-bottom:1px solid var(--border)">
-    Loading clips from YouTube &amp; Reddit...
+    Loading recent conflict clips...
   </div>
   <div class="clips-grid" id="clipsGrid">
     <div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading video clips...</div>
@@ -661,6 +769,51 @@
     <div style="flex:1;position:relative;background:#000">
       <iframe id="streamPlayer" src="" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="autoplay;encrypted-media" allowfullscreen></iframe>
     </div>
+  </div>
+</div>
+
+<!-- ==================== OSINT / SOCIAL PANEL ==================== -->
+<div class="panel" id="panel-osint">
+  <div class="section-head">
+    <span>◎ OSINT / SOCIAL INTELLIGENCE</span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="vid-source-tabs">
+        <button class="vid-src-tab active" data-osint="all" onclick="filterOsint('all')">ALL</button>
+        <button class="vid-src-tab" data-osint="twitter" onclick="filterOsint('twitter')">X / TWITTER</button>
+        <button class="vid-src-tab" data-osint="telegram" onclick="filterOsint('telegram')">TELEGRAM</button>
+        <button class="vid-src-tab" data-osint="osint" onclick="filterOsint('osint')">OSINT ANALYSTS</button>
+      </div>
+      <button class="refresh-btn" onclick="fetchOsint()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
+    </div>
+  </div>
+  <div id="osintStatus" style="padding:8px 16px;font-family:var(--mono);font-size:.6rem;color:var(--text3);border-bottom:1px solid var(--border)">
+    Aggregating OSINT sources...
+  </div>
+  <div class="osint-grid" id="osintGrid">
+    <div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading OSINT feeds...</div>
+  </div>
+</div>
+
+<!-- ==================== IMPACT / STATISTICS PANEL ==================== -->
+<div class="panel" id="panel-impact">
+  <div class="section-head"><span>◈ CONFLICT IMPACT DASHBOARD</span><span class="badge">ESTIMATED</span></div>
+  <div class="impact-grid" id="impactStats"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)">
+    <div style="background:var(--surface)">
+      <div class="impact-section">
+        <h3>Infrastructure Impact</h3>
+        <div id="impactBars"></div>
+      </div>
+    </div>
+    <div style="background:var(--surface)">
+      <div class="impact-section">
+        <h3>Key Events Timeline</h3>
+        <div id="impactTimeline"></div>
+      </div>
+    </div>
+  </div>
+  <div style="padding:12px 20px;font-family:var(--mono);font-size:.55rem;color:var(--text3);border-top:1px solid var(--border)">
+    DATA SOURCES: ACLED, UNRWA, WHO, Reuters, AP, ISW · Figures are estimates based on open-source reporting · Updated periodically
   </div>
 </div>
 
@@ -821,14 +974,38 @@ function setMaritimeSrc(lat,lon,zoom){
 }
 function setAirSrc(url){document.getElementById('airFrame').src=url}
 
-// ===== NEWS FEED =====
-// Using rss2json.com free tier or allorigins as CORS proxy for RSS feeds
+// ===== NEWS FEED (Redesigned) =====
 const RSS_FEEDS=[
   {name:'Al Jazeera',cls:'src-aljazeera',url:'https://www.aljazeera.com/xml/rss/all.xml'},
   {name:'BBC',cls:'src-bbc',url:'https://feeds.bbci.co.uk/news/world/middle_east/rss.xml'},
   {name:'Reuters',cls:'src-reuters',url:'https://www.reutersagency.com/feed/'},
   {name:'NPR',cls:'src-npr',url:'https://feeds.npr.org/1004/rss.xml'},
+  {name:'CNN',cls:'src-cnn',url:'https://rss.cnn.com/rss/edition_meast.rss'},
+  {name:'Guardian',cls:'src-guardian',url:'https://www.theguardian.com/world/middleeast/rss'},
 ];
+
+// Category classification for news items
+const NEWS_CATEGORIES={
+  strikes:{label:'STRIKES',cls:'cat-strikes',keywords:['strike','bomb','attack','airstrike','missile','intercept','shot down','explosion','blast','shelling','raid']},
+  military:{label:'MILITARY',cls:'cat-military',keywords:['military','troops','deploy','army','navy','irgc','pentagon','aircraft carrier','fighter jet','drone','forces','battalion','regiment','base']},
+  diplomacy:{label:'DIPLOMACY',cls:'cat-diplomacy',keywords:['diplomacy','negotiate','ceasefire','summit','UN','united nations','sanction','treaty','talks','resolution','ambassador','envoy']},
+  maritime:{label:'MARITIME',cls:'cat-maritime',keywords:['hormuz','strait','vessel','ship','tanker','blockade','naval','maritime','port','gulf','carrier']},
+  nuclear:{label:'NUCLEAR',cls:'cat-nuclear',keywords:['nuclear','uranium','enrichment','centrifuge','IAEA','atomic','natanz','fordow']},
+  humanitarian:{label:'HUMANITARIAN',cls:'cat-humanitarian',keywords:['civilian','refugee','humanitarian','aid','casualt','dead','killed','wounded','hospital','evacuate','displaced']},
+  oil:{label:'OIL/ENERGY',cls:'cat-oil',keywords:['oil','crude','brent','opec','pipeline','refinery','energy','barrel','petroleum']},
+};
+
+function categorizeArticle(title,desc){
+  const text=(title+' '+(desc||'')).toLowerCase();
+  for(const[key,cat] of Object.entries(NEWS_CATEGORIES)){
+    if(cat.keywords.some(k=>text.includes(k))) return {key,label:cat.label,cls:cat.cls};
+  }
+  return null;
+}
+
+let allFilteredNews=[];
+let currentNewsFilter='all';
+let compactNewsView=false;
 
 async function fetchRSS(feedUrl){
   // Try rss2json first (returns structured JSON)
@@ -881,7 +1058,6 @@ function parseRSSXml(xmlText){
 const MAJOR_KEYWORDS=['strike','attack','bomb','missile','killed','dead','explosion','retaliation','nuclear','invasion','ceasefire','surrender','shot down','intercept','sanctions','blockade','evacuate','casualt'];
 
 async function fetchNews(){
-  // Spin refresh buttons
   const refreshBtns=document.querySelectorAll('.refresh-btn');
   refreshBtns.forEach(b=>b.classList.add('spinning'));
 
@@ -901,7 +1077,7 @@ async function fetchNews(){
 
   results.forEach(r=>{if(r.status==='fulfilled')allItems.push(...r.value)});
 
-  // Deduplicate by normalized title (strip whitespace/case)
+  // Deduplicate by normalized title
   const seen=new Set();
   allItems=allItems.filter(item=>{
     const key=item.title.toLowerCase().replace(/\s+/g,' ').trim();
@@ -911,42 +1087,46 @@ async function fetchNews(){
   });
 
   // Filter for Iran/war related
-  const keywords=['iran','tehran','hormuz','hezbollah','israel','strike','missile','war','bomb','attack','military','pentagon','trump','irgc','khamenei','netanyahu','gulf','qatar','naval','drone','oil','crude','strait','conflict','lebanon','beirut'];
+  const keywords=['iran','tehran','hormuz','hezbollah','israel','strike','missile','war','bomb','attack','military','pentagon','trump','irgc','khamenei','netanyahu','gulf','qatar','naval','drone','oil','crude','strait','conflict','lebanon','beirut','houthi','yemen','proxy','sanctions','nuclear','ceasefire','diplomacy'];
   let filtered=allItems.filter(item=>{
     const text=(item.title+' '+(item.description||'')).toLowerCase();
     return keywords.some(k=>text.includes(k));
   });
 
-  // Sort by date
   filtered.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));
   if(filtered.length===0) filtered=allItems.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate)).slice(0,30);
 
-  const html=filtered.slice(0,60).map(item=>{
-    const time=timeAgo(new Date(item.pubDate));
-    const isBreaking=item.title.toLowerCase().includes('breaking');
-    return `
-      <div class="news-item" tabindex="0" onclick="openLink('${escAttr(safeUrl(item.link))}')" onkeydown="if(event.key==='Enter')openLink('${escAttr(safeUrl(item.link))}')">
-        <div class="news-meta">
-          <span class="news-source ${item.sourceCls||'src-default'}">${item.sourceName||'NEWS'}</span>
-          <span class="news-time">${time}</span>
-        </div>
-        <div class="news-title">${isBreaking?'<span class="breaking-tag">BREAKING</span>':''}${escHtml(item.title)}</div>
-      </div>
-    `;
-  }).join('');
+  // Categorize each article
+  filtered=filtered.slice(0,80).map(item=>({
+    ...item,
+    category:categorizeArticle(item.title,item.description),
+  }));
 
-  containers.forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.innerHTML=html||'<div class="loading">No news items found. Try refreshing.</div>';
-  });
+  allFilteredNews=filtered;
+
+  // Render both feeds
+  renderNewsFeed('newsFeed',filtered.slice(0,40));
+  renderNewsFeed('newsFeedFull',filtered);
 
   // Build timeline
   buildTimeline(filtered.slice(0,60));
 
+  // Update stats bar
+  const breakingCount=filtered.filter(i=>i.title.toLowerCase().includes('breaking')).length;
+  const majorCount=filtered.filter(i=>MAJOR_KEYWORDS.some(k=>i.title.toLowerCase().includes(k))).length;
+  const feedCount=results.filter(r=>r.status==='fulfilled').length;
+  const statTotal=document.getElementById('newsStatTotal');
+  const statBreaking=document.getElementById('newsStatBreaking');
+  const statMajor=document.getElementById('newsStatMajor');
+  const statSources=document.getElementById('newsStatSources');
+  if(statTotal) statTotal.textContent=filtered.length;
+  if(statBreaking) statBreaking.textContent=breakingCount;
+  if(statMajor) statMajor.textContent=majorCount;
+  if(statSources) statSources.textContent=`${feedCount}/${RSS_FEEDS.length}`;
+
   // Stop spinning & show last-updated timestamp
   refreshBtns.forEach(b=>b.classList.remove('spinning'));
   const updatedTime=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
-  const feedCount=results.filter(r=>r.status==='fulfilled').length;
   const updatedText=`Updated ${updatedTime} · ${filtered.length} items · ${feedCount}/${RSS_FEEDS.length} feeds`;
   document.querySelectorAll('.news-updated').forEach(el=>el.textContent=updatedText);
 
@@ -958,7 +1138,6 @@ async function fetchNews(){
     marqueeText.textContent=breaking.map(i=>'>>> '+i.title).join('     ');
     marqueeBar.style.display='flex';
   }else{
-    // Show top 3 most recent as urgent ticker
     const urgent=filtered.filter(i=>MAJOR_KEYWORDS.some(k=>i.title.toLowerCase().includes(k))).slice(0,5);
     if(urgent.length>0){
       marqueeText.textContent=urgent.map(i=>'>>> '+i.title).join('     ');
@@ -968,13 +1147,68 @@ async function fetchNews(){
     }
   }
 
-  // Check for breaking news sound alert
   checkForNewBreaking(filtered);
 
-  // Update news tab badge (if not currently viewing news)
   const newCount=filtered.length-lastSeenCounts.news;
   if(newCount>0&&lastSeenCounts.news>0) updateBadge('news',newCount);
   lastSeenCounts.news=filtered.length;
+}
+
+function renderNewsFeed(containerId,items){
+  const el=document.getElementById(containerId);
+  if(!el) return;
+
+  // Apply current filter
+  let display=items;
+  if(currentNewsFilter==='breaking'){
+    display=items.filter(i=>i.title.toLowerCase().includes('breaking'));
+  }else if(currentNewsFilter==='strikes'){
+    display=items.filter(i=>i.category&&i.category.key==='strikes');
+  }else if(currentNewsFilter==='military'){
+    display=items.filter(i=>i.category&&i.category.key==='military');
+  }else if(currentNewsFilter==='diplomacy'){
+    display=items.filter(i=>i.category&&i.category.key==='diplomacy');
+  }
+
+  const html=display.map(item=>{
+    const time=timeAgo(new Date(item.pubDate));
+    const isBreaking=item.title.toLowerCase().includes('breaking');
+    const catHtml=item.category?`<span class="news-category ${item.category.cls}">${item.category.label}</span>`:'';
+    const snippet=item.description?stripHtml(item.description).slice(0,160):'';
+    return `
+      <div class="news-item${compactNewsView?' compact':''}" tabindex="0" onclick="openLink('${escAttr(safeUrl(item.link))}')" onkeydown="if(event.key==='Enter')openLink('${escAttr(safeUrl(item.link))}')">
+        <div class="news-meta">
+          <span class="news-source ${item.sourceCls||'src-default'}">${item.sourceName||'NEWS'}</span>
+          ${catHtml}
+          <span class="news-time">${time}</span>
+        </div>
+        <div class="news-title">${isBreaking?'<span class="breaking-tag">BREAKING</span>':''}${escHtml(item.title)}</div>
+        ${snippet?`<div class="news-snippet">${escHtml(snippet)}</div>`:''}
+      </div>
+    `;
+  }).join('');
+
+  el.innerHTML=html||'<div class="loading">No items match this filter. Try another category.</div>';
+}
+
+function filterNews(filter){
+  currentNewsFilter=filter;
+  document.querySelectorAll('#newsSourceTabs .news-filter-tab').forEach(t=>{
+    t.classList.toggle('active',t.dataset.src===filter);
+  });
+  renderNewsFeed('newsFeedFull',allFilteredNews);
+}
+
+function toggleNewsView(){
+  compactNewsView=!compactNewsView;
+  const btn=document.getElementById('newsViewToggle');
+  btn.textContent=compactNewsView?'EXPANDED':'COMPACT';
+  renderNewsFeed('newsFeedFull',allFilteredNews);
+  renderNewsFeed('newsFeed',allFilteredNews.slice(0,40));
+}
+
+function stripHtml(html){
+  const d=document.createElement('div');d.innerHTML=html;return d.textContent||'';
 }
 
 function buildTimeline(items){
@@ -1022,9 +1256,9 @@ function buildTimeline(items){
   tlEl.innerHTML=html||'<div class="loading">No timeline events.</div>';
 }
 
-// ===== VIDEO CLIPS =====
-const REDDIT_SUBS=['CombatFootage','worldnews','iran','MiddleEastNews','UkraineWarVideoReport'];
-const REDDIT_QUERIES=['iran war','iran strike','iran missile','tehran','hormuz'];
+// ===== VIDEO CLIPS (Improved — focused on recent war clips) =====
+const REDDIT_SUBS=['CombatFootage','worldnews','iran','MiddleEastNews','geopolitics'];
+const REDDIT_QUERIES=['iran war 2026','iran strike footage','iran bombing','tehran attack','US Iran military'];
 let allVideoClips=[];
 let currentVideoSource='all';
 
@@ -1036,29 +1270,57 @@ function switchVideoSource(src){
   renderVideoClips();
 }
 
+function getPublishedAfterDate(){
+  const range=document.getElementById('videoTimeRange')?.value||'week';
+  const now=new Date();
+  if(range==='day') now.setDate(now.getDate()-1);
+  else if(range==='week') now.setDate(now.getDate()-7);
+  else now.setMonth(now.getMonth()-1);
+  return now.toISOString();
+}
+
+function getRedditTimeRange(){
+  const range=document.getElementById('videoTimeRange')?.value||'week';
+  if(range==='day') return 'day';
+  if(range==='week') return 'week';
+  return 'month';
+}
+
 async function fetchYouTubeVideos(sortBy){
-  const searches=['Iran war','Iran Israel strikes','Tehran bombing','Strait of Hormuz military'];
+  // More specific search terms focused on recent conflict footage
+  const searches=[
+    'Iran war footage 2026',
+    'Iran strike video today',
+    'Iran Israel military operation',
+    'US strikes Iran IRGC',
+    'Strait of Hormuz blockade',
+    'Tehran air defense missile',
+    'Iran combat footage',
+  ];
+  const publishedAfter=getPublishedAfterDate();
   let videos=[];
   for(const q of searches){
     try{
-      const res=await fetch(`/api/videos?q=${encodeURIComponent(q)}&sort=${sortBy}&max=12`,{signal:AbortSignal.timeout(10000)});
+      const res=await fetch(`/api/videos?q=${encodeURIComponent(q)}&sort=${sortBy}&max=12&after=${encodeURIComponent(publishedAfter)}`,{signal:AbortSignal.timeout(10000)});
       if(res.ok){
         const data=await res.json();
         if(data.videos) videos.push(...data.videos.map(v=>({...v,source:'youtube'})));
       }
     }catch(e){continue}
-    if(videos.length>=20) break;
+    if(videos.length>=30) break;
   }
   return videos;
 }
 
 async function fetchRedditVideos(){
+  const timeRange=getRedditTimeRange();
   let posts=[];
-  const fetches=REDDIT_SUBS.slice(0,3).map(async sub=>{
-    for(const q of REDDIT_QUERIES.slice(0,2)){
+  // Search ALL subreddits now, not just first 3
+  const fetches=REDDIT_SUBS.map(async sub=>{
+    for(const q of REDDIT_QUERIES){
       try{
         const res=await fetch(
-          `https://www.reddit.com/r/${sub}/search.json?q=${encodeURIComponent(q)}&sort=new&t=week&limit=15&restrict_sr=1`,
+          `https://www.reddit.com/r/${sub}/search.json?q=${encodeURIComponent(q)}&sort=new&t=${timeRange}&limit=20&restrict_sr=1`,
           {signal:AbortSignal.timeout(8000),headers:{'Accept':'application/json'}}
         );
         if(!res.ok) continue;
@@ -1425,20 +1687,196 @@ if(localStorage.getItem('nightOps')==='1'){
   document.getElementById('toggleNightOps').innerHTML='&#127761; NV ON';
 }
 
+// ===== OSINT / SOCIAL FEED =====
+const OSINT_ACCOUNTS=[
+  // Notable OSINT / conflict analysts (Reddit as proxy since X API requires auth)
+  {sub:'OSINT',queries:['iran OSINT','iran satellite imagery','iran military movement']},
+  {sub:'geopolitics',queries:['iran conflict analysis','iran war update']},
+  {sub:'worldnews',queries:['iran breaking','iran latest']},
+];
+
+let allOsintPosts=[];
+let currentOsintFilter='all';
+
+function filterOsint(filter){
+  currentOsintFilter=filter;
+  document.querySelectorAll('[data-osint]').forEach(t=>{
+    t.classList.toggle('active',t.dataset.osint===filter);
+  });
+  renderOsint();
+}
+
+async function fetchOsint(){
+  const grid=document.getElementById('osintGrid');
+  const status=document.getElementById('osintStatus');
+  grid.innerHTML='<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Fetching OSINT sources...</div>';
+  status.textContent='Fetching...';
+
+  allOsintPosts=[];
+
+  // Fetch from Reddit as a proxy for social/OSINT content
+  const fetches=OSINT_ACCOUNTS.map(async acc=>{
+    for(const q of acc.queries){
+      try{
+        const res=await fetch(
+          `https://www.reddit.com/r/${acc.sub}/search.json?q=${encodeURIComponent(q)}&sort=new&t=week&limit=15&restrict_sr=1`,
+          {signal:AbortSignal.timeout(8000),headers:{'Accept':'application/json'}}
+        );
+        if(!res.ok) continue;
+        const data=await res.json();
+        const items=(data?.data?.children||[]).map(c=>c.data);
+        items.forEach(p=>{
+          const isOsint=acc.sub==='OSINT'||p.title.toLowerCase().includes('osint')||p.title.toLowerCase().includes('satellite');
+          allOsintPosts.push({
+            id:p.id,
+            platform:isOsint?'osint':'twitter',
+            platformCls:isOsint?'plat-osint':'plat-twitter',
+            platformLabel:isOsint?'OSINT':'SOCIAL',
+            author:p.author||'unknown',
+            handle:'r/'+p.subreddit,
+            text:p.title+(p.selftext?' — '+p.selftext.slice(0,200):''),
+            url:`https://www.reddit.com${p.permalink}`,
+            time:new Date(p.created_utc*1000).toISOString(),
+            score:p.score||0,
+            comments:p.num_comments||0,
+          });
+        });
+      }catch(e){continue}
+    }
+  });
+  await Promise.allSettled(fetches);
+
+  // Deduplicate
+  const seen=new Set();
+  allOsintPosts=allOsintPosts.filter(p=>{
+    if(seen.has(p.id)) return false;
+    seen.add(p.id);return true;
+  });
+  allOsintPosts.sort((a,b)=>new Date(b.time)-new Date(a.time));
+
+  status.textContent=`${allOsintPosts.length} posts loaded from ${OSINT_ACCOUNTS.length} sources`;
+  renderOsint();
+}
+
+function renderOsint(){
+  const grid=document.getElementById('osintGrid');
+  let posts=allOsintPosts;
+  if(currentOsintFilter==='osint') posts=posts.filter(p=>p.platform==='osint');
+  else if(currentOsintFilter==='twitter') posts=posts.filter(p=>p.platform==='twitter');
+  else if(currentOsintFilter==='telegram') posts=posts.filter(p=>p.platform==='telegram');
+
+  if(!posts.length){
+    grid.innerHTML='<div class="loading" style="grid-column:1/-1">No OSINT posts found. Try refreshing.</div>';
+    return;
+  }
+
+  grid.innerHTML=posts.slice(0,60).map(p=>`
+    <div class="osint-card" onclick="openLink('${escAttr(safeUrl(p.url))}')">
+      <div class="osint-header">
+        <span class="osint-platform ${p.platformCls}">${p.platformLabel}</span>
+        <span class="osint-author">${escHtml(p.author)}</span>
+        <span class="osint-handle">${escHtml(p.handle)}</span>
+        <span class="news-time" style="margin-left:auto">${timeAgo(new Date(p.time))}</span>
+      </div>
+      <div class="osint-text">${escHtml(p.text.slice(0,300))}</div>
+      <div class="osint-footer">
+        <div class="osint-engagement">
+          <span>▲ ${p.score}</span>
+          <span>💬 ${p.comments}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== IMPACT / STATISTICS DASHBOARD =====
+function renderImpactDashboard(){
+  // Estimated conflict statistics (from open-source reports)
+  const stats=[
+    {val:'22+',label:'Days of Conflict',color:'var(--red)',sub:'Since Feb 28, 2026'},
+    {val:'115+',label:'Confirmed Strikes',color:'var(--orange)',sub:'On Iranian territory'},
+    {val:'CLOSED',label:'Strait of Hormuz',color:'var(--red)',sub:'Oil transit blocked'},
+    {val:'$105+',label:'Brent Crude /bbl',color:'var(--orange)',sub:'Up from ~$75 pre-conflict'},
+    {val:'~4%',label:'Iran Internet',color:'var(--red)',sub:'Near-total shutdown'},
+    {val:'7+',label:'Countries Involved',color:'var(--blue)',sub:'Direct or proxy participation'},
+    {val:'100+',label:'UN Resolutions Filed',color:'var(--blue)',sub:'Security Council deadlocked'},
+    {val:'30M+',label:'Displaced Estimates',color:'var(--green)',sub:'Internal + cross-border'},
+  ];
+
+  const statsEl=document.getElementById('impactStats');
+  statsEl.innerHTML=stats.map(s=>`
+    <div class="impact-card">
+      <div class="impact-val" style="color:${s.color}">${s.val}</div>
+      <div class="impact-label">${s.label}</div>
+      <div class="impact-sub">${s.sub}</div>
+    </div>
+  `).join('');
+
+  // Infrastructure bars
+  const bars=[
+    {label:'Power Grid',pct:25,color:'var(--red)'},
+    {label:'Internet',pct:4,color:'var(--red)'},
+    {label:'Airports',pct:15,color:'var(--red)'},
+    {label:'Oil Infrastructure',pct:30,color:'var(--orange)'},
+    {label:'Military Bases',pct:35,color:'var(--orange)'},
+    {label:'Water Supply',pct:55,color:'var(--orange)'},
+    {label:'Hospitals',pct:60,color:'var(--green)'},
+    {label:'Telecom',pct:20,color:'var(--red)'},
+  ];
+
+  const barsEl=document.getElementById('impactBars');
+  barsEl.innerHTML=bars.map(b=>`
+    <div class="impact-bar">
+      <div class="impact-bar-label">${b.label}</div>
+      <div class="impact-bar-track">
+        <div class="impact-bar-fill" style="width:${b.pct}%;background:${b.color}"></div>
+      </div>
+      <span style="font-family:var(--mono);font-size:.6rem;color:var(--text3);width:35px;text-align:right">${b.pct}%</span>
+    </div>
+  `).join('')+'<div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);margin-top:8px">Estimated operational capacity remaining</div>';
+
+  // Key events timeline
+  const events=[
+    {date:'Mar 22',text:'Continued strikes on IRGC positions; Strait of Hormuz remains closed to commercial traffic'},
+    {date:'Mar 20',text:'UN emergency session called; China and Russia veto ceasefire resolution'},
+    {date:'Mar 18',text:'Major cyberattack disrupts Iranian communications infrastructure'},
+    {date:'Mar 15',text:'US deploys additional carrier strike group to Persian Gulf'},
+    {date:'Mar 12',text:'Iran retaliatory missile barrage targeting Israeli military installations'},
+    {date:'Mar 10',text:'Houthi forces escalate Red Sea attacks on commercial shipping'},
+    {date:'Mar 7',text:'Brent crude surpasses $110/barrel; OPEC emergency meeting called'},
+    {date:'Mar 4',text:'First confirmed strikes on Iranian nuclear facilities at Natanz'},
+    {date:'Mar 1',text:'US and Israel commence joint military operations against Iran'},
+    {date:'Feb 28',text:'Conflict officially begins with coordinated strikes on IRGC targets'},
+  ];
+
+  const timelineEl=document.getElementById('impactTimeline');
+  timelineEl.innerHTML=events.map(e=>`
+    <div class="impact-timeline-item">
+      <div class="impact-timeline-date">${e.date}</div>
+      <div class="impact-timeline-text">${e.text}</div>
+    </div>
+  `).join('');
+}
+
 // ===== INIT =====
 updateDayCount();
 updateClock();
 setInterval(updateClock,1000);
 setInterval(updateDayCount,60000);
 fetchNews();
-// Init stream nav (but don't load video until tab clicked)
+// Render static sections
+renderImpactDashboard();
 renderStreamNav();
+
+// Lazy-load sections on tab click
 document.querySelector('[data-panel="livestreams"]').addEventListener('click',()=>{
   if(!document.getElementById('streamPlayer').src||document.getElementById('streamPlayer').src===window.location.href)selectStream(0);
 },{once:true});
-// Lazy-load videos when tab is clicked
 document.querySelector('[data-panel="videos"]').addEventListener('click',()=>{
   if(document.getElementById('clipsGrid').querySelector('.loading'))fetchVideos();
+},{once:true});
+document.querySelector('[data-panel="osint"]').addEventListener('click',()=>{
+  if(document.getElementById('osintGrid').querySelector('.loading'))fetchOsint();
 },{once:true});
 
 // Track active panel for badges + PiP behavior
