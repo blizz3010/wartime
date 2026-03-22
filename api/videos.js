@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'YOUTUBE_API_KEY not configured' });
   }
 
-  const { q = 'Iran war', sort = 'date', max = '24' } = req.query;
+  const { q = 'Iran war', sort = 'date', max = '24', after = '' } = req.query;
 
   // Map our sort values to YouTube API order parameter
   const orderMap = { date: 'date', relevance: 'relevance', viewCount: 'viewCount' };
@@ -18,6 +18,11 @@ export default async function handler(req, res) {
     url.searchParams.set('order', order);
     url.searchParams.set('maxResults', Math.min(parseInt(max), 50).toString());
     url.searchParams.set('key', apiKey);
+
+    // Filter by publish date for recent clips
+    if (after) {
+      url.searchParams.set('publishedAfter', after);
+    }
 
     const ytRes = await fetch(url.toString());
     const data = await ytRes.json();
