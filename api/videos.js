@@ -18,6 +18,8 @@ export default async function handler(req, res) {
     url.searchParams.set('order', order);
     url.searchParams.set('maxResults', Math.min(parseInt(max), 50).toString());
     url.searchParams.set('key', apiKey);
+    // Prefer medium+ length videos (skip very short clips/memes)
+    url.searchParams.set('videoDuration', 'medium');
 
     // Filter by publish date for recent clips
     if (after) {

@@ -207,6 +207,8 @@
   .plat-twitter{background:#0c2d4d;color:#1da1f2}
   .plat-telegram{background:#0c2633;color:#0088cc}
   .plat-osint{background:#2d1a06;color:#e8a83a}
+  /* Article reader */
+  #articleReader iframe{background:#fff}
   .osint-author{font-size:.7rem;font-weight:600;color:var(--text)}
   .osint-handle{font-size:.6rem;color:var(--text3);font-family:var(--mono)}
   .osint-text{font-size:.8rem;line-height:1.45;color:var(--text);margin-bottom:6px}
@@ -682,8 +684,9 @@
       <div style="display:flex;gap:8px;">
         <button class="overlay-btn" onclick="setMapSrc('https://iran.liveuamap.com/')">Iran Map</button>
         <button class="overlay-btn" onclick="setMapSrc('https://israelpalestine.liveuamap.com/')">Israel-Palestine</button>
-        <button class="overlay-btn" onclick="setMapSrc('https://acleddata.com/iran-crisis-live/')">ACLED Data</button>
+        <button class="overlay-btn" onclick="setMapSrc('https://liveuamap.com/')">Global View</button>
         <button class="overlay-btn" onclick="setMapSrc('https://iranstrikemap.com/')">Strike Map</button>
+        <button class="overlay-btn" onclick="window.open('https://acleddata.com/iran-crisis-live/','_blank')">ACLED Data ↗</button>
       </div>
     </div>
     <iframe id="warmapFrame" src="https://iran.liveuamap.com/" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
@@ -713,18 +716,18 @@
     <div class="section-head">
       <span>✈ AIR TRAFFIC TRACKING</span>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0')" title="Unfiltered - shows military aircraft">ADS-B Persian Gulf</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=32.08&lon=53.69&zoom=5.0')">ADS-B Iran</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=31.77&lon=35.22&zoom=7.0')">ADS-B Israel</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=33.89&lon=35.50&zoom=7.0')">ADS-B Lebanon</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/simple/26.51,53.58/6')">FR24 Persian Gulf</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/simple/32.08,53.69/5')">FR24 Iran</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://www.flightradar24.com/simple/31.77,35.22/7')">FR24 Israel</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=14.5&lon=42.5&zoom=6.0')">ADS-B Red Sea</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsbexchange.com/?lat=29.0&lon=48.0&zoom=7.0')">ADS-B Kuwait/Iraq</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=26.5&lon=53.6&zoom=6.0&hideSideBar')" title="Unfiltered - shows military aircraft">ADS-B Persian Gulf</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=32.08&lon=53.69&zoom=5.0&hideSideBar')">ADS-B Iran</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=31.77&lon=35.22&zoom=7.0&hideSideBar')">ADS-B Israel</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=14.5&lon=42.5&zoom=6.0&hideSideBar')">ADS-B Red Sea</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=29.0&lon=48.0&zoom=7.0&hideSideBar')">ADS-B Kuwait/Iraq</button>
+        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/26.51,53.58/6','_blank')">FR24 Persian Gulf ↗</button>
+        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/32.08,53.69/5','_blank')">FR24 Iran ↗</button>
+        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/31.77,35.22/7','_blank')">FR24 Israel ↗</button>
+        <button class="overlay-btn" onclick="window.open('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0','_blank')">ADS-B Exchange ↗</button>
       </div>
     </div>
-    <iframe id="airFrame" src="https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
+    <iframe id="airFrame" src="https://globe.adsb.fi/?lat=26.5&lon=53.6&zoom=6.0&hideSideBar" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
   </div>
 </div>
 
@@ -764,16 +767,17 @@
     </div>
     <div class="main-area">
       <div class="section-head" style="background:var(--surface)">
-        <span>EVENT TIMELINE</span>
-        <span class="badge">LIVE</span>
+        <span>📄 ARTICLE READER</span>
+        <button class="overlay-btn" id="articleExternalBtn" onclick="" style="display:none;font-size:.6rem;padding:3px 8px">Open source ↗</button>
       </div>
-      <div class="tl-legend">
-        <span><span class="tl-legend-dot" style="background:var(--red)"></span>BREAKING</span>
-        <span><span class="tl-legend-dot" style="background:var(--orange)"></span>MAJOR</span>
-        <span><span class="tl-legend-dot" style="background:var(--border2)"></span>UPDATE</span>
-      </div>
-      <div class="timeline" id="newsTimeline">
-        <div class="loading"><div class="spinner"></div>Building timeline...</div>
+      <div id="articleReader" style="width:100%;height:calc(100% - 34px);overflow:hidden;position:relative;background:var(--surface)">
+        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);font-family:var(--mono);font-size:.8rem;text-align:center;padding:40px">
+          <div>
+            <div style="font-size:2rem;margin-bottom:12px">📰</div>
+            <div>Click any article to read it here</div>
+            <div style="font-size:.65rem;margin-top:8px;color:var(--text3)">Articles load directly in this reader panel</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -795,8 +799,8 @@
         <option value="viewCount">Sort: Most Viewed</option>
       </select>
       <select id="videoTimeRange" style="background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:.65rem;padding:3px 8px;border-radius:4px" onchange="fetchVideos()">
-        <option value="day">Past 24h</option>
-        <option value="week" selected>Past Week</option>
+        <option value="day" selected>Past 24h</option>
+        <option value="week">Past Week</option>
         <option value="month">Past Month</option>
       </select>
       <button class="refresh-btn" onclick="fetchVideos()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
@@ -833,9 +837,9 @@
     <div style="display:flex;gap:8px;align-items:center">
       <div class="vid-source-tabs">
         <button class="vid-src-tab active" data-osint="all" onclick="filterOsint('all')">ALL</button>
-        <button class="vid-src-tab" data-osint="twitter" onclick="filterOsint('twitter')">X / TWITTER</button>
-        <button class="vid-src-tab" data-osint="telegram" onclick="filterOsint('telegram')">TELEGRAM</button>
-        <button class="vid-src-tab" data-osint="osint" onclick="filterOsint('osint')">OSINT ANALYSTS</button>
+        <button class="vid-src-tab" data-osint="social" onclick="filterOsint('social')">SOCIAL</button>
+        <button class="vid-src-tab" data-osint="analysis" onclick="filterOsint('analysis')">ANALYSIS</button>
+        <button class="vid-src-tab" data-osint="osint" onclick="filterOsint('osint')">OSINT</button>
       </div>
       <button class="refresh-btn" onclick="fetchOsint()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
     </div>
@@ -903,8 +907,15 @@
       </div>
     </div>
   </div>
+  <!-- Cyber Warfare -->
+  <div style="background:var(--surface);border-top:1px solid var(--border)">
+    <div class="impact-section">
+      <h3>🖥 Cyber Warfare Operations</h3>
+      <div id="cyberOps"></div>
+    </div>
+  </div>
   <div style="padding:12px 20px;font-family:var(--mono);font-size:.55rem;color:var(--text3);border-top:1px solid var(--border)">
-    DATA SOURCES: ACLED, UNRWA, WHO, Reuters, AP, ISW · Figures are estimates based on open-source reporting · Updated periodically
+    DATA SOURCES: ACLED, UNRWA, WHO, Reuters, AP, ISW, CISA, Recorded Future · Figures are estimates based on open-source reporting · Updated periodically
   </div>
 </div>
 
@@ -1204,8 +1215,6 @@ async function fetchNews(){
     const el=document.getElementById(id);
     if(el) el.innerHTML='<div class="loading"><div class="spinner"></div>Fetching latest news...</div>';
   });
-  const tlEl=document.getElementById('newsTimeline');
-  if(tlEl) tlEl.innerHTML='<div class="loading"><div class="spinner"></div>Building timeline...</div>';
 
   let allItems=[];
   const results=await Promise.allSettled(RSS_FEEDS.map(async feed=>{
@@ -1242,12 +1251,9 @@ async function fetchNews(){
 
   allFilteredNews=filtered;
 
-  // Render both feeds
+  // Render both feeds (overview sidebar + full news panel)
   renderNewsFeed('newsFeed',filtered.slice(0,40));
   renderNewsFeed('newsFeedFull',filtered);
-
-  // Build timeline
-  buildTimeline(filtered.slice(0,60));
 
   // Update stats bar
   const breakingCount=filtered.filter(i=>i.title.toLowerCase().includes('breaking')).length;
@@ -1304,13 +1310,20 @@ function renderNewsFeed(containerId,items){
     display=items.filter(i=>i.category&&i.category.key===currentNewsFilter);
   }
 
+  // For the full news feed panel, clicking loads in article reader; for overview sidebar, opens in new tab
+  const useReader=containerId==='newsFeedFull';
+
   const html=display.map(item=>{
     const time=timeAgo(new Date(item.pubDate));
     const isBreaking=item.title.toLowerCase().includes('breaking');
     const catHtml=item.category?`<span class="news-category ${item.category.cls}">${item.category.label}</span>`:'';
     const snippet=item.description?stripHtml(item.description).slice(0,160):'';
+    const safeLink=escAttr(safeUrl(item.link));
+    const clickAction=useReader
+      ?`loadArticle('${safeLink}')`
+      :`openLink('${safeLink}')`;
     return `
-      <div class="news-item${compactNewsView?' compact':''}" tabindex="0" onclick="openLink('${escAttr(safeUrl(item.link))}')" onkeydown="if(event.key==='Enter')openLink('${escAttr(safeUrl(item.link))}')">
+      <div class="news-item${compactNewsView?' compact':''}" tabindex="0" onclick="${clickAction}" onkeydown="if(event.key==='Enter')${clickAction}">
         <div class="news-meta">
           <span class="news-source ${item.sourceCls||'src-default'}">${item.sourceName||'NEWS'}</span>
           ${catHtml}
@@ -1323,6 +1336,19 @@ function renderNewsFeed(containerId,items){
   }).join('');
 
   el.innerHTML=html||'<div class="loading">No items match this filter. Try another category.</div>';
+}
+
+function loadArticle(url){
+  if(!url) return;
+  const reader=document.getElementById('articleReader');
+  const extBtn=document.getElementById('articleExternalBtn');
+  if(reader){
+    reader.innerHTML=`<iframe src="${escAttr(url)}" style="width:100%;height:100%;border:0" sandbox="allow-scripts allow-same-origin allow-popups" loading="lazy"></iframe>`;
+  }
+  if(extBtn){
+    extBtn.style.display='inline-block';
+    extBtn.setAttribute('onclick',`openLink('${escAttr(url)}')`);
+  }
 }
 
 function filterNews(filter){
@@ -1345,56 +1371,24 @@ function stripHtml(html){
   const d=document.createElement('div');d.innerHTML=html;return d.textContent||'';
 }
 
-function buildTimeline(items){
-  const tlEl=document.getElementById('newsTimeline');
-  if(!tlEl) return;
-
-  // Group by date
-  const now=new Date();
-  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-  const yesterday=new Date(today);yesterday.setDate(today.getDate()-1);
-  const groups={};
-
-  items.forEach(item=>{
-    const d=new Date(item.pubDate);
-    let label;
-    if(d>=today) label='Today';
-    else if(d>=yesterday) label='Yesterday';
-    else{
-      label=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-    }
-    if(!groups[label]) groups[label]=[];
-    groups[label].push(item);
-  });
-
-  let html='';
-  for(const[label,events] of Object.entries(groups)){
-    html+=`<div class="timeline-group"><div class="timeline-date">${label}</div>`;
-    events.forEach(item=>{
-      const d=new Date(item.pubDate);
-      const hhmm=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
-      const titleLower=item.title.toLowerCase();
-      const isBreaking=titleLower.includes('breaking');
-      const isMajor=!isBreaking&&MAJOR_KEYWORDS.some(k=>titleLower.includes(k));
-      const cls=isBreaking?'tl-breaking':isMajor?'tl-major':'';
-      html+=`
-        <div class="tl-item ${cls}" tabindex="0" onclick="openLink('${escAttr(safeUrl(item.link))}')" onkeydown="if(event.key==='Enter')openLink('${escAttr(safeUrl(item.link))}')">
-          <div class="tl-time">${hhmm}</div>
-          <div class="tl-title">${isBreaking?'<span class="breaking-tag">BREAKING</span>':''}${escHtml(item.title)}</div>
-          <div class="tl-source">${item.sourceName||'NEWS'}</div>
-        </div>`;
-    });
-    html+=`</div>`;
-  }
-
-  tlEl.innerHTML=html||'<div class="loading">No timeline events.</div>';
-}
-
 // ===== VIDEO CLIPS (Improved — focused on recent war clips) =====
-const REDDIT_SUBS=['CombatFootage','worldnews','iran','MiddleEastNews','geopolitics'];
-const REDDIT_QUERIES=['iran war 2026','iran strike footage','iran bombing','tehran attack','US Iran military'];
+const REDDIT_SUBS=['CombatFootage','worldnews','iran','MiddleEastNews','geopolitics','UkraineWarVideoReport'];
+const REDDIT_QUERIES=['iran war','iran strike footage','iran US military','tehran attack','strait of hormuz'];
 let allVideoClips=[];
 let currentVideoSource='all';
+
+// Content filter: block memes, parodies, reaction videos, gaming, and off-topic content
+const BLOCKED_TITLE_PATTERNS=[
+  /parody/i, /meme/i, /downfall/i, /hitler\s*reacts/i, /trump\s*reacts/i,
+  /reacts?\s*to/i, /reaction\s*video/i, /funny/i, /comedy/i, /satire/i,
+  /gameplay/i, /gaming/i, /lets?\s*play/i, /minecraft/i, /fortnite/i, /gta/i,
+  /edit|edits/i, /compilation\s*of\s*memes/i, /shitpost/i, /clickbait/i,
+  /prank/i, /challenge/i, /unboxing/i, /asmr/i, /mukbang/i,
+];
+function isBlockedContent(title){
+  if(!title) return false;
+  return BLOCKED_TITLE_PATTERNS.some(rx=>rx.test(title));
+}
 
 function switchVideoSource(src){
   currentVideoSource=src;
@@ -1405,7 +1399,7 @@ function switchVideoSource(src){
 }
 
 function getPublishedAfterDate(){
-  const range=document.getElementById('videoTimeRange')?.value||'week';
+  const range=document.getElementById('videoTimeRange')?.value||'day';
   const now=new Date();
   if(range==='day') now.setDate(now.getDate()-1);
   else if(range==='week') now.setDate(now.getDate()-7);
@@ -1414,60 +1408,159 @@ function getPublishedAfterDate(){
 }
 
 function getRedditTimeRange(){
-  const range=document.getElementById('videoTimeRange')?.value||'week';
+  const range=document.getElementById('videoTimeRange')?.value||'day';
   if(range==='day') return 'day';
   if(range==='week') return 'week';
   return 'month';
 }
 
 async function fetchYouTubeVideos(sortBy){
-  // More specific search terms focused on recent conflict footage
+  // Focused search terms — news channels, not memes
   const searches=[
-    'Iran war footage 2026',
-    'Iran strike video today',
-    'Iran Israel military operation',
-    'US strikes Iran IRGC',
-    'Strait of Hormuz blockade',
-    'Tehran air defense missile',
-    'Iran combat footage',
+    'Iran war news today',
+    'Iran US military strikes',
+    'Iran Israel operation',
+    'Strait of Hormuz navy',
+    'IRGC military',
+    'Tehran missile defense',
+    'Iran conflict footage',
   ];
   const publishedAfter=getPublishedAfterDate();
   let videos=[];
+
+  // Try serverless API first (needs YOUTUBE_API_KEY)
   for(const q of searches){
     try{
       const res=await fetch(`/api/videos?q=${encodeURIComponent(q)}&sort=${sortBy}&max=12&after=${encodeURIComponent(publishedAfter)}`,{signal:AbortSignal.timeout(10000)});
       if(res.ok){
         const data=await res.json();
-        if(data.videos) videos.push(...data.videos.map(v=>({...v,source:'youtube'})));
+        if(data.videos&&data.videos.length>0){
+          const filtered=data.videos.filter(v=>!isBlockedContent(v.title));
+          videos.push(...filtered.map(v=>({...v,source:'youtube'})));
+        }
       }
     }catch(e){continue}
     if(videos.length>=30) break;
   }
+
+  // Fallback: fetch YouTube RSS feeds for major news channels covering Iran (no API key needed)
+  if(videos.length===0){
+    const ytChannels=[
+      'UCNye-wNBqNL5ZzHSJj3l8Bg', // Al Jazeera
+      'UCoMdktPbSTixAyNGwb-UYkQ', // Sky News
+      'UCQfwfsi5VrQ8yKZ-UWmAEFg', // France 24
+      'UCeY0bbntWzzVIaj2z3QigXg', // NBC News
+      'UC7fWeaHhqgM4Ry-RMpM2YYw', // TRT World
+    ];
+    const rssFetches=ytChannels.map(async chId=>{
+      try{
+        const rssUrl=`https://www.youtube.com/feeds/videos.xml?channel_id=${chId}`;
+        const proxyUrl=`https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`;
+        const res=await fetch(proxyUrl,{signal:AbortSignal.timeout(8000)});
+        if(!res.ok) return [];
+        const text=await res.text();
+        const parser=new DOMParser();
+        const doc=parser.parseFromString(text,'text/xml');
+        const entries=doc.querySelectorAll('entry');
+        return Array.from(entries).slice(0,10).map(e=>{
+          const vidUrl=e.querySelector('link')?.getAttribute('href')||'';
+          const vidMatch=vidUrl.match(/[?&]v=([^&]+)/);
+          const title=e.querySelector('title')?.textContent||'';
+          const author=e.querySelector('author name')?.textContent||'';
+          const published=e.querySelector('published')?.textContent||'';
+          return {
+            videoId:vidMatch?.[1]||'',
+            title,
+            author,
+            publishedAt:published,
+            thumbnail:vidMatch?`https://i.ytimg.com/vi/${vidMatch[1]}/mqdefault.jpg`:'',
+            duration:'',
+            views:'0',
+            source:'youtube',
+          };
+        }).filter(v=>v.videoId);
+      }catch(e){return []}
+    });
+    const rssResults=await Promise.allSettled(rssFetches);
+    rssResults.forEach(r=>{if(r.status==='fulfilled')videos.push(...r.value)});
+    // Filter for Iran-related content
+    const iranKw=['iran','tehran','hormuz','irgc','strike','missile','war','conflict','military','bomb','nuclear','hezbollah','houthi'];
+    videos=videos.filter(v=>iranKw.some(k=>v.title.toLowerCase().includes(k))&&!isBlockedContent(v.title));
+  }
   return videos;
+}
+
+async function fetchRedditJSON(url){
+  // Parse the Reddit URL to extract params for our server-side proxy
+  try{
+    const u=new URL(url);
+    const pathMatch=u.pathname.match(/^\/r\/([^/]+)/);
+    if(pathMatch){
+      const sub=pathMatch[1];
+      const q=u.searchParams.get('q')||'';
+      const sort=u.searchParams.get('sort')||'new';
+      const t=u.searchParams.get('t')||'week';
+      const limit=u.searchParams.get('limit')||'15';
+      try{
+        const proxyRes=await fetch(`/api/reddit?sub=${encodeURIComponent(sub)}&q=${encodeURIComponent(q)}&sort=${sort}&t=${t}&limit=${limit}`,{signal:AbortSignal.timeout(10000)});
+        if(proxyRes.ok) return await proxyRes.json();
+      }catch(e){}
+    }
+  }catch(e){}
+
+  // Fallback: try direct + CORS proxies
+  const proxies=[
+    u=>u,
+    u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    u=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
+  ];
+  for(const proxy of proxies){
+    try{
+      const res=await fetch(proxy(url),{signal:AbortSignal.timeout(8000),headers:{'Accept':'application/json'}});
+      if(!res.ok) continue;
+      const text=await res.text();
+      return JSON.parse(text);
+    }catch(e){continue}
+  }
+  return null;
 }
 
 async function fetchRedditVideos(){
   const timeRange=getRedditTimeRange();
   let posts=[];
-  // Search ALL subreddits now, not just first 3
+  const seenUrls=new Set();
+  const seenTitles=new Set();
   const fetches=REDDIT_SUBS.map(async sub=>{
-    for(const q of REDDIT_QUERIES){
+    for(const q of REDDIT_QUERIES.slice(0,3)){
       try{
-        const res=await fetch(
-          `https://www.reddit.com/r/${sub}/search.json?q=${encodeURIComponent(q)}&sort=new&t=${timeRange}&limit=20&restrict_sr=1`,
-          {signal:AbortSignal.timeout(8000),headers:{'Accept':'application/json'}}
-        );
-        if(!res.ok) continue;
-        const data=await res.json();
+        const url=`https://www.reddit.com/r/${sub}/search.json?q=${encodeURIComponent(q)}&sort=new&t=${timeRange}&limit=15&restrict_sr=1`;
+        const data=await fetchRedditJSON(url);
+        if(!data) continue;
         const items=(data?.data?.children||[])
           .map(c=>c.data)
-          .filter(p=>p.is_video||p.domain==='v.redd.it'||p.domain==='youtube.com'||p.domain==='youtu.be'||
-                     (p.url&&(p.url.includes('youtube.com/watch')||p.url.includes('youtu.be/')||p.url.includes('v.redd.it')||p.url.includes('streamable.com'))));
+          .filter(p=>{
+            if(!(p.is_video||p.domain==='v.redd.it'||p.domain==='youtube.com'||p.domain==='youtu.be'||
+                 (p.url&&(p.url.includes('youtube.com/watch')||p.url.includes('youtu.be/')||p.url.includes('v.redd.it')||p.url.includes('streamable.com'))))) return false;
+            // Filter blocked content
+            if(isBlockedContent(p.title)) return false;
+            // Dedupe by URL (same link posted to multiple subs)
+            const normUrl=(p.url||'').replace(/[?#].*/,'').toLowerCase();
+            if(normUrl&&seenUrls.has(normUrl)) return false;
+            if(normUrl) seenUrls.add(normUrl);
+            // Dedupe by similar title (same story, different sub)
+            const normTitle=p.title.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,60);
+            if(seenTitles.has(normTitle)) return false;
+            seenTitles.add(normTitle);
+            return true;
+          });
         posts.push(...items);
       }catch(e){continue}
+      if(posts.length>=30) break;
     }
   });
   await Promise.allSettled(fetches);
+  // Sort by score to keep the best version of cross-posted content
+  posts.sort((a,b)=>(b.score||0)-(a.score||0));
   return posts.map(p=>{
     const ytMatch=p.url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
     return {
@@ -1505,24 +1598,36 @@ async function fetchVideos(){
   let ytCount=0,rdCount=0;
 
   if(ytResult.status==='fulfilled'){
-    // Dedupe YouTube
+    // Dedupe YouTube by videoId
     const seen=new Set();
     ytResult.value.forEach(v=>{
       if(v.videoId&&!seen.has(v.videoId)){seen.add(v.videoId);allVideoClips.push(v);ytCount++}
     });
   }
   if(rdResult.status==='fulfilled'){
-    const seen=new Set(allVideoClips.filter(v=>v.videoId).map(v=>v.videoId));
+    // Dedupe Reddit against YouTube results (by videoId) and against each other
+    const seenIds=new Set(allVideoClips.filter(v=>v.videoId).map(v=>v.videoId));
+    const seenReddit=new Set();
     rdResult.value.forEach(v=>{
-      const key=v.videoId||v.id;
-      if(!seen.has(key)){seen.add(key);allVideoClips.push(v);rdCount++}
+      const vidKey=v.videoId||null;
+      if(vidKey&&seenIds.has(vidKey)) return; // Already in YouTube results
+      const redditKey=v.id;
+      if(seenReddit.has(redditKey)) return;
+      if(vidKey) seenIds.add(vidKey);
+      seenReddit.add(redditKey);
+      allVideoClips.push(v);rdCount++;
     });
   }
 
-  // Sort combined results
+  // Sort combined results by date
   allVideoClips.sort((a,b)=>new Date(b.publishedAt||0)-new Date(a.publishedAt||0));
 
-  status.textContent=`${ytCount} YouTube + ${rdCount} Reddit clips loaded`;
+  // Status message
+  const parts=[];
+  if(ytCount>0) parts.push(`${ytCount} YouTube`);
+  else parts.push('0 YouTube (API quota may be exceeded)');
+  parts.push(`${rdCount} Reddit`);
+  status.textContent=`${parts.join(' + ')} clips loaded`;
   renderVideoClips();
 
   // Update video tab badge
@@ -1589,14 +1694,18 @@ function getFallbackVideos(){
   return `
     <div style="grid-column:1/-1;padding:20px;text-align:center">
       <p style="color:var(--text2);font-family:var(--mono);font-size:.8rem;margin-bottom:16px">
-        No clips found — try these direct links:
+        Video APIs unavailable — browse clips directly:
       </p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:20px">
         <a href="https://www.youtube.com/results?search_query=Iran+war+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">YouTube — Iran War</a>
+        <a href="https://www.youtube.com/results?search_query=Iran+strike+footage+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">YouTube — Strike Footage</a>
         <a href="https://www.reddit.com/r/CombatFootage/search/?q=iran&sort=new" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">r/CombatFootage</a>
         <a href="https://www.reddit.com/r/worldnews/search/?q=iran+video&sort=new" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">r/worldnews</a>
         <a href="https://twitter.com/search?q=Iran%20strike%20video&f=video" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">X/Twitter Videos</a>
       </div>
+      <p style="color:var(--text3);font-family:var(--mono);font-size:.6rem">
+        Tip: Set YOUTUBE_API_KEY env var on Vercel to enable automatic video search
+      </p>
     </div>
   `;
 }
@@ -1647,13 +1756,14 @@ const STREAMS=[
   {name:'DW News',channel:'UCknLrEdhRCp1aegoMqRaCZg'},
   {name:'ABC News',channel:'UCBi2mrWuNuyYy4gbM6fU18Q'},
   {name:'NBC News',channel:'UCeY0bbntWzzVIaj2z3QigXg'},
-  {name:'AP News',channel:'UC52X5wxOL_s5yw0dQk7NtgA'},
   {name:'TRT World',channel:'UC7fWeaHhqgM4Ry-RMpM2YYw'},
   {name:'WION',channel:'UC_gUM8rL-Lrg6O3adPW9K1g'},
-  {name:'CRUX',channel:'UC3prwMn9aU2z5Y158ZdGyyA'},
-  {name:'Times Now',channel:'UC6RJ7-PaXg6TIH2BzZfTV7w'},
+  {name:'India Today',channel:'UCYPvAwZP8pZhSMW8qs7cVCw'},
+  {name:'CNN-News18',channel:'UCef1-8eOpJgud7szVPlZQAQ'},
 ];
 let currentStream=0;
+// Cache resolved live stream video IDs
+const liveStreamCache={};
 
 function renderStreamNav(){
   const c=document.getElementById('streamChannels');
@@ -1664,15 +1774,31 @@ function renderStreamNav(){
   `).join('');
 }
 
-function selectStream(idx){
+async function selectStream(idx){
   currentStream=idx;
   const s=STREAMS[idx];
-  const src=s.channel
-    ? `https://www.youtube.com/embed/live_stream?channel=${s.channel}&autoplay=1&mute=1`
-    : `https://www.youtube.com/embed/${s.video}?autoplay=1&mute=1`;
-  document.getElementById('streamPlayer').src=src;
   renderStreamNav();
   document.querySelectorAll('.stream-ch')[idx]?.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+
+  const player=document.getElementById('streamPlayer');
+
+  // Try to find live video ID via API (cached for performance)
+  if(!liveStreamCache[s.channel]){
+    try{
+      const res=await fetch(`/api/livestream?channelId=${s.channel}`,{signal:AbortSignal.timeout(5000)});
+      if(res.ok){
+        const data=await res.json();
+        if(data.videoId) liveStreamCache[s.channel]=data.videoId;
+      }
+    }catch(e){}
+  }
+
+  if(liveStreamCache[s.channel]){
+    player.src=`https://www.youtube.com/embed/${liveStreamCache[s.channel]}?autoplay=1&mute=1`;
+  }else{
+    // Fallback: use channel live_stream embed (works for most channels)
+    player.src=`https://www.youtube.com/embed/live_stream?channel=${s.channel}&autoplay=1&mute=1`;
+  }
 }
 
 function switchStream(dir){
@@ -1689,9 +1815,10 @@ let pipStreamIdx=0;
 function showPip(){
   const pip=document.getElementById('pipPlayer');
   const s=STREAMS[pipStreamIdx];
-  const src=s.channel
-    ?`https://www.youtube.com/embed/live_stream?channel=${s.channel}&autoplay=1&mute=1`
-    :`https://www.youtube.com/embed/${s.video}?autoplay=1&mute=1`;
+  const cachedId=liveStreamCache[s.channel];
+  const src=cachedId
+    ?`https://www.youtube.com/embed/${cachedId}?autoplay=1&mute=1`
+    :`https://www.youtube.com/embed/live_stream?channel=${s.channel}&autoplay=1&mute=1`;
   document.getElementById('pipFrame').src=src;
   document.getElementById('pipChannelName').textContent=s.name;
   pip.classList.add('show');
@@ -1823,10 +1950,11 @@ if(localStorage.getItem('nightOps')==='1'){
 
 // ===== OSINT / SOCIAL FEED =====
 const OSINT_ACCOUNTS=[
-  // Notable OSINT / conflict analysts (Reddit as proxy since X API requires auth)
   {sub:'OSINT',queries:['iran OSINT','iran satellite imagery','iran military movement']},
-  {sub:'geopolitics',queries:['iran conflict analysis','iran war update']},
-  {sub:'worldnews',queries:['iran breaking','iran latest']},
+  {sub:'geopolitics',queries:['iran conflict analysis','iran war strategy']},
+  {sub:'worldnews',queries:['iran breaking','iran strike','iran military']},
+  {sub:'CredibleDefense',queries:['iran','persian gulf','strait of hormuz']},
+  {sub:'MiddleEastNews',queries:['iran war','iran conflict']},
 ];
 
 let allOsintPosts=[];
@@ -1848,24 +1976,22 @@ async function fetchOsint(){
 
   allOsintPosts=[];
 
-  // Fetch from Reddit as a proxy for social/OSINT content
+  // Fetch from Reddit via CORS proxy (same helper used by video clips)
   const fetches=OSINT_ACCOUNTS.map(async acc=>{
     for(const q of acc.queries){
       try{
-        const res=await fetch(
-          `https://www.reddit.com/r/${acc.sub}/search.json?q=${encodeURIComponent(q)}&sort=new&t=week&limit=15&restrict_sr=1`,
-          {signal:AbortSignal.timeout(8000),headers:{'Accept':'application/json'}}
-        );
-        if(!res.ok) continue;
-        const data=await res.json();
+        const url=`https://www.reddit.com/r/${acc.sub}/search.json?q=${encodeURIComponent(q)}&sort=new&t=week&limit=15&restrict_sr=1`;
+        const data=await fetchRedditJSON(url);
+        if(!data) continue;
         const items=(data?.data?.children||[]).map(c=>c.data);
         items.forEach(p=>{
-          const isOsint=acc.sub==='OSINT'||p.title.toLowerCase().includes('osint')||p.title.toLowerCase().includes('satellite');
+          const isOsint=acc.sub==='OSINT'||acc.sub==='CredibleDefense'||p.title.toLowerCase().includes('osint')||p.title.toLowerCase().includes('satellite')||p.title.toLowerCase().includes('analysis');
+          const isGeopolitics=acc.sub==='geopolitics'||acc.sub==='CredibleDefense';
           allOsintPosts.push({
             id:p.id,
-            platform:isOsint?'osint':'twitter',
-            platformCls:isOsint?'plat-osint':'plat-twitter',
-            platformLabel:isOsint?'OSINT':'SOCIAL',
+            platform:isOsint?'osint':isGeopolitics?'analysis':'social',
+            platformCls:isOsint?'plat-osint':isGeopolitics?'plat-telegram':'plat-twitter',
+            platformLabel:isOsint?'OSINT':isGeopolitics?'ANALYSIS':'SOCIAL',
             author:p.author||'unknown',
             handle:'r/'+p.subreddit,
             text:p.title+(p.selftext?' — '+p.selftext.slice(0,200):''),
@@ -1880,6 +2006,34 @@ async function fetchOsint(){
   });
   await Promise.allSettled(fetches);
 
+  // Also try fetching OSINT-related RSS feeds as additional sources
+  const osintRSSFeeds=[
+    {name:'ISW',url:'https://www.understandingwar.org/rss.xml'},
+    {name:'CSIS',url:'https://www.csis.org/analysis/feed'},
+  ];
+  const rssFetches=osintRSSFeeds.map(async feed=>{
+    try{
+      const items=await fetchRSS(feed.url);
+      const iranKw=['iran','tehran','hormuz','persian','irgc','hezbollah','middle east','nuclear','conflict'];
+      items.filter(i=>iranKw.some(k=>(i.title||'').toLowerCase().includes(k))).forEach(i=>{
+        allOsintPosts.push({
+          id:feed.name+'-'+i.title,
+          platform:'osint',
+          platformCls:'plat-osint',
+          platformLabel:'ANALYSIS',
+          author:feed.name,
+          handle:feed.name,
+          text:i.title+(i.description?' — '+stripHtml(i.description).slice(0,200):''),
+          url:i.link||'',
+          time:i.pubDate?new Date(i.pubDate).toISOString():new Date().toISOString(),
+          score:0,
+          comments:0,
+        });
+      });
+    }catch(e){}
+  });
+  await Promise.allSettled(rssFetches);
+
   // Deduplicate
   const seen=new Set();
   allOsintPosts=allOsintPosts.filter(p=>{
@@ -1888,16 +2042,14 @@ async function fetchOsint(){
   });
   allOsintPosts.sort((a,b)=>new Date(b.time)-new Date(a.time));
 
-  status.textContent=`${allOsintPosts.length} posts loaded from ${OSINT_ACCOUNTS.length} sources`;
+  status.textContent=`${allOsintPosts.length} posts loaded from ${OSINT_ACCOUNTS.length+osintRSSFeeds.length} sources`;
   renderOsint();
 }
 
 function renderOsint(){
   const grid=document.getElementById('osintGrid');
   let posts=allOsintPosts;
-  if(currentOsintFilter==='osint') posts=posts.filter(p=>p.platform==='osint');
-  else if(currentOsintFilter==='twitter') posts=posts.filter(p=>p.platform==='twitter');
-  else if(currentOsintFilter==='telegram') posts=posts.filter(p=>p.platform==='telegram');
+  if(currentOsintFilter!=='all') posts=posts.filter(p=>p.platform===currentOsintFilter);
 
   if(!posts.length){
     grid.innerHTML='<div class="loading" style="grid-column:1/-1">No OSINT posts found. Try refreshing.</div>';
@@ -2288,6 +2440,30 @@ function renderImpactDashboard(){
       <div class="impact-timeline-text">${e.text}</div>
     </div>
   `).join('');
+
+  // Cyber operations
+  const cyberOps=[
+    {date:'Mar 21',actor:'🇺🇸 USCYBERCOM',target:'IRGC C2 Networks',detail:'Offensive cyber ops disrupting command & control communications across IRGC network'},
+    {date:'Mar 18',actor:'🇺🇸 / 🇮🇱 Joint',target:'Iranian Telecom Infrastructure',detail:'Coordinated attack bringing Iran internet to ~4% normal capacity; mobile networks disabled'},
+    {date:'Mar 15',actor:'🇮🇷 APT33/Elfin',target:'US CENTCOM Contractors',detail:'Spear-phishing campaign targeting defense contractors; largely mitigated by CISA'},
+    {date:'Mar 12',actor:'🇮🇱 Unit 8200',target:'Iranian Air Defense Radars',detail:'Electronic warfare / cyber disruption of S-300 and Bavar-373 radar systems prior to airstrikes'},
+    {date:'Mar 10',actor:'🇮🇷 APT42',target:'Israeli Critical Infrastructure',detail:'Attempted attacks on Israeli water/power SCADA systems; blocked by Israel Cyber Directorate'},
+    {date:'Mar 7',actor:'🇺🇸 NSA/TAO',target:'Iranian Nuclear C2',detail:'Reported disruption of centrifuge control systems at Natanz (echoing Stuxnet methodology)'},
+    {date:'Mar 3',actor:'🇮🇷 MuddyWater',target:'Saudi Aramco Networks',detail:'Wiper malware deployed against Saudi energy sector; limited impact due to air-gapped systems'},
+    {date:'Feb 28',actor:'🇺🇸 / 🇮🇱',target:'Iranian GPS/GLONASS',detail:'GPS spoofing and jamming affecting Iranian missile guidance and navigation systems'},
+  ];
+  const cyberEl=document.getElementById('cyberOps');
+  if(cyberEl){
+    cyberEl.innerHTML=cyberOps.map(c=>`
+      <div class="impact-timeline-item">
+        <div class="impact-timeline-date">${c.date}</div>
+        <div class="impact-timeline-text">
+          <strong>${c.actor}</strong> → <span style="color:var(--orange)">${c.target}</span><br>
+          <span style="color:var(--text2)">${c.detail}</span>
+        </div>
+      </div>
+    `).join('');
+  }
 }
 
 // ===== INIT =====
