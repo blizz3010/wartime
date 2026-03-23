@@ -489,11 +489,106 @@
     .grid-2,.grid-3{grid-template-columns:1fr}
     .split-layout .sidebar{height:50vh}
     .split-layout .main-area{height:50vh}
+    .forces-grid,.nuke-grid,.casualty-grid{grid-template-columns:1fr 1fr}
+    .links-grid{grid-template-columns:1fr 1fr;gap:8px;padding:12px}
+    .impact-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+    #panel-impact .impact-section{padding:12px}
+    #panel-impact>div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important}
+    .pip-player{width:240px;bottom:10px;right:10px}
   }
   @media(max-width:600px){
-    .header{padding:10px 12px}
-    .nav-tab{padding:8px 12px;font-size:.7rem}
+    .header{padding:8px 10px;flex-wrap:wrap;gap:8px}
+    .header-right{font-size:.55rem;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+    .header-stat{gap:2px}
+    .header-divider{display:none}
+    .header-toggles{margin-left:0}
+    .logo{font-size:1rem;letter-spacing:1px}
+    .live-pill{padding:2px 6px;font-size:.55rem}
+    .threat-pill{padding:2px 6px;font-size:.5rem}
+    .nav-tab{padding:8px 10px;font-size:.65rem}
+    .nav-tab .tab-icon{display:none}
+    .ticker{flex-wrap:nowrap;overflow-x:auto}
+    .tick{min-width:120px;padding:8px 10px}
+    .tick-value{font-size:.8rem}
+    .tick-label{font-size:.5rem}
+    .split-layout{grid-template-columns:1fr !important}
+    .split-layout .sidebar{height:45vh;min-height:280px}
+    .split-layout .main-area{height:45vh;min-height:280px}
+    .news-controls{overflow-x:auto;scrollbar-width:none}
+    .news-controls::-webkit-scrollbar{display:none}
+    .news-filter-tab{padding:6px 8px;font-size:.55rem;flex-shrink:0}
+    .news-stats-bar{overflow-x:auto;flex-wrap:nowrap}
+    .news-stat{min-width:70px;padding:4px 6px}
+    .news-stat-val{font-size:.75rem}
+    .section-head{padding:8px 10px;font-size:.6rem;flex-wrap:wrap;gap:6px}
+    .forces-grid,.nuke-grid,.casualty-grid{grid-template-columns:1fr}
+    .links-grid{grid-template-columns:1fr;gap:8px;padding:10px}
+    .clips-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+    .osint-grid{grid-template-columns:1fr}
+    .impact-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+    .impact-card{padding:12px}
+    .impact-val{font-size:1.3rem}
+    .full-frame{height:calc(100vh - 85px)}
+    .full-frame .section-head div{flex-wrap:wrap;gap:4px}
+    .overlay-btn{padding:4px 8px;font-size:.55rem}
+    .vid-source-tabs{flex-wrap:wrap}
+    .vid-src-tab{padding:3px 6px;font-size:.55rem}
+    .stream-ch{padding:8px 12px;font-size:.6rem}
+    .modal-content{aspect-ratio:auto;height:60vh;max-height:400px}
+    .pip-player{width:180px;bottom:8px;right:8px}
+    .pip-controls{padding:2px 4px}
+    .marquee-bar{height:24px}
+    .marquee-label{padding:0 8px;font-size:.5rem}
+    .marquee-text{font-size:.6rem}
+    /* Global search on mobile */
+    .global-search-wrap{width:100% !important;order:10}
+    .global-search-wrap input{font-size:.7rem !important}
   }
+  @media(max-width:400px){
+    .header-left{gap:6px}
+    .logo span{display:none}
+    .day-count{font-size:.75rem}
+    .nav-tab{padding:6px 8px;font-size:.6rem}
+    .tick{min-width:100px;padding:6px 8px}
+    .tick-value{font-size:.7rem}
+    .clips-grid{grid-template-columns:1fr}
+  }
+
+  /* GLOBAL SEARCH */
+  .global-search-wrap{position:relative;width:220px}
+  .global-search-wrap input{
+    width:100%;padding:5px 10px 5px 28px;background:var(--surface2);
+    border:1px solid var(--border);border-radius:4px;color:var(--text);
+    font-family:var(--mono);font-size:.65rem;outline:none;transition:border-color .15s;
+  }
+  .global-search-wrap input:focus{border-color:var(--red)}
+  .global-search-wrap input::placeholder{color:var(--text3)}
+  .global-search-wrap .search-icon{
+    position:absolute;left:8px;top:50%;transform:translateY(-50%);
+    color:var(--text3);font-size:.7rem;pointer-events:none;
+  }
+  .search-results{
+    position:absolute;top:100%;left:0;right:0;z-index:200;
+    background:var(--surface);border:1px solid var(--border);border-radius:0 0 6px 6px;
+    max-height:400px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.5);
+    scrollbar-width:thin;scrollbar-color:var(--border) var(--surface);
+  }
+  .search-results.show{display:block}
+  .search-result-item{
+    padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);
+    transition:background .1s;font-size:.7rem;
+  }
+  .search-result-item:hover{background:var(--surface2)}
+  .search-result-item .sr-panel{
+    font-family:var(--mono);font-size:.5rem;color:var(--text3);
+    text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;
+  }
+  .search-result-item .sr-title{color:var(--text);font-weight:500}
+  .search-result-item .sr-snippet{color:var(--text2);font-size:.6rem;margin-top:2px;
+    display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+  .search-result-item mark{background:var(--red-dim);color:var(--red);padding:0 1px;border-radius:2px}
+  .search-no-results{padding:16px;text-align:center;color:var(--text3);font-family:var(--mono);font-size:.7rem}
+  .search-result-count{padding:6px 12px;font-family:var(--mono);font-size:.5rem;color:var(--text3);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.5px}
 
   /* STREAM CAROUSEL */
   .stream-nav{
@@ -617,6 +712,11 @@
     <span class="header-divider">|</span>
     <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127482;&#127480;</span> DC
       <span id="dcTime" style="color:var(--text)">--:--</span></span>
+    <div class="global-search-wrap">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="globalSearch" placeholder="Search all tabs... (Ctrl+K)" autocomplete="off" spellcheck="false">
+      <div class="search-results" id="searchResults"></div>
+    </div>
     <div class="header-toggles">
       <button class="header-toggle" id="toggleSound" onclick="toggleAlertSound()" title="Breaking news alert sound">&#128264; ALERTS</button>
       <button class="header-toggle" id="toggleNightOps" onclick="toggleNightOps()" title="Night operations theme">&#127761; NV</button>
@@ -654,6 +754,7 @@
   <div class="nav-tab" role="tab" tabindex="0" data-panel="osint"><span class="tab-icon">◎</span>OSINT / SOCIAL</div>
   <div class="nav-tab" role="tab" tabindex="0" data-panel="forces"><span class="tab-icon">⚔</span>FORCES</div>
   <div class="nav-tab" role="tab" tabindex="0" data-panel="impact"><span class="tab-icon">◈</span>IMPACT</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="sensors"><span class="tab-icon">📡</span>SENSORS</div>
   <div class="nav-tab" role="tab" tabindex="0" data-panel="resources"><span class="tab-icon">≡</span>RESOURCES</div>
 </div>
 
@@ -919,6 +1020,56 @@
   </div>
 </div>
 
+<!-- ==================== SENSORS / MONITORING PANEL ==================== -->
+<div class="panel" id="panel-sensors">
+  <div class="section-head">
+    <span>📡 ENVIRONMENTAL SENSORS & MONITORING</span>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="overlay-btn" onclick="setSensorView('seismic')">Seismic</button>
+      <button class="overlay-btn" onclick="setSensorView('satellite')">Satellite</button>
+      <button class="overlay-btn" onclick="setSensorView('radiation')">Radiation</button>
+      <button class="overlay-btn" onclick="setSensorView('weather')">Weather</button>
+      <button class="overlay-btn" onclick="setSensorView('fires')">Fires/Thermal</button>
+    </div>
+  </div>
+  <div id="sensorContent">
+    <!-- Default: split view with seismic + satellite -->
+    <div class="grid-2" id="sensorGrid">
+      <div class="grid-cell">
+        <div class="section-head"><span>🌍 USGS SEISMIC — Detects large explosions & earthquakes</span><span class="badge">LIVE</span></div>
+        <div class="iframe-wrap tall">
+          <iframe src="https://earthquake.usgs.gov/earthquakes/map/?currentFeatures&extent=20.63278,40.69336&extent=40.44694,68.02734&range=week&magnitude=all&listOnlyShown=true&settings=true" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+        </div>
+      </div>
+      <div class="grid-cell">
+        <div class="section-head"><span>🛰 ZOOM EARTH — Near-real-time satellite</span><span class="badge">LIVE</span></div>
+        <div class="iframe-wrap tall">
+          <iframe src="https://zoom.earth/#view=32.4,53.7,5z/layers=fires" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Sensor info cards -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--border)">
+    <div style="background:var(--surface);padding:14px 16px">
+      <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text);margin-bottom:4px">🌍 Seismic Monitoring</div>
+      <div style="font-size:.65rem;color:var(--text2);line-height:1.4">USGS seismic data can detect large conventional explosions (MOAB/bunker busters register as M2.5-4.0 events). Monitor for unusual seismic activity near known military targets in Iran.</div>
+    </div>
+    <div style="background:var(--surface);padding:14px 16px">
+      <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text);margin-bottom:4px">🛰 Satellite Imagery</div>
+      <div style="font-size:.65rem;color:var(--text2);line-height:1.4">Zoom Earth provides near-real-time satellite imagery. Fire/thermal hotspot overlays can reveal active fires from strikes, burning oil infrastructure, or military activity.</div>
+    </div>
+    <div style="background:var(--surface);padding:14px 16px">
+      <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text);margin-bottom:4px">☢ Radiation Monitoring</div>
+      <div style="font-size:.65rem;color:var(--text2);line-height:1.4">Monitor environmental radiation levels near nuclear facilities (Natanz, Fordow, Bushehr). Critical for detecting radiological releases from strikes on nuclear sites.</div>
+    </div>
+    <div style="background:var(--surface);padding:14px 16px">
+      <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text);margin-bottom:4px">🌤 Weather / Wind</div>
+      <div style="font-size:.65rem;color:var(--text2);line-height:1.4">Wind patterns critical for: radioactive plume dispersal, chemical/smoke drift, flight operations, naval operations in the Persian Gulf and Red Sea.</div>
+    </div>
+  </div>
+</div>
+
 <!-- ==================== RESOURCES PANEL ==================== -->
 <div class="panel" id="panel-resources">
   <div class="section-head"><span>≡ BOOKMARKS & RESOURCES</span></div>
@@ -1043,6 +1194,46 @@
       <p>UN refugee agency data on displacement from the Iran conflict zone.</p>
       <a href="https://data.unhcr.org/en/situations" target="_blank">data.unhcr.org →</a>
     </div>
+    <div class="link-card">
+      <h3>🌍 USGS Earthquake Map</h3>
+      <p>Real-time seismic data. Large conventional strikes (MOAB/bunker busters) register as M2.5-4.0 events.</p>
+      <a href="https://earthquake.usgs.gov/earthquakes/map/" target="_blank">earthquake.usgs.gov →</a>
+    </div>
+    <div class="link-card">
+      <h3>🛰 Zoom Earth</h3>
+      <p>Near-real-time satellite imagery with fire/thermal overlays. Monitor damage, fires, and smoke plumes.</p>
+      <a href="https://zoom.earth/#view=32.4,53.7,5z/layers=fires" target="_blank">zoom.earth →</a>
+    </div>
+    <div class="link-card">
+      <h3>🔥 NASA FIRMS</h3>
+      <p>Fire Information for Resource Management. Real-time fire/thermal hotspot detection from MODIS and VIIRS satellites.</p>
+      <a href="https://firms.modaps.eosdis.nasa.gov/map/" target="_blank">firms.modaps.eosdis.nasa.gov →</a>
+    </div>
+    <div class="link-card">
+      <h3>🌤 Windy.com</h3>
+      <p>Wind patterns, weather, and atmospheric conditions. Critical for radioactive/chemical plume dispersal modeling.</p>
+      <a href="https://www.windy.com/?32.427,53.688,5" target="_blank">windy.com →</a>
+    </div>
+    <div class="link-card">
+      <h3>☢ Safecast Radiation Map</h3>
+      <p>Crowdsourced radiation monitoring network. Track environmental radiation near nuclear facilities.</p>
+      <a href="https://map.safecast.org/" target="_blank">map.safecast.org →</a>
+    </div>
+    <div class="link-card">
+      <h3>📡 ADS-B.fi</h3>
+      <p>Community-driven flight tracker showing military and civilian aircraft without commercial filtering.</p>
+      <a href="https://globe.adsb.fi/" target="_blank">globe.adsb.fi →</a>
+    </div>
+    <div class="link-card">
+      <h3>📊 ACLED Dashboard</h3>
+      <p>Armed Conflict Location & Event Data Project. Verified conflict events with downloadable datasets.</p>
+      <a href="https://acleddata.com/dashboard/" target="_blank">acleddata.com/dashboard →</a>
+    </div>
+    <div class="link-card">
+      <h3>🛢 TradingView Oil</h3>
+      <p>Real-time Brent crude futures chart. Track oil price volatility from Hormuz closure.</p>
+      <a href="https://www.tradingview.com/symbols/NYMEX-BZ1!/" target="_blank">tradingview.com →</a>
+    </div>
   </div>
 </div>
 
@@ -1131,6 +1322,8 @@ const RSS_FEEDS=[
   {name:'Times of Israel',cls:'src-toi',url:'https://www.timesofisrael.com/feed/'},
   {name:'FOX',cls:'src-fox',url:'https://moxie.foxnews.com/google-publisher/world.xml'},
   {name:'NBC',cls:'src-nbc',url:'https://feeds.nbcnews.com/nbcnews/public/world'},
+  {name:'CENTCOM',cls:'src-default',url:'https://www.centcom.mil/RSS/'},
+  {name:'Radio Farda',cls:'src-default',url:'https://en.radiofarda.com/api/'},
 ];
 
 // Category classification for news items
@@ -1157,30 +1350,41 @@ let currentNewsFilter='all';
 let compactNewsView=false;
 
 async function fetchRSS(feedUrl){
-  // Try rss2json first (returns structured JSON)
+  // Try our own server-side proxy first (most reliable, no CORS issues)
+  try{
+    const proxyUrl=`/api/rss?url=${encodeURIComponent(feedUrl)}`;
+    const res=await fetch(proxyUrl,{signal:AbortSignal.timeout(12000)});
+    if(res.ok){
+      const text=await res.text();
+      const items=parseRSSXml(text);
+      if(items.length>0) return items;
+    }
+  }catch(e){}
+
+  // Fallback 1: rss2json (returns structured JSON)
   try{
     const proxy=`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}&count=20`;
-    const res=await fetch(proxy);
+    const res=await fetch(proxy,{signal:AbortSignal.timeout(8000)});
     if(res.ok){
       const data=await res.json();
       if(data.items&&data.items.length>0) return data.items;
     }
   }catch(e){}
 
-  // Fallback: fetch raw RSS via allorigins CORS proxy and parse XML
+  // Fallback 2: allorigins CORS proxy
   try{
     const proxy2=`https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`;
-    const res=await fetch(proxy2);
+    const res=await fetch(proxy2,{signal:AbortSignal.timeout(8000)});
     if(res.ok){
       const text=await res.text();
       return parseRSSXml(text);
     }
   }catch(e){}
 
-  // Fallback 2: corsproxy.io
+  // Fallback 3: corsproxy.io
   try{
     const proxy3=`https://corsproxy.io/?${encodeURIComponent(feedUrl)}`;
-    const res=await fetch(proxy3);
+    const res=await fetch(proxy3,{signal:AbortSignal.timeout(8000)});
     if(res.ok){
       const text=await res.text();
       return parseRSSXml(text);
@@ -2464,6 +2668,170 @@ function renderImpactDashboard(){
       </div>
     `).join('');
   }
+}
+
+// ===== GLOBAL SEARCH =====
+const searchInput=document.getElementById('globalSearch');
+const searchResultsEl=document.getElementById('searchResults');
+let searchDebounce=null;
+
+searchInput.addEventListener('input',()=>{
+  clearTimeout(searchDebounce);
+  searchDebounce=setTimeout(()=>performSearch(searchInput.value.trim()),200);
+});
+searchInput.addEventListener('focus',()=>{
+  if(searchInput.value.trim().length>=2) searchResultsEl.classList.add('show');
+});
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.global-search-wrap')) searchResultsEl.classList.remove('show');
+});
+
+function performSearch(query){
+  if(query.length<2){searchResultsEl.classList.remove('show');return;}
+  const q=query.toLowerCase();
+  const results=[];
+
+  // Search news
+  allFilteredNews.forEach(item=>{
+    const text=(item.title+' '+(item.description||'')).toLowerCase();
+    if(text.includes(q)){
+      results.push({panel:'news',title:item.title,snippet:stripHtml(item.description||'').slice(0,120),url:item.link,source:item.sourceName});
+    }
+  });
+
+  // Search OSINT
+  allOsintPosts.forEach(p=>{
+    if(p.text.toLowerCase().includes(q)){
+      results.push({panel:'osint',title:p.text.slice(0,100),snippet:p.handle+' · '+p.platformLabel,url:p.url,source:p.handle});
+    }
+  });
+
+  // Search video clips
+  allVideoClips.forEach(v=>{
+    if((v.title||'').toLowerCase().includes(q)){
+      results.push({panel:'videos',title:v.title,snippet:v.author||v.source,url:v.videoId?`https://youtube.com/watch?v=${v.videoId}`:v.redditUrl,source:v.source});
+    }
+  });
+
+  // Search static panels (forces, impact, resources)
+  const staticPanels=['forces','impact','resources','sensors'];
+  staticPanels.forEach(panelId=>{
+    const panel=document.getElementById('panel-'+panelId);
+    if(!panel) return;
+    const cards=panel.querySelectorAll('.force-card, .nuke-card, .impact-card, .link-card, .casualty-card, .impact-timeline-item');
+    cards.forEach(card=>{
+      const text=card.textContent.toLowerCase();
+      if(text.includes(q)){
+        const title=card.querySelector('.force-card-name, .nuke-name, .impact-label, h3, .casualty-label, .impact-timeline-text')?.textContent||text.slice(0,80);
+        results.push({panel:panelId,title,snippet:'',url:null,source:panelId.toUpperCase()});
+      }
+    });
+  });
+
+  renderSearchResults(results.slice(0,30),query);
+}
+
+function renderSearchResults(results,query){
+  if(!results.length){
+    searchResultsEl.innerHTML='<div class="search-no-results">No results for "'+escHtml(query)+'"</div>';
+    searchResultsEl.classList.add('show');
+    return;
+  }
+  const panelLabels={news:'NEWS FEED',osint:'OSINT / SOCIAL',videos:'VIDEO CLIPS',forces:'FORCES',impact:'IMPACT',resources:'RESOURCES',sensors:'SENSORS'};
+  const re=new RegExp('('+query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+  searchResultsEl.innerHTML=
+    `<div class="search-result-count">${results.length} result${results.length!==1?'s':''}</div>`+
+    results.map(r=>`
+    <div class="search-result-item" onclick="goToSearchResult('${r.panel}','${escAttr(r.url||'')}')">
+      <div class="sr-panel">${panelLabels[r.panel]||r.panel}</div>
+      <div class="sr-title">${escHtml(r.title).replace(re,'<mark>$1</mark>')}</div>
+      ${r.snippet?`<div class="sr-snippet">${escHtml(r.snippet)}</div>`:''}
+    </div>
+  `).join('');
+  searchResultsEl.classList.add('show');
+}
+
+function goToSearchResult(panel,url){
+  searchResultsEl.classList.remove('show');
+  searchInput.value='';
+  const tab=document.querySelector(`[data-panel="${panel}"]`);
+  if(tab) activateTab(tab);
+  if(url) setTimeout(()=>openLink(url),100);
+}
+
+// ===== KEYBOARD SHORTCUTS =====
+document.addEventListener('keydown',e=>{
+  // Ctrl+K / Cmd+K = focus search
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){
+    e.preventDefault();
+    searchInput.focus();
+    searchInput.select();
+    return;
+  }
+  // Don't trigger shortcuts when typing in inputs
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT') return;
+  // Number keys 1-9,0 switch tabs
+  const tabs=[...document.querySelectorAll('.nav-tab')];
+  if(e.key>='1'&&e.key<='9'){
+    const idx=parseInt(e.key)-1;
+    if(idx<tabs.length){e.preventDefault();activateTab(tabs[idx]);}
+  }else if(e.key==='0'){
+    const idx=9;
+    if(idx<tabs.length){e.preventDefault();activateTab(tabs[idx]);}
+  }
+  // R = refresh current panel
+  if(e.key==='r'&&!e.ctrlKey&&!e.metaKey){
+    const panel=currentPanel;
+    if(panel==='overview'||panel==='news') fetchNews();
+    else if(panel==='videos') fetchVideos();
+    else if(panel==='osint') fetchOsint();
+  }
+  // N = night ops toggle
+  if(e.key==='n'&&!e.ctrlKey&&!e.metaKey) toggleNightOps();
+});
+
+// ===== SENSOR VIEW SWITCHER =====
+function setSensorView(view){
+  const grid=document.getElementById('sensorGrid');
+  if(!grid) return;
+  const views={
+    seismic:`
+      <div class="grid-cell" style="grid-column:1/-1">
+        <div class="section-head"><span>🌍 USGS EARTHQUAKE MAP — Iran/Middle East region</span><span class="badge">LIVE</span></div>
+        <div class="iframe-wrap tall" style="min-height:calc(100vh - 200px)">
+          <iframe src="https://earthquake.usgs.gov/earthquakes/map/?currentFeatures&extent=20.63278,40.69336&extent=40.44694,68.02734&range=week&magnitude=all&listOnlyShown=true&settings=true" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+        </div>
+      </div>`,
+    satellite:`
+      <div class="grid-cell" style="grid-column:1/-1">
+        <div class="section-head"><span>🛰 ZOOM EARTH — Satellite with fire/thermal overlay</span><span class="badge">LIVE</span></div>
+        <div class="iframe-wrap tall" style="min-height:calc(100vh - 200px)">
+          <iframe src="https://zoom.earth/#view=32.4,53.7,5z/layers=fires" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+        </div>
+      </div>`,
+    radiation:`
+      <div class="grid-cell" style="grid-column:1/-1">
+        <div class="section-head"><span>☢ RADIATION MONITORING — SAFECAST / GMC Map</span><span class="badge">LIVE</span></div>
+        <div class="iframe-wrap tall" style="min-height:calc(100vh - 200px)">
+          <iframe src="https://map.safecast.org/?y=32.4&x=53.7&z=5&l=0&m=0" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+        </div>
+      </div>`,
+    weather:`
+      <div class="grid-cell" style="grid-column:1/-1">
+        <div class="section-head"><span>🌤 WINDY — Wind, weather, and atmospheric conditions</span><span class="badge">LIVE</span></div>
+        <div class="iframe-wrap tall" style="min-height:calc(100vh - 200px)">
+          <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=default&metricTemp=default&metricWind=default&zoom=5&overlay=wind&product=ecmwf&level=surface&lat=32.4&lon=53.7" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+        </div>
+      </div>`,
+    fires:`
+      <div class="grid-cell" style="grid-column:1/-1">
+        <div class="section-head"><span>🔥 NASA FIRMS — Fire/Thermal Hotspots</span><span class="badge">LIVE</span></div>
+        <div class="iframe-wrap tall" style="min-height:calc(100vh - 200px)">
+          <iframe src="https://firms.modaps.eosdis.nasa.gov/map/#d:today;@53.7,32.4,5.0z" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+        </div>
+      </div>`,
+  };
+  grid.innerHTML=views[view]||views.seismic;
 }
 
 // ===== INIT =====
