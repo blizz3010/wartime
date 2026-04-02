@@ -689,7 +689,28 @@
   .force-status.active{background:var(--green)}
   .force-status.damaged{background:var(--orange)}
   .force-status.destroyed{background:var(--red)}
-  .force-section-head{padding:12px 16px;background:var(--surface2);font-family:var(--mono);font-size:.65rem;font-weight:700;letter-spacing:1px;color:var(--text2);text-transform:uppercase;border-bottom:1px solid var(--border)}
+  .force-section-head{padding:12px 16px;background:var(--surface2);font-family:var(--mono);font-size:.65rem;font-weight:700;letter-spacing:1px;color:var(--text2);text-transform:uppercase;border-bottom:1px solid var(--border);scroll-margin-top:140px}
+
+  /* Forces Sub-Navigation */
+  .forces-subnav{
+    display:flex;gap:0;background:var(--surface);border-bottom:1px solid var(--border);
+    overflow-x:auto;scrollbar-width:none;position:sticky;top:52px;z-index:20;
+  }
+  .forces-subnav::-webkit-scrollbar{display:none}
+  .forces-subnav-btn{
+    padding:8px 14px;font-family:var(--mono);font-size:.6rem;font-weight:600;
+    color:var(--text3);background:transparent;border:none;cursor:pointer;
+    border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;letter-spacing:.5px;
+  }
+  .forces-subnav-btn:hover{color:var(--text);background:var(--surface2)}
+  .forces-subnav-btn.active{color:var(--red);border-bottom-color:var(--red)}
+
+  /* Ship type icons */
+  .ship-type-icon{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:28px;height:28px;border-radius:4px;font-size:.8rem;
+    background:var(--surface3);margin-right:8px;flex-shrink:0;
+  }
 
   /* CASUALTIES TRACKER */
   .casualty-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1px;background:var(--border)}
@@ -1008,44 +1029,68 @@
 
 <!-- ==================== FORCES & ASSETS PANEL ==================== -->
 <div class="panel" id="panel-forces">
-  <div class="section-head"><span>⚔ MILITARY FORCES & ORDER OF BATTLE</span><span class="badge">ESTIMATED</span></div>
+  <div class="section-head">
+    <span>⚔ MILITARY FORCES & ORDER OF BATTLE</span>
+    <span class="badge">ESTIMATED</span>
+  </div>
 
-  <!-- Coalition Forces -->
-  <div class="force-section-head">🇺🇸 US-LED COALITION FORCES</div>
+  <!-- Forces Sub-Navigation -->
+  <div class="forces-subnav" id="forcesSubnav">
+    <button class="forces-subnav-btn active" onclick="scrollForceSection('sect-coalition')">Coalition</button>
+    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-support')">Support Nations</button>
+    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-iran')">Iranian Forces</button>
+    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-proxy')">Proxies</button>
+    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-weapons')">Weapons</button>
+    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-fleet')">Naval Fleet</button>
+    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-bases')">Bases</button>
+    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-infra')">Infrastructure</button>
+    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-nukes')">Nuclear</button>
+    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-casualties')">Casualties</button>
+  </div>
+
+  <!-- Active Combatants (USA + Israel) -->
+  <div class="force-section-head" id="sect-coalition">🇺🇸 ACTIVE COMBATANTS — US & ISRAEL</div>
   <div class="forces-grid" id="coalitionForces"></div>
 
+  <!-- Support / Logistics Nations -->
+  <div class="force-section-head" id="sect-support">🤝 SUPPORT & LOGISTICS NATIONS</div>
+  <div style="padding:8px 16px;font-family:var(--mono);font-size:.55rem;color:var(--text3);border-bottom:1px solid var(--border);background:var(--surface)">
+    Not actively engaged in offensive operations. Providing airspace access, basing, logistics, and defensive missile intercepts only.
+  </div>
+  <div class="forces-grid" id="supportForces"></div>
+
   <!-- Iranian / Axis Forces -->
-  <div class="force-section-head">🇮🇷 IRANIAN & ALLIED FORCES</div>
+  <div class="force-section-head" id="sect-iran">🇮🇷 IRANIAN & ALLIED FORCES</div>
   <div class="forces-grid" id="iranForces"></div>
 
   <!-- Proxy & Non-State Actors -->
-  <div class="force-section-head">⚡ PROXY & NON-STATE ACTORS</div>
+  <div class="force-section-head" id="sect-proxy">⚡ PROXY & NON-STATE ACTORS</div>
   <div class="forces-grid" id="proxyForces"></div>
 
   <!-- Weapons Systems Deployed -->
-  <div class="force-section-head">🎯 KEY WEAPONS SYSTEMS DEPLOYED</div>
+  <div class="force-section-head" id="sect-weapons">🎯 KEY WEAPONS SYSTEMS DEPLOYED</div>
   <div class="forces-grid" id="weaponsSystems"></div>
 
-  <!-- Military Base Status -->
-  <div class="force-section-head">🏗 MILITARY BASE STATUS — IRAN</div>
-  <div class="forces-grid" id="baseStatus"></div>
-
   <!-- Iranian Naval Fleet Tracker -->
-  <div class="force-section-head">🚢 IRANIAN NAVAL FLEET — ASSET TRACKER</div>
+  <div class="force-section-head" id="sect-fleet">🚢 IRANIAN NAVAL FLEET — OPERATION EPIC FURY</div>
   <div class="fleet-summary" id="fleetSummary"></div>
   <div class="fleet-grid" id="fleetTracker"></div>
 
+  <!-- Military Base Status -->
+  <div class="force-section-head" id="sect-bases">🏗 MILITARY BASE STATUS — IRAN</div>
+  <div class="forces-grid" id="baseStatus"></div>
+
   <!-- Infrastructure Targets -->
-  <div class="force-section-head">🎯 INFRASTRUCTURE TARGETS — DAMAGE ASSESSMENT</div>
+  <div class="force-section-head" id="sect-infra">🎯 INFRASTRUCTURE TARGETS — DAMAGE ASSESSMENT</div>
   <div class="fleet-summary" id="infraSummary"></div>
   <div class="infra-grid" id="infraTracker"></div>
 
   <!-- Nuclear Facilities -->
-  <div class="force-section-head">☢ NUCLEAR FACILITY STATUS</div>
+  <div class="force-section-head" id="sect-nukes">☢ NUCLEAR FACILITY STATUS</div>
   <div class="nuke-grid" id="nukeStatus"></div>
 
   <!-- Casualties Tracker -->
-  <div class="force-section-head">📊 CASUALTY & HUMANITARIAN ESTIMATES</div>
+  <div class="force-section-head" id="sect-casualties">📊 CASUALTY & HUMANITARIAN ESTIMATES</div>
   <div class="casualty-grid" id="casualtyStats"></div>
 
   <div style="padding:12px 20px;font-family:var(--mono);font-size:.55rem;color:var(--text3);border-top:1px solid var(--border)">
@@ -2268,12 +2313,22 @@ function renderOsint(){
   `).join('');
 }
 
+// ===== FORCES SUB-NAVIGATION =====
+function scrollForceSection(id){
+  const el=document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  // Update active button
+  document.querySelectorAll('.forces-subnav-btn').forEach(b=>b.classList.remove('active'));
+  const btn=document.querySelector(`.forces-subnav-btn[onclick*="${id}"]`);
+  if(btn) btn.classList.add('active');
+}
+
 // ===== FORCES & ORDER OF BATTLE =====
 function renderForcesPanel(){
-  // US-Led Coalition
+  // Active Combatants (USA + Israel)
   const coalitionEl=document.getElementById('coalitionForces');
   const coalition=[
-    {flag:'🇺🇸',name:'United States',role:'Lead Coalition Partner',cls:'us',items:[
+    {flag:'🇺🇸',name:'United States',role:'Lead — Active Combatant',cls:'us',items:[
       {label:'Personnel Deployed (CENTCOM AOR)',val:'~45,000+'},
       {label:'Carrier Strike Groups',val:'3 (CVN-78, CVN-72, CVN-71)'},
       {label:'Air Force Squadrons',val:'12+ (F-35A, F-22, B-2, B-1B)'},
@@ -2281,10 +2336,11 @@ function renderForcesPanel(){
       {label:'Submarines (SSGNs)',val:'4+ Ohio-class'},
       {label:'Destroyers / Cruisers',val:'18+ Arleigh Burke & Ticonderoga'},
       {label:'B-2 Spirit Sorties',val:'35+ confirmed'},
+      {label:'Iranian Ships Sunk (Epic Fury)',val:'30+ (17 warships + 1 sub confirmed)'},
       {label:'Cyber Command Operations',val:'Active — SIGINT/EW ongoing'},
       {label:'Special Operations',val:'JSOC elements deployed'},
     ]},
-    {flag:'🇮🇱',name:'Israel',role:'Primary Coalition Partner',cls:'israel',items:[
+    {flag:'🇮🇱',name:'Israel',role:'Primary Coalition Partner — Active Combatant',cls:'israel',items:[
       {label:'IAF Sorties Flown',val:'500+'},
       {label:'F-35I Adir Deployed',val:'~50 aircraft'},
       {label:'Arrow / David\'s Sling Intercepts',val:'200+'},
@@ -2294,31 +2350,51 @@ function renderForcesPanel(){
       {label:'Intelligence (Unit 8200)',val:'Active SIGINT/HUMINT'},
       {label:'Submarine (Dolphin-class)',val:'3 deployed'},
     ]},
-    {flag:'🇬🇧',name:'United Kingdom',role:'Support / ISR',cls:'us',items:[
-      {label:'RAF Typhoon Sorties',val:'80+'},
-      {label:'HMS Queen Elizabeth',val:'Deployed — E. Med'},
-      {label:'Astute-class Submarines',val:'1-2 (estimated)'},
-      {label:'Special Forces (SAS/SBS)',val:'Unconfirmed'},
-    ]},
-    {flag:'🇸🇦',name:'Saudi Arabia',role:'Airspace / Logistics',cls:'us',items:[
-      {label:'Airbase Access Granted',val:'Yes — Prince Sultan AB'},
-      {label:'RSAF Patrols',val:'Active — border defense'},
-      {label:'Patriot Batteries',val:'6+ active'},
-      {label:'Oil Facility Defense',val:'Heightened alert'},
-    ]},
-    {flag:'🇦🇪',name:'UAE',role:'Logistics / Basing',cls:'us',items:[
-      {label:'Al Dhafra Air Base',val:'Active — US Air Force'},
-      {label:'THAAD Batteries',val:'2 active'},
-      {label:'Naval Basing (Fujairah)',val:'Logistics hub'},
-    ]},
-    {flag:'🇧🇭',name:'Bahrain',role:'Naval HQ',cls:'us',items:[
-      {label:'NAVCENT / 5th Fleet HQ',val:'Active — NSA Bahrain'},
-      {label:'CTF 150/152/153',val:'All task forces active'},
-    ]},
   ];
 
   coalitionEl.innerHTML=coalition.map(f=>`
     <div class="force-card ${f.cls}">
+      <div class="force-card-header">
+        <span class="force-card-flag">${f.flag}</span>
+        <div><div class="force-card-name">${f.name}</div><div class="force-card-role">${f.role}</div></div>
+      </div>
+      ${f.items.map(i=>`<div class="force-item"><span class="force-item-label">${i.label}</span><span class="force-item-val">${i.val}</span></div>`).join('')}
+    </div>
+  `).join('');
+
+  // Support & Logistics Nations (not actively attacking)
+  const supportEl=document.getElementById('supportForces');
+  const support=[
+    {flag:'🇬🇧',name:'United Kingdom',role:'ISR / Air Defense Support',cls:'us',items:[
+      {label:'Role',val:'ISR, refueling, defensive intercepts'},
+      {label:'RAF Typhoon Sorties',val:'80+ (CAP / ISR only)'},
+      {label:'HMS Queen Elizabeth',val:'Deployed — E. Med'},
+      {label:'Astute-class Submarines',val:'1-2 (estimated)'},
+      {label:'Offensive Strikes',val:'None confirmed'},
+    ]},
+    {flag:'🇸🇦',name:'Saudi Arabia',role:'Airspace Access / Defensive',cls:'us',items:[
+      {label:'Role',val:'Airbase access, airspace, missile defense'},
+      {label:'Prince Sultan Air Base',val:'Open to US forces'},
+      {label:'Patriot Batteries (defense)',val:'6+ active'},
+      {label:'RSAF',val:'Border patrol only — no offensive ops'},
+      {label:'Offensive Strikes',val:'None'},
+    ]},
+    {flag:'🇦🇪',name:'UAE',role:'Logistics / Basing',cls:'us',items:[
+      {label:'Role',val:'Air base hosting, logistics hub'},
+      {label:'Al Dhafra Air Base',val:'Active — US Air Force'},
+      {label:'THAAD Batteries (defense)',val:'2 active — intercepted 3 BMs'},
+      {label:'Offensive Strikes',val:'None'},
+    ]},
+    {flag:'🇧🇭',name:'Bahrain',role:'Naval HQ Hosting',cls:'us',items:[
+      {label:'Role',val:'Hosts US 5th Fleet HQ'},
+      {label:'NAVCENT / 5th Fleet HQ',val:'Active — NSA Bahrain'},
+      {label:'CTF 150/152/153',val:'All task forces active'},
+      {label:'Offensive Strikes',val:'None'},
+    ]},
+  ];
+
+  supportEl.innerHTML=support.map(f=>`
+    <div class="force-card ${f.cls}" style="opacity:.85">
       <div class="force-card-header">
         <span class="force-card-flag">${f.flag}</span>
         <div><div class="force-card-name">${f.name}</div><div class="force-card-role">${f.role}</div></div>
@@ -2879,30 +2955,82 @@ function renderCarrierPanel(){
   `).join('');
 }
 
-// ===== IRANIAN NAVAL FLEET TRACKER =====
+// ===== IRANIAN NAVAL FLEET TRACKER — OPERATION EPIC FURY =====
+const SHIP_ICONS={
+  'Submarine':'🔻','Frigate':'🚢','Corvette':'🛥','Fast Attack':'⚡',
+  'Catamaran':'⛵','Support Ship':'📦','Patrol Boat':'🔹','Fast Attack Swarm':'💥',
+  'Drone Carrier':'🛩'
+};
+
 function renderFleetTracker(){
   const vessels=[
     // Submarines
-    {name:'Tariq (901)',class:'Kilo-class SSK',type:'Submarine',status:'destroyed',location:'Bandar Abbas',detail:'Sunk in port by Tomahawk strike, Mar 14. Hull confirmed destroyed via satellite imagery.'},
-    {name:'Noor (902)',class:'Kilo-class SSK',type:'Submarine',status:'damaged',location:'Chabahar (est.)',detail:'Reported damaged, possibly relocated from Bandar Abbas. Status uncertain.'},
-    {name:'Yunes (903)',class:'Kilo-class SSK',type:'Submarine',status:'operational',location:'Unknown — possibly at sea',detail:'Last confirmed at Bandar Abbas pre-conflict. Current location unknown. Presumed operational.'},
-    {name:'Fateh',class:'Fateh-class SSK',type:'Submarine',status:'operational',location:'Persian Gulf (est.)',detail:'Indigenous submarine. Believed deployed for mining/surveillance ops in Gulf.'},
-    {name:'Nahang',class:'Nahang-class Midget',type:'Submarine',status:'unknown',location:'Unknown',detail:'Coastal midget submarine. No confirmed sightings since conflict start.'},
-    {name:'Ghadir-1 through Ghadir-23',class:'Ghadir-class Midget (x23)',type:'Submarine',status:'operational',location:'Dispersed — coastal bases',detail:'Fleet of ~23 midget subs. Highly mobile, difficult to track. Multiple confirmed at Jask and Bandar-e Jask.'},
-    // Major Surface Combatants
-    {name:'Jamaran (76)',class:'Moudge-class Frigate',type:'Frigate',status:'damaged',location:'Bandar Abbas',detail:'Hit by anti-ship missile strike Mar 15. Listing but afloat. Non-operational.'},
-    {name:'Damavand (77)',class:'Moudge-class Frigate',type:'Frigate',status:'destroyed',location:'Bandar Abbas',detail:'Destroyed in port strike Mar 14. Confirmed sunk at berth.'},
-    {name:'Sahand (74)',class:'Moudge-class Frigate',type:'Frigate',status:'operational',location:'Gulf of Oman (est.)',detail:'Believed to have escaped initial strikes. Last seen heading east toward Chabahar.'},
-    {name:'Dena (75)',class:'Moudge-class Frigate',type:'Frigate',status:'operational',location:'Chabahar',detail:'Relocated to Chabahar before strikes. Believed operational.'},
-    {name:'Bayandor (81)',class:'Bayandor-class Corvette',type:'Corvette',status:'destroyed',location:'Bushehr',detail:'Destroyed by airstrike at Bushehr naval pier.'},
-    {name:'Naghdi (82)',class:'Bayandor-class Corvette',type:'Corvette',status:'destroyed',location:'Bushehr',detail:'Destroyed alongside Bayandor at Bushehr.'},
-    {name:'Hamzeh (Catamaran)',class:'Shahid Soleimani-class',type:'Fast Attack',status:'damaged',location:'Strait of Hormuz area',detail:'IRGCN catamaran. Reported damaged by USN helicopter engagement.'},
-    // Support / Aux
-    {name:'Makran (441)',class:'Makran-class Forward Base',type:'Support Ship',status:'destroyed',location:'Jask area',detail:'Former tanker converted to floating base. Struck by Harpoon missiles. Confirmed sunk Mar 16.'},
-    {name:'Kharg (431)',class:'Kharg-class Replenishment',type:'Support Ship',status:'destroyed',location:'Bandar Abbas',detail:'Fleet replenishment ship. Destroyed in port strikes.'},
-    {name:'Shahid Baziar',class:'Hendijan-class Patrol',type:'Patrol Boat',status:'destroyed',location:'Hormuz',detail:'One of several patrol craft destroyed in Strait engagement.'},
-    // IRGCN Fast Attack Craft
-    {name:'IRGCN Fast Attack Fleet',class:'~1,500 boats (mixed types)',type:'Fast Attack Swarm',status:'damaged',location:'Dispersed — coastal',detail:'Estimated 200-300 destroyed in strikes on coastal bases. Remainder dispersed to civilian ports and hidden coves. Swarm capability degraded but not eliminated.'},
+    {name:'IRIS Fateh',class:'Fateh-class SSK (indigenous)',type:'Submarine',status:'destroyed',location:'Bandar Abbas (in port)',date:'Mar 3',
+      detail:'Iran\'s most advanced indigenous submarine. Sunk by ATACMS ballistic missiles fired from HIMARS launchers — first known use of a ballistic missile to sink a submarine. Struck while stationary in port.',
+      killedBy:'ATACMS / HIMARS',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Fateh_submarine_2.jpg/300px-Fateh_submarine_2.jpg'},
+    {name:'IRIS Tariq (901)',class:'Kilo-class SSK (Russian-built)',type:'Submarine',status:'destroyed',location:'Bandar Abbas',date:'Mar 1',
+      detail:'Sunk in opening strikes. Hull confirmed destroyed via satellite imagery. One of 3 Russian-built Kilo-class boats.',
+      killedBy:'Tomahawk TLAM'},
+    {name:'IRIS Noor (902)',class:'Kilo-class SSK',type:'Submarine',status:'destroyed',location:'Bandar Abbas',date:'Mar 1',
+      detail:'Destroyed alongside Tariq in Bandar Abbas port strikes. Satellite imagery confirms both Kilos sunk at berth.',
+      killedBy:'Tomahawk TLAM'},
+    {name:'IRIS Yunes (903)',class:'Kilo-class SSK',type:'Submarine',status:'unknown',location:'Unknown — possibly at sea',date:'—',
+      detail:'Was not at Bandar Abbas during initial strikes. Current location unknown. If at sea, may be Iran\'s last operational diesel submarine.'},
+    {name:'Nahang',class:'Nahang-class Midget Sub',type:'Submarine',status:'unknown',location:'Unknown',date:'—',
+      detail:'Coastal midget submarine. No confirmed sightings since conflict start. Likely hiding in coastal cave shelters.'},
+    {name:'Ghadir Fleet (x23)',class:'Ghadir-class Midget Sub',type:'Submarine',status:'damaged',location:'Dispersed — coastal bases',date:'Multiple',
+      detail:'Fleet of ~23 midget subs. Several confirmed destroyed at Jask and Bandar-e Jask. Remainder dispersed. Difficult to track due to small size. Est. 8-12 still operational.'},
+
+    // Major Surface Combatants — Operation Epic Fury
+    {name:'IRIS Dena (75)',class:'Moudge-class Frigate',type:'Frigate',status:'destroyed',location:'Indian Ocean (off Sri Lanka)',date:'Mar 4',
+      detail:'Torpedoed by USS Charlotte (SSN-766) ~19nm off Galle, Sri Lanka using Mk 48 torpedoes (2 fired, 1 hit). Sank in 2-3 minutes. ~80-87 of ~180 crew killed. First US submarine torpedo kill since WWII.',
+      killedBy:'Mk 48 torpedo / USS Charlotte',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/IRIS_Dena.jpg/300px-IRIS_Dena.jpg'},
+    {name:'IRIS Jamaran (76)',class:'Moudge-class Frigate',type:'Frigate',status:'destroyed',location:'Bandar Abbas',date:'Mar 1',
+      detail:'Destroyed in opening strikes at Bandar Abbas. First Iranian-built frigate. Confirmed sunk at berth.',
+      killedBy:'Harpoon / Tomahawk'},
+    {name:'IRIS Damavand (77)',class:'Moudge-class Frigate',type:'Frigate',status:'destroyed',location:'Bandar Abbas',date:'Mar 1',
+      detail:'Destroyed alongside Jamaran in port strikes. Capsized at dock.',
+      killedBy:'Tomahawk TLAM'},
+    {name:'IRIS Sahand (74)',class:'Moudge-class Frigate',type:'Frigate',status:'destroyed',location:'Chabahar area',date:'Mar 3',
+      detail:'Attempted to flee east toward Chabahar. Intercepted and destroyed by coalition naval forces.',
+      killedBy:'Harpoon ASCM'},
+
+    // IRGCN Soleimani-class Catamarans
+    {name:'IRIS Shahid Sayyad Shirazi',class:'Soleimani-class Catamaran',type:'Catamaran',status:'destroyed',location:'Bandar Abbas',date:'Mar 1',
+      detail:'Missile-armed catamaran corvette. All four Soleimani-class ships were reported destroyed in opening strikes.',
+      killedBy:'Tomahawk / Harpoon'},
+    {name:'IRIS Shahid Nazeri',class:'Soleimani-class Catamaran',type:'Catamaran',status:'destroyed',location:'Bandar Abbas',date:'Mar 1',
+      detail:'Destroyed alongside other Soleimani-class vessels. Advanced anti-ship missile platform eliminated.',
+      killedBy:'Tomahawk / Harpoon'},
+    {name:'IRIS Shahid Dehghan',class:'Soleimani-class Catamaran',type:'Catamaran',status:'destroyed',location:'Konarak',date:'Mar 1',
+      detail:'Destroyed at Konarak naval base. Fire and secondary explosions confirmed.',
+      killedBy:'Tomahawk TLAM'},
+    {name:'IRIS Shahid Dalvari',class:'Soleimani-class Catamaran',type:'Catamaran',status:'destroyed',location:'Konarak',date:'Mar 1',
+      detail:'Fourth and final Soleimani-class. Destroyed. IRGCN catamaran capability eliminated.',
+      killedBy:'Tomahawk TLAM'},
+
+    // Drone carrier & other IRGCN
+    {name:'IRIS Shahid Bagheri',class:'IRGCN Drone/Helicopter Carrier',type:'Drone Carrier',status:'destroyed',location:'Bandar Abbas',date:'Mar 1',
+      detail:'180m flight deck with ski-jump. Iran\'s largest military vessel. Sunk in opening hours of Operation Epic Fury.',
+      killedBy:'Multiple Tomahawk / Harpoon strikes'},
+    {name:'IRIS Makran (441)',class:'Makran-class Forward Base Ship',type:'Support Ship',status:'destroyed',location:'Jask area',date:'Mar 1',
+      detail:'Former tanker converted to floating forward base. Reported burning and sinking in early strikes. Confirmed lost.',
+      killedBy:'Harpoon ASCM'},
+
+    // Bayandor-class corvettes
+    {name:'IRIS Bayandor (81)',class:'Bayandor-class Corvette',type:'Corvette',status:'destroyed',location:'Bushehr',date:'Mar 1',
+      detail:'Vosper Mk 5 corvette. Destroyed by airstrike at Bushehr naval pier.',killedBy:'Precision airstrike'},
+    {name:'IRIS Naghdi (82)',class:'Bayandor-class Corvette',type:'Corvette',status:'destroyed',location:'Bushehr',date:'Mar 1',
+      detail:'Destroyed alongside Bayandor at Bushehr. Both corvettes eliminated.',killedBy:'Precision airstrike'},
+
+    // Support ships
+    {name:'IRIS Kharg (431)',class:'Kharg-class Replenishment',type:'Support Ship',status:'destroyed',location:'Bandar Abbas',date:'Mar 1',
+      detail:'Fleet replenishment oiler. Iran\'s only major underway replenishment ship. Destroyed in port. Navy logistics capability eliminated.',
+      killedBy:'Tomahawk TLAM'},
+
+    // IRGCN Fast Attack fleet
+    {name:'IRGCN Fast Attack Fleet',class:'~1,500 boats (Peykaap, Zolfaqar, Seraj, etc.)',type:'Fast Attack Swarm',status:'damaged',location:'Dispersed — coastal',date:'Ongoing',
+      detail:'Estimated 200-300 destroyed in strikes on coastal pens and bases at Bandar Abbas, Jask, and Bushehr. Remainder dispersed to civilian ports and hidden coves. Swarm capability significantly degraded. DefSec Hegeseth declared Iranian Navy "combat ineffective, decimated, destroyed, defeated."'},
   ];
 
   // Summary counts
@@ -2920,25 +3048,34 @@ function renderFleetTracker(){
     <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--orange)"></div>DAMAGED: ${counts.damaged}</div>
     <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--red)"></div>DESTROYED: ${counts.destroyed}</div>
     <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--text3)"></div>UNKNOWN: ${counts.unknown}</div>
-    <div class="fleet-summary-item" style="margin-left:auto;color:var(--text3)">TOTAL TRACKED: ${vessels.length} ASSETS</div>
+    <div class="fleet-summary-item" style="margin-left:auto;color:var(--text3)">OPERATION EPIC FURY · 30+ SHIPS DESTROYED</div>
   `;
 
   const gridEl=document.getElementById('fleetTracker');
-  gridEl.innerHTML=vessels.map(v=>`
+  gridEl.innerHTML=vessels.map(v=>{
+    const icon=SHIP_ICONS[v.type]||'🔹';
+    const imgHtml=v.img?`<img src="${v.img}" alt="${v.name}" style="width:100%;height:80px;object-fit:cover;border-radius:3px;margin-top:8px;border:1px solid var(--border);opacity:.85" loading="lazy" onerror="this.style.display='none'">`:'';
+    const killedByHtml=v.killedBy?`<span style="color:var(--red)">⚔ ${v.killedBy}</span>`:'';
+    return `
     <div class="fleet-card">
       <div class="fleet-card-header">
-        <div>
-          <div class="fleet-card-name">${v.name}</div>
-          <div class="fleet-card-class">${v.class}</div>
+        <div style="display:flex;align-items:center">
+          <span class="ship-type-icon">${icon}</span>
+          <div>
+            <div class="fleet-card-name">${v.name}</div>
+            <div class="fleet-card-class">${v.class}</div>
+          </div>
         </div>
         <div class="fleet-card-status ${v.status}"><span class="force-status ${v.status==='operational'?'active':v.status}"></span>${v.status.toUpperCase()}</div>
       </div>
+      ${imgHtml}
       <div class="fleet-card-detail">
-        <span>📍 ${v.location}</span>
+        <span>📍 ${v.location} · ${v.date}</span>
+        ${killedByHtml}
         <span style="color:var(--text3);margin-top:4px">${v.detail}</span>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 // ===== INFRASTRUCTURE TARGETS TRACKER =====
