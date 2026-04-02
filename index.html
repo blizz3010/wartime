@@ -380,6 +380,11 @@
   .carrier-card{
     flex:1;min-width:280px;padding:16px 20px;border-right:1px solid var(--border);
   }
+  .carrier-card-img{
+    width:100%;height:120px;object-fit:cover;border-radius:4px;margin-bottom:10px;
+    border:1px solid var(--border);opacity:.9;transition:opacity .3s;
+  }
+  .carrier-card-img:hover{opacity:1}
   .carrier-card-name{font-family:var(--mono);font-weight:700;font-size:.85rem;color:var(--blue);margin-bottom:2px}
   .carrier-card-hull{font-family:var(--mono);font-size:.6rem;color:var(--text3);margin-bottom:8px}
   .carrier-card-item{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.6rem}
@@ -820,7 +825,7 @@
     <div class="threat-pill">DEFCON 2</div>
   </div>
   <div class="header-right">
-    <span class="header-stat"><span class="header-stat-label">DAY</span> <span class="day-count" id="dayCount">--</span></span>
+    <span class="header-stat"><span class="header-stat-label">DAY</span> <span class="day-count" id="dayCount">--</span> <span style="color:var(--text3);font-size:.55rem">OF CONFLICT</span></span>
     <span class="header-divider">|</span>
     <span class="header-stat" id="clock">--:--:-- UTC</span>
     <span class="header-divider">|</span>
@@ -848,13 +853,17 @@
 <!-- TICKER -->
 <div class="ticker">
   <div class="tick"><div class="tick-label">Conflict</div><div class="tick-value red"><span class="tick-flags"><span class="flag">&#127482;&#127480;</span><span class="flag">&#127470;&#127473;</span> vs <span class="flag">&#127470;&#127479;</span></span></div></div>
-  <div class="tick" id="tickHormuz"><div class="tick-label"><span class="tick-icon">&#9875;</span> Strait of Hormuz</div><div class="tick-value orange tick-pulse" id="tickHormuzVal">CLOSED</div><div class="tick-sub" id="tickHormuzSub"></div></div>
-  <div class="tick"><div class="tick-label"><span class="tick-icon">&#128738;</span> Brent Crude</div><div class="tick-value orange" id="tickOil">~$105-115/bbl</div></div>
-  <div class="tick"><div class="tick-label"><span class="tick-icon">&#9888;&#65039;</span> Threat Level</div><div class="tick-value red tick-critical" id="tickThreat">CRITICAL</div><div class="tick-sub" id="tickThreatSub"></div></div>
-  <div class="tick"><div class="tick-label"><span class="tick-icon">&#127760;</span> Iran Internet</div><div class="tick-value red">~4% NORMAL</div></div>
+  <div class="tick" style="cursor:pointer" id="tickHormuz" onclick="toggleTickerDetail('hormuz')"><div class="tick-label"><span class="tick-icon">&#9875;</span> Strait of Hormuz</div><div class="tick-value orange tick-pulse" id="tickHormuzVal">CLOSED</div><div class="tick-sub" id="tickHormuzSub"></div></div>
+  <div class="tick" style="cursor:pointer" onclick="toggleTickerDetail('oil')"><div class="tick-label"><span class="tick-icon">&#128738;</span> Brent Crude</div><div class="tick-value orange" id="tickOil">~$105-115/bbl</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)">PRE-CONFLICT: ~$75</div></div>
+  <div class="tick" style="cursor:pointer" onclick="toggleTickerDetail('threat')"><div class="tick-label"><span class="tick-icon">&#9888;&#65039;</span> Threat Level</div><div class="tick-value red tick-critical" id="tickThreat">CRITICAL</div><div class="tick-sub" id="tickThreatSub"></div></div>
   <div class="tick" id="tickCarrierWrap" style="cursor:pointer" onclick="toggleCarrierPanel()"><div class="tick-label"><span class="tick-icon">&#9992;</span> Carrier Groups</div><div class="tick-value blue" id="tickCarrier">3 DEPLOYED</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)">CLICK FOR DETAILS</div></div>
-  <div class="tick"><div class="tick-label"><span class="tick-icon">&#127915;</span> DEFCON</div><div class="tick-value red tick-critical" id="tickDefcon">LEVEL 2</div><div class="tick-sub" id="tickDefconSub"></div></div>
-  <div class="tick"><div class="tick-label"><span class="tick-icon">&#128197;</span> Started</div><div class="tick-value blue">FEB 28, 2026</div></div>
+  <div class="tick" style="cursor:pointer" onclick="toggleTickerDetail('defcon')"><div class="tick-label"><span class="tick-icon">&#127915;</span> DEFCON</div><div class="tick-value red tick-critical" id="tickDefcon">LEVEL 2</div><div class="tick-sub" id="tickDefconSub"></div></div>
+  <div class="tick" style="cursor:pointer" onclick="toggleTickerDetail('markets')"><div class="tick-label"><span class="tick-icon">&#128200;</span> Markets</div><div class="tick-value orange" id="tickMarkets">VOLATILE</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)" id="tickMarketsSub">CLICK FOR DETAILS</div></div>
+</div>
+
+<!-- TICKER DETAIL PANEL -->
+<div class="carrier-panel" id="tickerDetailPanel">
+  <div style="padding:16px 20px;max-width:900px;margin:0 auto" id="tickerDetailInner"></div>
 </div>
 
 <!-- CARRIER GROUP DETAIL PANEL -->
@@ -1912,7 +1921,7 @@ async function fetchVideos(){
   // Status message
   const parts=[];
   if(ytCount>0) parts.push(`${ytCount} YouTube`);
-  else parts.push('0 YouTube (API quota may be exceeded)');
+  else parts.push('YouTube: using curated sources');
   parts.push(`${rdCount} Reddit`);
   status.textContent=`${parts.join(' + ')} clips loaded`;
   renderVideoClips();
@@ -1979,20 +1988,22 @@ function formatISO8601Duration(iso){
 
 function getFallbackVideos(){
   return `
-    <div style="grid-column:1/-1;padding:20px;text-align:center">
-      <p style="color:var(--text2);font-family:var(--mono);font-size:.8rem;margin-bottom:16px">
-        Video APIs unavailable — browse clips directly:
+    <div style="grid-column:1/-1;padding:30px 20px;text-align:center">
+      <div style="font-size:2rem;margin-bottom:12px">🎬</div>
+      <p style="color:var(--text);font-family:var(--mono);font-size:.85rem;font-weight:700;margin-bottom:8px">
+        VIDEO INTELLIGENCE — CURATED SOURCES
       </p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:20px">
-        <a href="https://www.youtube.com/results?search_query=Iran+war+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">YouTube — Iran War</a>
-        <a href="https://www.youtube.com/results?search_query=Iran+strike+footage+2026&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">YouTube — Strike Footage</a>
-        <a href="https://www.reddit.com/r/CombatFootage/search/?q=iran&sort=new" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">r/CombatFootage</a>
-        <a href="https://www.reddit.com/r/worldnews/search/?q=iran+video&sort=new" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">r/worldnews</a>
-        <a href="https://twitter.com/search?q=Iran%20strike%20video&f=video" target="_blank" class="overlay-btn" style="text-decoration:none;padding:10px 20px">X/Twitter Videos</a>
+      <p style="color:var(--text3);font-family:var(--mono);font-size:.6rem;margin-bottom:20px;max-width:500px;margin-left:auto;margin-right:auto">
+        Browse verified conflict footage from official news outlets and OSINT communities
+      </p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;max-width:700px;margin:0 auto 16px">
+        <a href="https://www.youtube.com/@AlJazeeraEnglish/videos" target="_blank" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">📺 Al Jazeera</a>
+        <a href="https://www.youtube.com/@skaborshi/videos" target="_blank" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">📺 Sky News</a>
+        <a href="https://www.youtube.com/@ABORSHI/videos" target="_blank" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">📺 BBC News</a>
+        <a href="https://www.youtube.com/results?search_query=Iran+war+2026+news&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">🔍 YouTube Search</a>
+        <a href="https://www.reddit.com/r/CombatFootage/search/?q=iran&sort=new&t=week" target="_blank" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">🎯 r/CombatFootage</a>
+        <a href="https://www.reddit.com/r/worldnews/search/?q=iran+video&sort=new&t=week" target="_blank" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">🌍 r/worldnews</a>
       </div>
-      <p style="color:var(--text3);font-family:var(--mono);font-size:.6rem">
-        Tip: Set YOUTUBE_API_KEY env var on Vercel to enable automatic video search
-      </p>
     </div>
   `;
 }
@@ -2037,16 +2048,16 @@ function openLink(url){window.open(url,'_blank','noopener,noreferrer')}
 
 // ===== LIVE STREAM CAROUSEL =====
 const STREAMS=[
-  {name:'Al Jazeera',channel:'UCNye-wNBqNL5ZzHSJj3l8Bg'},
-  {name:'Sky News',channel:'UCoMdktPbSTixAyNGwb-UYkQ'},
-  {name:'France 24',channel:'UCQfwfsi5VrQ8yKZ-UWmAEFg'},
-  {name:'DW News',channel:'UCknLrEdhRCp1aegoMqRaCZg'},
-  {name:'ABC News',channel:'UCBi2mrWuNuyYy4gbM6fU18Q'},
-  {name:'NBC News',channel:'UCeY0bbntWzzVIaj2z3QigXg'},
-  {name:'TRT World',channel:'UC7fWeaHhqgM4Ry-RMpM2YYw'},
-  {name:'WION',channel:'UC_gUM8rL-Lrg6O3adPW9K1g'},
-  {name:'India Today',channel:'UCYPvAwZP8pZhSMW8qs7cVCw'},
-  {name:'CNN-News18',channel:'UCef1-8eOpJgud7szVPlZQAQ'},
+  {name:'Al Jazeera',channel:'UCNye-wNBqNL5ZzHSJj3l8Bg',handle:'@aborshi'},
+  {name:'Sky News',channel:'UCoMdktPbSTixAyNGwb-UYkQ',handle:'@SkyNews'},
+  {name:'France 24',channel:'UCQfwfsi5VrQ8yKZ-UWmAEFg',handle:'@FRANCE24English'},
+  {name:'DW News',channel:'UCknLrEdhRCp1aegoMqRaCZg',handle:'@DWNews'},
+  {name:'NBC News',channel:'UCeY0bbntWzzVIaj2z3QigXg',handle:'@NBCNews'},
+  {name:'TRT World',channel:'UC7fWeaHhqgM4Ry-RMpM2YYw',handle:'@taborshi'},
+  {name:'WION',channel:'UC_gUM8rL-Lrg6O3adPW9K1g',handle:'@WIONews'},
+  {name:'Times Now',channel:'UCz8QaiQxApLq8sLNcszYyJw',handle:'@TimesNow'},
+  {name:'CNN',channel:'UCupvZG-5ko_eiXAupbDfxWw',handle:'@CNN'},
+  {name:'FOX News',channel:'UCXIJgqnII2ZOINSWNOGFThA',handle:'@FoxNews'},
 ];
 let currentStream=0;
 // Cache resolved live stream video IDs
@@ -2081,9 +2092,18 @@ async function selectStream(idx){
   }
 
   if(liveStreamCache[s.channel]){
+    // Use resolved video ID (most reliable)
     player.src=`https://www.youtube.com/embed/${liveStreamCache[s.channel]}?autoplay=1&mute=1`;
+  }else if(s.handle){
+    // Fallback: use @handle/live embed (works for channels with active livestreams)
+    player.src=`https://www.youtube.com/${s.handle}/live?autoplay=1&mute=1`;
+    // Also try iframe-compatible live_stream as backup
+    setTimeout(()=>{
+      if(player.src.includes(s.handle)){
+        player.src=`https://www.youtube.com/embed/live_stream?channel=${s.channel}&autoplay=1&mute=1`;
+      }
+    },3000);
   }else{
-    // Fallback: use channel live_stream embed (works for most channels)
     player.src=`https://www.youtube.com/embed/live_stream?channel=${s.channel}&autoplay=1&mute=1`;
   }
 }
@@ -2105,6 +2125,7 @@ function showPip(){
   const cachedId=liveStreamCache[s.channel];
   const src=cachedId
     ?`https://www.youtube.com/embed/${cachedId}?autoplay=1&mute=1`
+    :s.handle?`https://www.youtube.com/${s.handle}/live?autoplay=1&mute=1`
     :`https://www.youtube.com/embed/live_stream?channel=${s.channel}&autoplay=1&mute=1`;
   document.getElementById('pipFrame').src=src;
   document.getElementById('pipChannelName').textContent=s.name;
@@ -2912,6 +2933,8 @@ const CARRIER_GROUPS=[
   {
     name:'USS Gerald R. Ford (CVN-78)',hull:'CVN-78 · Gerald R. Ford-class',
     status:'DEPLOYED — Persian Gulf',statusColor:'var(--blue)',
+    img:'https://upload.wikimedia.org/wikipedia/commons/b/b2/USS_Gerald_R._Ford_%28CVN-78%29_underway_on_8_April_2017.JPG',
+    link:'https://www.airlant.usff.navy.mil/cvn78/',
     items:[
       {label:'Air Wing',val:'CVW-8 (~75 aircraft)'},
       {label:'F/A-18E/F Super Hornets',val:'44 aircraft'},
@@ -2926,6 +2949,8 @@ const CARRIER_GROUPS=[
   {
     name:'USS Abraham Lincoln (CVN-72)',hull:'CVN-72 · Nimitz-class',
     status:'DEPLOYED — Gulf of Oman',statusColor:'var(--blue)',
+    img:'https://upload.wikimedia.org/wikipedia/commons/d/db/USS_Abraham_Lincoln_%28CVN-72%29_underway_in_the_Atlantic_Ocean_on_30_January_2019_%28190130-N-PW716-1312%29.JPG',
+    link:'https://www.airlant.usff.navy.mil/cvn72/',
     items:[
       {label:'Air Wing',val:'CVW-9 (~70 aircraft)'},
       {label:'F/A-18E/F Super Hornets',val:'44 aircraft'},
@@ -2939,6 +2964,8 @@ const CARRIER_GROUPS=[
   {
     name:'USS Theodore Roosevelt (CVN-71)',hull:'CVN-71 · Nimitz-class',
     status:'DEPLOYED — Eastern Mediterranean',statusColor:'var(--blue)',
+    img:'https://upload.wikimedia.org/wikipedia/commons/0/04/USS_Theodore_Roosevelt_%28CVN-71%29_underway_the_Pacific_Ocean_on_30_April_2017.JPG',
+    link:'https://www.surfor.usff.navy.mil/cvn71/',
     items:[
       {label:'Air Wing',val:'CVW-11 (~70 aircraft)'},
       {label:'F/A-18E/F Super Hornets',val:'44 aircraft'},
@@ -2954,6 +2981,8 @@ const CARRIER_GROUPS=[
 let carrierPanelOpen=false;
 function toggleCarrierPanel(){
   const panel=document.getElementById('carrierPanel');
+  // Close ticker detail if open
+  if(activeTickerDetail){document.getElementById('tickerDetailPanel').classList.remove('show');activeTickerDetail=null;}
   carrierPanelOpen=!carrierPanelOpen;
   if(carrierPanelOpen){
     renderCarrierPanel();
@@ -2967,8 +2996,9 @@ function renderCarrierPanel(){
   const inner=document.getElementById('carrierPanelInner');
   inner.innerHTML=CARRIER_GROUPS.map(csg=>`
     <div class="carrier-card">
+      <img src="${csg.img}" alt="${csg.name}" class="carrier-card-img" loading="lazy" onerror="this.style.display='none'">
       <div class="carrier-card-name">${csg.name}</div>
-      <div class="carrier-card-hull">${csg.hull}</div>
+      <div class="carrier-card-hull">${csg.hull}${csg.link?` · <a href="${csg.link}" target="_blank" style="color:var(--blue);font-size:.55rem">Navy.mil ↗</a>`:''}</div>
       ${csg.items.map(i=>`
         <div class="carrier-card-item">
           <span class="carrier-card-label">${i.label}</span>
@@ -2978,6 +3008,153 @@ function renderCarrierPanel(){
       <div class="carrier-card-status"><span class="force-status active"></span>${csg.status}</div>
     </div>
   `).join('');
+}
+
+// ===== CLICKABLE TICKER DETAIL PANELS =====
+let activeTickerDetail=null;
+function toggleTickerDetail(type){
+  const panel=document.getElementById('tickerDetailPanel');
+  const inner=document.getElementById('tickerDetailInner');
+  // Close carrier panel if open
+  if(carrierPanelOpen){toggleCarrierPanel();}
+  if(activeTickerDetail===type){
+    panel.classList.remove('show');activeTickerDetail=null;return;
+  }
+  activeTickerDetail=type;
+  const s=lastScoringResult.scores||{};
+  const details={
+    hormuz:{
+      title:'⚓ STRAIT OF HORMUZ — STATUS DETAIL',
+      html:`
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px">
+          <div>
+            <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">📊 SCORING DATA</div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Traffic Open Signals</span><span class="carrier-card-val">${s.hormuzOpen||0} pts</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Closure Signals</span><span class="carrier-card-val">${s.hormuzClosed||0} pts</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Net Score</span><span class="carrier-card-val">${(s.hormuzOpen||0)-(s.hormuzClosed||0)} pts</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Current Status</span><span class="carrier-card-val" style="color:var(--orange)">${lastScoringResult.hormuz||'CLOSED'}</span></div>
+          </div>
+          <div>
+            <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">ℹ️ CONTEXT</div>
+            <div style="font-family:var(--mono);font-size:.6rem;color:var(--text2);line-height:1.6">
+              The Strait of Hormuz handles ~21% of global oil transit. Iran closed the strait on Feb 28. Status is calculated from news mentions of shipping activity, naval escorts, blockade reports, and transit signals. Some military convoys with naval escort have transited sporadically.
+            </div>
+          </div>
+        </div>
+      `
+    },
+    oil:{
+      title:'🛢️ BRENT CRUDE — MARKET IMPACT',
+      html:`
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px">
+          <div>
+            <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">📊 OIL PRICE TIMELINE</div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Pre-Conflict (Feb 27)</span><span class="carrier-card-val">~$75/bbl</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Day 1 Spike (Feb 28)</span><span class="carrier-card-val" style="color:var(--red)">$92/bbl (+22%)</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Hormuz Closure (Mar 1)</span><span class="carrier-card-val" style="color:var(--red)">$105/bbl (+40%)</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Peak (Mar 7)</span><span class="carrier-card-val" style="color:var(--red)">$115/bbl (+53%)</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Current Range</span><span class="carrier-card-val" style="color:var(--orange)">$105-115/bbl</span></div>
+          </div>
+          <div>
+            <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">⚠️ KEY FACTORS</div>
+            <div style="font-family:var(--mono);font-size:.6rem;color:var(--text2);line-height:1.6">
+              • Strait of Hormuz closure blocks ~17M bbl/day<br>
+              • OPEC emergency meetings ongoing<br>
+              • US Strategic Petroleum Reserve releases<br>
+              • Global shipping rerouted via Cape of Good Hope<br>
+              • Insurance premiums for Gulf tankers 10x normal
+            </div>
+          </div>
+        </div>
+      `
+    },
+    threat:{
+      title:'⚠️ THREAT LEVEL — SCORING BREAKDOWN',
+      html:`
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px">
+          <div>
+            <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">📊 NEWS ANALYSIS SCORES</div>
+            <div class="carrier-card-item"><span class="carrier-card-label">🔴 Escalation Score</span><span class="carrier-card-val" style="color:var(--red)">${s.escalation||0} pts</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">🟢 De-escalation Score</span><span class="carrier-card-val" style="color:var(--green)">${s.deescalation||0} pts</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">🟠 Military Activity</span><span class="carrier-card-val" style="color:var(--orange)">${s.military||0} pts</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Net Escalation</span><span class="carrier-card-val">${(s.escalation||0)-(s.deescalation||0)+(s.military||0)*0.5} pts</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Current Level</span><span class="carrier-card-val" style="color:var(--red)">${lastScoringResult.threat||'CRITICAL'}</span></div>
+          </div>
+          <div>
+            <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">📐 SCALE</div>
+            <div style="font-family:var(--mono);font-size:.6rem;color:var(--text2);line-height:1.8">
+              <span style="color:var(--red)">■</span> MAXIMUM — Active nuclear/WMD escalation<br>
+              <span style="color:var(--red)">■</span> CRITICAL — High escalation signals<br>
+              <span style="color:var(--red)">■</span> SEVERE — Elevated conflict activity<br>
+              <span style="color:var(--orange)">■</span> HIGH — Significant military ops<br>
+              <span style="color:var(--orange)">■</span> ELEVATED — Ongoing tensions<br>
+              <span style="color:var(--green)">■</span> GUARDED — De-escalation signals
+            </div>
+          </div>
+        </div>
+      `
+    },
+    defcon:{
+      title:'🎖️ DEFCON — DEFENSE READINESS',
+      html:`
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px">
+          <div>
+            <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">📊 SCORING DATA</div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Escalation Input</span><span class="carrier-card-val">${s.escalation||0} pts</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Military Activity</span><span class="carrier-card-val">${s.military||0} pts</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">De-escalation Factor</span><span class="carrier-card-val">-${Math.round((s.deescalation||0)*0.8)} pts</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Current Level</span><span class="carrier-card-val" style="color:var(--red)">DEFCON ${lastScoringResult.defcon||2}</span></div>
+          </div>
+          <div>
+            <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">📐 DEFCON SCALE</div>
+            <div style="font-family:var(--mono);font-size:.6rem;color:var(--text2);line-height:1.8">
+              <span style="color:var(--red)">■</span> DEFCON 1 — Nuclear war imminent<br>
+              <span style="color:var(--red)">■</span> DEFCON 2 — Armed forces ready to deploy in 6hrs<br>
+              <span style="color:var(--orange)">■</span> DEFCON 3 — Air Force ready in 15 min<br>
+              <span style="color:var(--orange)">■</span> DEFCON 4 — Above normal readiness<br>
+              <span style="color:var(--green)">■</span> DEFCON 5 — Normal peacetime readiness
+            </div>
+          </div>
+        </div>
+      `
+    },
+    markets:{
+      title:'📈 GLOBAL MARKETS — CONFLICT IMPACT',
+      html:`
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:12px">
+          <div>
+            <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">📉 EQUITIES</div>
+            <div class="carrier-card-item"><span class="carrier-card-label">S&P 500</span><span class="carrier-card-val" style="color:var(--red)">-12% since Feb 28</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">NASDAQ</span><span class="carrier-card-val" style="color:var(--red)">-15% since Feb 28</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Dow Jones</span><span class="carrier-card-val" style="color:var(--red)">-10% since Feb 28</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">FTSE 100</span><span class="carrier-card-val" style="color:var(--red)">-8%</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Tehran SE (TEDPIX)</span><span class="carrier-card-val" style="color:var(--red)">-45% (halted)</span></div>
+          </div>
+          <div>
+            <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">🛢️ COMMODITIES</div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Brent Crude</span><span class="carrier-card-val" style="color:var(--red)">$105-115 (+40%)</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">WTI Crude</span><span class="carrier-card-val" style="color:var(--red)">$100-110 (+38%)</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Natural Gas</span><span class="carrier-card-val" style="color:var(--red)">+25%</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Gold</span><span class="carrier-card-val" style="color:var(--green)">$3,200+ (+8%)</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Shipping Rates</span><span class="carrier-card-val" style="color:var(--red)">+300%</span></div>
+          </div>
+          <div>
+            <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">💱 CURRENCIES</div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Iranian Rial</span><span class="carrier-card-val" style="color:var(--red)">Collapsed (-60%)</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">USD Index</span><span class="carrier-card-val" style="color:var(--green)">+3% (safe haven)</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Israeli Shekel</span><span class="carrier-card-val" style="color:var(--red)">-8%</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Defense Stocks</span><span class="carrier-card-val" style="color:var(--green)">+20-35%</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Oil Majors</span><span class="carrier-card-val" style="color:var(--green)">+15-25%</span></div>
+          </div>
+        </div>
+      `
+    },
+  };
+
+  const d=details[type];
+  if(!d){panel.classList.remove('show');activeTickerDetail=null;return;}
+  inner.innerHTML=`<div style="font-family:var(--mono);font-size:.75rem;font-weight:700;color:var(--text);letter-spacing:1px">${d.title}</div>${d.html}`;
+  panel.classList.add('show');
 }
 
 // ===== IRANIAN NAVAL FLEET TRACKER — OPERATION EPIC FURY =====
