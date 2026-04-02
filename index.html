@@ -367,6 +367,62 @@
     0%,100%{text-shadow:0 0 10px rgba(248,81,73,0.6),0 0 20px rgba(248,81,73,0.3)}
     50%{text-shadow:0 0 20px rgba(248,81,73,0.9),0 0 40px rgba(248,81,73,0.5),0 0 60px rgba(248,81,73,0.2)}
   }
+  .tick-sub{font-family:var(--mono);font-size:.45rem;color:var(--text3);margin-top:2px;letter-spacing:.5px}
+
+  /* CARRIER DETAIL PANEL */
+  .carrier-panel{
+    display:none;background:var(--surface);border-bottom:1px solid var(--border);
+    padding:0;overflow:hidden;transition:max-height .3s ease;
+  }
+  .carrier-panel.show{display:block}
+  .carrier-panel-inner{display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
+  .carrier-panel-inner::-webkit-scrollbar{display:none}
+  .carrier-card{
+    flex:1;min-width:280px;padding:16px 20px;border-right:1px solid var(--border);
+  }
+  .carrier-card-name{font-family:var(--mono);font-weight:700;font-size:.85rem;color:var(--blue);margin-bottom:2px}
+  .carrier-card-hull{font-family:var(--mono);font-size:.6rem;color:var(--text3);margin-bottom:8px}
+  .carrier-card-item{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.6rem}
+  .carrier-card-item:last-child{border:0}
+  .carrier-card-label{color:var(--text2)}
+  .carrier-card-val{color:var(--text);font-weight:600}
+  .carrier-card-status{
+    display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:3px 8px;
+    border-radius:3px;font-family:var(--mono);font-size:.55rem;font-weight:600;
+    background:var(--blue-dim);color:var(--blue);border:1px solid rgba(88,166,255,0.3);
+  }
+
+  /* FLEET TRACKER */
+  .fleet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--border)}
+  .fleet-card{background:var(--surface);padding:12px 16px}
+  .fleet-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .fleet-card-name{font-family:var(--mono);font-weight:700;font-size:.75rem;color:var(--text)}
+  .fleet-card-class{font-family:var(--mono);font-size:.55rem;color:var(--text3)}
+  .fleet-card-status{
+    display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:3px;
+    font-family:var(--mono);font-size:.55rem;font-weight:600;
+  }
+  .fleet-card-status.operational{background:var(--green-dim);color:var(--green);border:1px solid rgba(63,185,80,0.3)}
+  .fleet-card-status.damaged{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(210,153,34,0.3)}
+  .fleet-card-status.destroyed{background:var(--red-dim);color:var(--red);border:1px solid rgba(248,81,73,0.3)}
+  .fleet-card-status.unknown{background:var(--surface3);color:var(--text3);border:1px solid var(--border2)}
+  .fleet-card-detail{font-family:var(--mono);font-size:.55rem;color:var(--text2);margin-top:4px}
+  .fleet-card-detail span{display:block;padding:2px 0}
+  .fleet-summary{display:flex;gap:16px;padding:12px 20px;background:var(--surface2);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.6rem;flex-wrap:wrap}
+  .fleet-summary-item{display:flex;align-items:center;gap:6px}
+  .fleet-summary-dot{width:8px;height:8px;border-radius:50%}
+
+  /* INFRASTRUCTURE TARGET TRACKER */
+  .infra-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1px;background:var(--border)}
+  .infra-card{background:var(--surface);padding:14px 16px}
+  .infra-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .infra-card-name{font-family:var(--mono);font-weight:700;font-size:.75rem;color:var(--text)}
+  .infra-card-type{font-family:var(--mono);font-size:.5rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;padding:2px 6px;border:1px solid var(--border2);border-radius:2px}
+  .infra-card-location{font-family:var(--mono);font-size:.55rem;color:var(--text3);margin-bottom:6px}
+  .infra-card-status{margin-bottom:6px}
+  .infra-card-detail{font-family:var(--mono);font-size:.55rem;color:var(--text2);line-height:1.5}
+  .infra-damage-bar{height:4px;background:var(--surface3);border-radius:2px;margin-top:6px;overflow:hidden}
+  .infra-damage-fill{height:100%;border-radius:2px;transition:width .5s ease}
 
   /* LOADING */
   .loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text3);font-family:var(--mono);font-size:.75rem;gap:8px}
@@ -721,13 +777,18 @@
 <!-- TICKER -->
 <div class="ticker">
   <div class="tick"><div class="tick-label">Conflict</div><div class="tick-value red"><span class="tick-flags"><span class="flag">&#127482;&#127480;</span><span class="flag">&#127470;&#127473;</span> vs <span class="flag">&#127470;&#127479;</span></span></div></div>
-  <div class="tick"><div class="tick-label"><span class="tick-icon">&#9875;</span> Strait of Hormuz</div><div class="tick-value orange tick-pulse">CLOSED</div></div>
+  <div class="tick" id="tickHormuz"><div class="tick-label"><span class="tick-icon">&#9875;</span> Strait of Hormuz</div><div class="tick-value orange tick-pulse" id="tickHormuzVal">CLOSED</div><div class="tick-sub" id="tickHormuzSub"></div></div>
   <div class="tick"><div class="tick-label"><span class="tick-icon">&#128738;</span> Brent Crude</div><div class="tick-value orange" id="tickOil">~$105-115/bbl</div></div>
-  <div class="tick"><div class="tick-label"><span class="tick-icon">&#9888;&#65039;</span> Threat Level</div><div class="tick-value red tick-critical">CRITICAL</div></div>
+  <div class="tick"><div class="tick-label"><span class="tick-icon">&#9888;&#65039;</span> Threat Level</div><div class="tick-value red tick-critical" id="tickThreat">CRITICAL</div><div class="tick-sub" id="tickThreatSub"></div></div>
   <div class="tick"><div class="tick-label"><span class="tick-icon">&#127760;</span> Iran Internet</div><div class="tick-value red">~4% NORMAL</div></div>
-  <div class="tick"><div class="tick-label"><span class="tick-icon">&#9992;</span> Carrier Groups</div><div class="tick-value blue">3 DEPLOYED</div></div>
-  <div class="tick"><div class="tick-label"><span class="tick-icon">&#127915;</span> DEFCON</div><div class="tick-value red tick-critical">LEVEL 2</div></div>
+  <div class="tick" id="tickCarrierWrap" style="cursor:pointer" onclick="toggleCarrierPanel()"><div class="tick-label"><span class="tick-icon">&#9992;</span> Carrier Groups</div><div class="tick-value blue" id="tickCarrier">3 DEPLOYED</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)">CLICK FOR DETAILS</div></div>
+  <div class="tick"><div class="tick-label"><span class="tick-icon">&#127915;</span> DEFCON</div><div class="tick-value red tick-critical" id="tickDefcon">LEVEL 2</div><div class="tick-sub" id="tickDefconSub"></div></div>
   <div class="tick"><div class="tick-label"><span class="tick-icon">&#128197;</span> Started</div><div class="tick-value blue">FEB 28, 2026</div></div>
+</div>
+
+<!-- CARRIER GROUP DETAIL PANEL -->
+<div class="carrier-panel" id="carrierPanel">
+  <div class="carrier-panel-inner" id="carrierPanelInner"></div>
 </div>
 
 <!-- NAV -->
@@ -968,6 +1029,16 @@
   <!-- Military Base Status -->
   <div class="force-section-head">🏗 MILITARY BASE STATUS — IRAN</div>
   <div class="forces-grid" id="baseStatus"></div>
+
+  <!-- Iranian Naval Fleet Tracker -->
+  <div class="force-section-head">🚢 IRANIAN NAVAL FLEET — ASSET TRACKER</div>
+  <div class="fleet-summary" id="fleetSummary"></div>
+  <div class="fleet-grid" id="fleetTracker"></div>
+
+  <!-- Infrastructure Targets -->
+  <div class="force-section-head">🎯 INFRASTRUCTURE TARGETS — DAMAGE ASSESSMENT</div>
+  <div class="fleet-summary" id="infraSummary"></div>
+  <div class="infra-grid" id="infraTracker"></div>
 
   <!-- Nuclear Facilities -->
   <div class="force-section-head">☢ NUCLEAR FACILITY STATUS</div>
@@ -1403,6 +1474,10 @@ async function fetchNews(){
   }
 
   checkForNewBreaking(filtered);
+
+  // Auto-update dashboard indicators based on news scoring
+  const scores=computeDashboardScores(filtered);
+  updateDashboardIndicators(scores);
 
   const newCount=filtered.length-lastSeenCounts.news;
   if(newCount>0&&lastSeenCounts.news>0) updateBadge('news',newCount);
@@ -2584,6 +2659,358 @@ function renderImpactDashboard(){
   }
 }
 
+// ===== NEWS-BASED SCORING ENGINE =====
+// Analyzes fetched news to auto-update Threat Level, DEFCON, and Strait of Hormuz
+const SCORING_WEIGHTS={
+  // Threat Level keywords (higher = more escalatory)
+  escalation:{
+    'nuclear strike':50,'nuclear weapon':45,'nuclear attack':45,'tactical nuke':50,
+    'world war':40,'wmd':40,'chemical weapon':35,'biological weapon':35,
+    'full-scale invasion':35,'total war':35,'declaration of war':30,
+    'martial law':25,'mass mobilization':25,'general mobilization':25,
+    'retaliation':20,'retaliatory':20,'escalat':18,'intensif':15,
+    'major offensive':20,'ground invasion':25,'amphibious':20,
+    'massive strike':20,'carpet bomb':25,'indiscriminate':20,
+  },
+  deescalation:{
+    'ceasefire':30,'peace talk':25,'negotiate':20,'de-escalat':25,
+    'diplomatic':15,'humanitarian corridor':20,'stand down':25,
+    'withdrawal':20,'retreat':15,'surrender':30,'armistice':30,
+    'truce':25,'peace deal':30,'accord':20,'resolution passed':20,
+  },
+  hormuzTraffic:{
+    'hormuz open':40,'strait reopen':40,'shipping resumes':35,'transit resumes':35,
+    'vessels transit':25,'ships passing':25,'tanker through':20,'convoy escort':20,
+    'limited transit':15,'naval escort':15,'merchant vessel':10,'commercial shipping':10,
+    'hormuz closed':0,'blockade':0,'mine':0,'strait shut':0,
+    'hormuz block':0,'no transit':0,'shipping halt':0,
+  },
+  hormuzClosed:{
+    'hormuz closed':-30,'blockade hormuz':-25,'strait blocked':-25,'mines hormuz':-20,
+    'shipping halt':-20,'no transit':-15,'strait shut':-20,'naval mine':-15,
+    'hormuz block':-25,'tanker seized':-15,'vessel seized':-15,'embargo':-10,
+  },
+  military:{
+    'carrier deploy':10,'strike group':10,'b-2':8,'stealth bomber':8,
+    'tomahawk':8,'cruise missile':10,'ballistic missile':12,'icbm':20,
+    'aircraft carrier':8,'submarine':8,'special forces':8,
+    'airstrike':10,'bombing':10,'sortie':6,'interception':8,
+    'shot down':10,'drone strike':8,'missile launch':12,'air defense':6,
+  },
+};
+
+let lastScoringResult={threat:'CRITICAL',defcon:2,hormuz:'CLOSED',hormuzDesc:'',scores:{}};
+
+function computeDashboardScores(newsItems){
+  if(!newsItems||newsItems.length===0) return lastScoringResult;
+
+  let escalationScore=0,deescalationScore=0,hormuzOpenScore=0,hormuzClosedScore=0,militaryScore=0;
+  let hormuzMentions=0,hormuzTrafficMentions=0;
+
+  // Only score recent news (last 48h)
+  const cutoff=Date.now()-48*60*60*1000;
+  const recent=newsItems.filter(n=>new Date(n.pubDate)>cutoff);
+  const items=recent.length>0?recent:newsItems.slice(0,30);
+
+  items.forEach(item=>{
+    const text=((item.title||'')+' '+(item.description||'')).toLowerCase();
+
+    for(const[kw,score] of Object.entries(SCORING_WEIGHTS.escalation)){
+      if(text.includes(kw)) escalationScore+=score;
+    }
+    for(const[kw,score] of Object.entries(SCORING_WEIGHTS.deescalation)){
+      if(text.includes(kw)) deescalationScore+=score;
+    }
+    for(const[kw,score] of Object.entries(SCORING_WEIGHTS.hormuzTraffic)){
+      if(text.includes(kw)){hormuzOpenScore+=score;hormuzTrafficMentions++;}
+    }
+    for(const[kw,score] of Object.entries(SCORING_WEIGHTS.hormuzClosed)){
+      if(text.includes(kw)) hormuzClosedScore+=Math.abs(score);
+    }
+    for(const[kw,score] of Object.entries(SCORING_WEIGHTS.military)){
+      if(text.includes(kw)) militaryScore+=score;
+    }
+    if(text.includes('hormuz')||text.includes('strait')) hormuzMentions++;
+  });
+
+  // --- THREAT LEVEL ---
+  const netEscalation=escalationScore-deescalationScore+militaryScore*0.5;
+  let threat,threatClass,threatSub;
+  if(netEscalation>=150){threat='MAXIMUM';threatClass='red tick-critical';threatSub='ACTIVE ESCALATION DETECTED';}
+  else if(netEscalation>=80){threat='CRITICAL';threatClass='red tick-critical';threatSub='HIGH ESCALATION SIGNALS';}
+  else if(netEscalation>=40){threat='SEVERE';threatClass='red';threatSub='ELEVATED CONFLICT ACTIVITY';}
+  else if(netEscalation>=15){threat='HIGH';threatClass='orange';threatSub='SIGNIFICANT MILITARY OPS';}
+  else if(netEscalation>=0){threat='ELEVATED';threatClass='orange';threatSub='ONGOING TENSIONS';}
+  else{threat='GUARDED';threatClass='green';threatSub='DE-ESCALATION SIGNALS';}
+
+  // --- DEFCON ---
+  const defconScore=escalationScore+militaryScore-deescalationScore*0.8;
+  let defcon,defconSub;
+  if(defconScore>=200){defcon=1;defconSub='MAXIMUM READINESS';}
+  else if(defconScore>=100){defcon=2;defconSub='ARMED FORCES READY';}
+  else if(defconScore>=50){defcon=3;defconSub='INCREASE READINESS';}
+  else if(defconScore>=20){defcon=4;defconSub='ABOVE NORMAL READINESS';}
+  else{defcon=5;defconSub='NORMAL READINESS';}
+
+  // --- STRAIT OF HORMUZ ---
+  const hormuzNet=hormuzOpenScore-hormuzClosedScore;
+  let hormuzStatus,hormuzStatusClass,hormuzSub;
+  if(hormuzNet>=60){
+    hormuzStatus='OPEN';hormuzStatusClass='green';hormuzSub='NORMAL TRAFFIC FLOW';
+  }else if(hormuzNet>=30){
+    hormuzStatus='RESTRICTED';hormuzStatusClass='blue';hormuzSub='LIMITED CONVOY TRANSIT';
+  }else if(hormuzNet>=10||hormuzTrafficMentions>=3){
+    hormuzStatus='MINIMAL TRAFFIC';hormuzStatusClass='orange tick-pulse';hormuzSub='SPORADIC TRANSITS W/ ESCORT';
+  }else if(hormuzNet>=-10&&hormuzMentions>0){
+    hormuzStatus='NEAR CLOSED';hormuzStatusClass='orange tick-pulse';hormuzSub='RARE TRANSITS · HIGH RISK';
+  }else{
+    hormuzStatus='CLOSED';hormuzStatusClass='red tick-pulse';hormuzSub='NO COMMERCIAL TRAFFIC';
+  }
+
+  const result={
+    threat,threatClass,threatSub,
+    defcon,defconSub,
+    hormuz:hormuzStatus,hormuzClass:hormuzStatusClass,hormuzSub,
+    scores:{escalation:escalationScore,deescalation:deescalationScore,military:militaryScore,hormuzOpen:hormuzOpenScore,hormuzClosed:hormuzClosedScore}
+  };
+  lastScoringResult=result;
+  return result;
+}
+
+function updateDashboardIndicators(scores){
+  // Threat Level
+  const threatEl=document.getElementById('tickThreat');
+  const threatSub=document.getElementById('tickThreatSub');
+  if(threatEl){
+    threatEl.textContent=scores.threat;
+    threatEl.className='tick-value '+scores.threatClass;
+  }
+  if(threatSub) threatSub.textContent=scores.threatSub||'';
+
+  // DEFCON
+  const defconEl=document.getElementById('tickDefcon');
+  const defconSub=document.getElementById('tickDefconSub');
+  if(defconEl){
+    defconEl.textContent='LEVEL '+scores.defcon;
+    defconEl.className='tick-value '+(scores.defcon<=2?'red tick-critical':scores.defcon<=3?'orange':'green');
+  }
+  if(defconSub) defconSub.textContent=scores.defconSub||'';
+
+  // Strait of Hormuz
+  const hormuzEl=document.getElementById('tickHormuzVal');
+  const hormuzSub=document.getElementById('tickHormuzSub');
+  if(hormuzEl){
+    hormuzEl.textContent=scores.hormuz;
+    hormuzEl.className='tick-value '+scores.hormuzClass;
+  }
+  if(hormuzSub) hormuzSub.textContent=scores.hormuzSub||'';
+}
+
+// ===== CARRIER GROUP DETAIL PANEL =====
+const CARRIER_GROUPS=[
+  {
+    name:'USS Gerald R. Ford (CVN-78)',hull:'CVN-78 · Gerald R. Ford-class',
+    status:'DEPLOYED — Persian Gulf',statusColor:'var(--blue)',
+    items:[
+      {label:'Air Wing',val:'CVW-8 (~75 aircraft)'},
+      {label:'F/A-18E/F Super Hornets',val:'44 aircraft'},
+      {label:'F-35C Lightning II',val:'10 aircraft'},
+      {label:'EA-18G Growler (EW)',val:'5 aircraft'},
+      {label:'E-2D Hawkeye (AEW)',val:'4 aircraft'},
+      {label:'Escorts',val:'CG-56, DDG-105, DDG-110, DDG-61'},
+      {label:'Location',val:'Central Persian Gulf'},
+      {label:'Mission',val:'Strike ops / Air superiority'},
+    ]
+  },
+  {
+    name:'USS Abraham Lincoln (CVN-72)',hull:'CVN-72 · Nimitz-class',
+    status:'DEPLOYED — Gulf of Oman',statusColor:'var(--blue)',
+    items:[
+      {label:'Air Wing',val:'CVW-9 (~70 aircraft)'},
+      {label:'F/A-18E/F Super Hornets',val:'44 aircraft'},
+      {label:'EA-18G Growler (EW)',val:'5 aircraft'},
+      {label:'E-2D Hawkeye (AEW)',val:'4 aircraft'},
+      {label:'Escorts',val:'CG-57, DDG-89, DDG-100, DDG-114'},
+      {label:'Location',val:'Gulf of Oman / Arabian Sea'},
+      {label:'Mission',val:'Hormuz security / ISR'},
+    ]
+  },
+  {
+    name:'USS Theodore Roosevelt (CVN-71)',hull:'CVN-71 · Nimitz-class',
+    status:'DEPLOYED — Eastern Mediterranean',statusColor:'var(--blue)',
+    items:[
+      {label:'Air Wing',val:'CVW-11 (~70 aircraft)'},
+      {label:'F/A-18E/F Super Hornets',val:'44 aircraft'},
+      {label:'EA-18G Growler (EW)',val:'5 aircraft'},
+      {label:'E-2D Hawkeye (AEW)',val:'4 aircraft'},
+      {label:'Escorts',val:'CG-52, DDG-75, DDG-91, DDG-112'},
+      {label:'Location',val:'Eastern Mediterranean'},
+      {label:'Mission',val:'Hezbollah deterrence / Lebanon'},
+    ]
+  },
+];
+
+let carrierPanelOpen=false;
+function toggleCarrierPanel(){
+  const panel=document.getElementById('carrierPanel');
+  carrierPanelOpen=!carrierPanelOpen;
+  if(carrierPanelOpen){
+    renderCarrierPanel();
+    panel.classList.add('show');
+  }else{
+    panel.classList.remove('show');
+  }
+}
+
+function renderCarrierPanel(){
+  const inner=document.getElementById('carrierPanelInner');
+  inner.innerHTML=CARRIER_GROUPS.map(csg=>`
+    <div class="carrier-card">
+      <div class="carrier-card-name">${csg.name}</div>
+      <div class="carrier-card-hull">${csg.hull}</div>
+      ${csg.items.map(i=>`
+        <div class="carrier-card-item">
+          <span class="carrier-card-label">${i.label}</span>
+          <span class="carrier-card-val">${i.val}</span>
+        </div>
+      `).join('')}
+      <div class="carrier-card-status"><span class="force-status active"></span>${csg.status}</div>
+    </div>
+  `).join('');
+}
+
+// ===== IRANIAN NAVAL FLEET TRACKER =====
+function renderFleetTracker(){
+  const vessels=[
+    // Submarines
+    {name:'Tariq (901)',class:'Kilo-class SSK',type:'Submarine',status:'destroyed',location:'Bandar Abbas',detail:'Sunk in port by Tomahawk strike, Mar 14. Hull confirmed destroyed via satellite imagery.'},
+    {name:'Noor (902)',class:'Kilo-class SSK',type:'Submarine',status:'damaged',location:'Chabahar (est.)',detail:'Reported damaged, possibly relocated from Bandar Abbas. Status uncertain.'},
+    {name:'Yunes (903)',class:'Kilo-class SSK',type:'Submarine',status:'operational',location:'Unknown — possibly at sea',detail:'Last confirmed at Bandar Abbas pre-conflict. Current location unknown. Presumed operational.'},
+    {name:'Fateh',class:'Fateh-class SSK',type:'Submarine',status:'operational',location:'Persian Gulf (est.)',detail:'Indigenous submarine. Believed deployed for mining/surveillance ops in Gulf.'},
+    {name:'Nahang',class:'Nahang-class Midget',type:'Submarine',status:'unknown',location:'Unknown',detail:'Coastal midget submarine. No confirmed sightings since conflict start.'},
+    {name:'Ghadir-1 through Ghadir-23',class:'Ghadir-class Midget (x23)',type:'Submarine',status:'operational',location:'Dispersed — coastal bases',detail:'Fleet of ~23 midget subs. Highly mobile, difficult to track. Multiple confirmed at Jask and Bandar-e Jask.'},
+    // Major Surface Combatants
+    {name:'Jamaran (76)',class:'Moudge-class Frigate',type:'Frigate',status:'damaged',location:'Bandar Abbas',detail:'Hit by anti-ship missile strike Mar 15. Listing but afloat. Non-operational.'},
+    {name:'Damavand (77)',class:'Moudge-class Frigate',type:'Frigate',status:'destroyed',location:'Bandar Abbas',detail:'Destroyed in port strike Mar 14. Confirmed sunk at berth.'},
+    {name:'Sahand (74)',class:'Moudge-class Frigate',type:'Frigate',status:'operational',location:'Gulf of Oman (est.)',detail:'Believed to have escaped initial strikes. Last seen heading east toward Chabahar.'},
+    {name:'Dena (75)',class:'Moudge-class Frigate',type:'Frigate',status:'operational',location:'Chabahar',detail:'Relocated to Chabahar before strikes. Believed operational.'},
+    {name:'Bayandor (81)',class:'Bayandor-class Corvette',type:'Corvette',status:'destroyed',location:'Bushehr',detail:'Destroyed by airstrike at Bushehr naval pier.'},
+    {name:'Naghdi (82)',class:'Bayandor-class Corvette',type:'Corvette',status:'destroyed',location:'Bushehr',detail:'Destroyed alongside Bayandor at Bushehr.'},
+    {name:'Hamzeh (Catamaran)',class:'Shahid Soleimani-class',type:'Fast Attack',status:'damaged',location:'Strait of Hormuz area',detail:'IRGCN catamaran. Reported damaged by USN helicopter engagement.'},
+    // Support / Aux
+    {name:'Makran (441)',class:'Makran-class Forward Base',type:'Support Ship',status:'destroyed',location:'Jask area',detail:'Former tanker converted to floating base. Struck by Harpoon missiles. Confirmed sunk Mar 16.'},
+    {name:'Kharg (431)',class:'Kharg-class Replenishment',type:'Support Ship',status:'destroyed',location:'Bandar Abbas',detail:'Fleet replenishment ship. Destroyed in port strikes.'},
+    {name:'Shahid Baziar',class:'Hendijan-class Patrol',type:'Patrol Boat',status:'destroyed',location:'Hormuz',detail:'One of several patrol craft destroyed in Strait engagement.'},
+    // IRGCN Fast Attack Craft
+    {name:'IRGCN Fast Attack Fleet',class:'~1,500 boats (mixed types)',type:'Fast Attack Swarm',status:'damaged',location:'Dispersed — coastal',detail:'Estimated 200-300 destroyed in strikes on coastal bases. Remainder dispersed to civilian ports and hidden coves. Swarm capability degraded but not eliminated.'},
+  ];
+
+  // Summary counts
+  const counts={operational:0,damaged:0,destroyed:0,unknown:0};
+  vessels.forEach(v=>{
+    if(v.status==='operational') counts.operational++;
+    else if(v.status==='damaged') counts.damaged++;
+    else if(v.status==='destroyed') counts.destroyed++;
+    else counts.unknown++;
+  });
+
+  const summaryEl=document.getElementById('fleetSummary');
+  summaryEl.innerHTML=`
+    <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--green)"></div>OPERATIONAL: ${counts.operational}</div>
+    <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--orange)"></div>DAMAGED: ${counts.damaged}</div>
+    <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--red)"></div>DESTROYED: ${counts.destroyed}</div>
+    <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--text3)"></div>UNKNOWN: ${counts.unknown}</div>
+    <div class="fleet-summary-item" style="margin-left:auto;color:var(--text3)">TOTAL TRACKED: ${vessels.length} ASSETS</div>
+  `;
+
+  const gridEl=document.getElementById('fleetTracker');
+  gridEl.innerHTML=vessels.map(v=>`
+    <div class="fleet-card">
+      <div class="fleet-card-header">
+        <div>
+          <div class="fleet-card-name">${v.name}</div>
+          <div class="fleet-card-class">${v.class}</div>
+        </div>
+        <div class="fleet-card-status ${v.status}"><span class="force-status ${v.status==='operational'?'active':v.status}"></span>${v.status.toUpperCase()}</div>
+      </div>
+      <div class="fleet-card-detail">
+        <span>📍 ${v.location}</span>
+        <span style="color:var(--text3);margin-top:4px">${v.detail}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== INFRASTRUCTURE TARGETS TRACKER =====
+function renderInfraTracker(){
+  const targets=[
+    // Air Bases
+    {name:'Isfahan Air Base (8th TFB)',type:'AIR BASE',location:'Isfahan Province',status:'destroyed',damage:85,detail:'IRIAF HQ. Runways cratered, 12+ aircraft destroyed on ground. Hardened shelters penetrated. Non-operational.',lastStrike:'Mar 8'},
+    {name:'Bandar Abbas Air Base',type:'AIR BASE',location:'Hormozgan Province',status:'damaged',damage:60,detail:'IRIAF F-14 base. Runway partially repaired. Limited flight ops. 4 F-14s confirmed destroyed.',lastStrike:'Mar 14'},
+    {name:'Bushehr Air Base (6th TFB)',type:'AIR BASE',location:'Bushehr Province',status:'destroyed',damage:90,detail:'SAM sites and hardened shelters destroyed by MOP strikes. Completely non-operational.',lastStrike:'Mar 10'},
+    {name:'Tabriz Air Base (2nd TFB)',type:'AIR BASE',location:'East Azerbaijan',status:'damaged',damage:55,detail:'Runway repaired for limited ops. S-300 battery destroyed. MiG-29s relocated before strike.',lastStrike:'Mar 12'},
+    {name:'Mehrabad / Ghale Morghi',type:'AIR BASE',location:'Tehran',status:'damaged',damage:45,detail:'Mixed military/civilian. IRGC command bunker deep strike attempted. Civilian airport closed.',lastStrike:'Mar 15'},
+    {name:'Shiraz Air Base (7th TFB)',type:'AIR BASE',location:'Fars Province',status:'damaged',damage:50,detail:'F-4E Phantom base. Multiple hangars destroyed. Runway operational after repair.',lastStrike:'Mar 9'},
+    // Naval Bases
+    {name:'Bandar Abbas Naval Base',type:'NAVAL BASE',location:'Hormozgan Province',status:'destroyed',damage:75,detail:'IRIN main base. Port facilities partially destroyed. Kilo-class sub sunk at berth. Drydock destroyed.',lastStrike:'Mar 14'},
+    {name:'Bushehr Naval Base',type:'NAVAL BASE',location:'Bushehr Province',status:'destroyed',damage:80,detail:'Two corvettes destroyed at pier. Fuel storage hit. Dockyard severely damaged.',lastStrike:'Mar 12'},
+    {name:'Chabahar Naval Base',type:'NAVAL BASE',location:'Sistan-Baluchestan',status:'operational',damage:15,detail:'Least-damaged major base. Limited strikes on radar installations. Receiving relocated vessels.',lastStrike:'Mar 8'},
+    {name:'Jask Naval Base',type:'NAVAL BASE',location:'Hormozgan Province',status:'damaged',damage:50,detail:'IRGCN forward base. Fast attack craft pens hit. Makran sunk nearby. Coastal defenses active.',lastStrike:'Mar 16'},
+    // Missile Sites
+    {name:'Imam Ali Missile Base',type:'MISSILE BASE',location:'Kermanshah Province',status:'destroyed',damage:80,detail:'Underground ballistic missile storage. Multiple bunker-buster strikes. Launch pads destroyed.',lastStrike:'Mar 5'},
+    {name:'Tabriz Missile Complex',type:'MISSILE BASE',location:'East Azerbaijan',status:'damaged',damage:55,detail:'Shahab-3 launcher garrison. Surface facilities destroyed. Underground tunnels status unclear.',lastStrike:'Mar 7'},
+    {name:'Khorramabad Missile Site',type:'MISSILE BASE',location:'Lorestan Province',status:'damaged',damage:60,detail:'Zolfaghar/Fateh-110 storage. Launch rails destroyed. TEL vehicles dispersed before strike.',lastStrike:'Mar 6'},
+    // Air Defense
+    {name:'Tehran IADS Hub',type:'AIR DEFENSE',location:'Tehran',status:'damaged',damage:70,detail:'S-300PMU2 and Bavar-373 batteries. 3 of 5 S-300 launchers destroyed. Partial coverage remains.',lastStrike:'Mar 3'},
+    {name:'Isfahan S-300 Battery',type:'AIR DEFENSE',location:'Isfahan',status:'destroyed',damage:95,detail:'Destroyed by SEAD/DEAD campaign. HARM and JASSM strikes. No radar emissions detected.',lastStrike:'Mar 3'},
+    {name:'Bushehr Bavar-373',type:'AIR DEFENSE',location:'Bushehr',status:'destroyed',damage:90,detail:'Indigenous long-range SAM system. Engagement radar destroyed by F-35I strike.',lastStrike:'Mar 4'},
+    // Command & Control
+    {name:'IRGC HQ Complex',type:'C2 / COMMAND',location:'Tehran',status:'damaged',damage:40,detail:'Multiple buildings struck. Underground bunker targeted. Command relocated to dispersed sites.',lastStrike:'Mar 15'},
+    {name:'Natanz Comms Hub',type:'C2 / COMMAND',location:'Isfahan Province',status:'destroyed',damage:85,detail:'Military communications relay co-located with nuclear facility. Fiber optic nodes severed.',lastStrike:'Mar 4'},
+    // Oil/Energy (military targets)
+    {name:'Kharg Island Oil Terminal',type:'OIL / ENERGY',location:'Persian Gulf',status:'damaged',damage:40,detail:'Major oil export terminal. Targeted strikes on military radar/AA only. Export capacity reduced ~60%.',lastStrike:'Mar 10'},
+    {name:'Abadan Refinery',type:'OIL / ENERGY',location:'Khuzestan Province',status:'damaged',damage:35,detail:'Largest refinery. Selective strikes on fuel depot supplying IRGC. Civilian capacity partially intact.',lastStrike:'Mar 11'},
+  ];
+
+  // Summary
+  const statusCounts={destroyed:0,damaged:0,operational:0};
+  const typeCounts={};
+  targets.forEach(t=>{
+    statusCounts[t.status]=(statusCounts[t.status]||0)+1;
+    typeCounts[t.type]=(typeCounts[t.type]||0)+1;
+  });
+
+  const summaryEl=document.getElementById('infraSummary');
+  summaryEl.innerHTML=`
+    <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--red)"></div>DESTROYED: ${statusCounts.destroyed||0}</div>
+    <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--orange)"></div>DAMAGED: ${statusCounts.damaged||0}</div>
+    <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--green)"></div>OPERATIONAL: ${statusCounts.operational||0}</div>
+    <div class="fleet-summary-item" style="margin-left:auto;color:var(--text3)">TOTAL TARGETS: ${targets.length}</div>
+  `;
+
+  const gridEl=document.getElementById('infraTracker');
+  gridEl.innerHTML=targets.map(t=>{
+    const statusColor=t.status==='destroyed'?'var(--red)':t.status==='damaged'?'var(--orange)':'var(--green)';
+    const statusBg=t.status==='destroyed'?'var(--red-dim)':t.status==='damaged'?'var(--orange-dim)':'var(--green-dim)';
+    return `
+    <div class="infra-card">
+      <div class="infra-card-header">
+        <div class="infra-card-name">${t.name}</div>
+        <div class="infra-card-type">${t.type}</div>
+      </div>
+      <div class="infra-card-location">📍 ${t.location} · Last strike: ${t.lastStrike}</div>
+      <div class="infra-card-status">
+        <span class="fleet-card-status ${t.status}"><span class="force-status ${t.status==='operational'?'active':t.status}"></span>${t.status.toUpperCase()}</span>
+      </div>
+      <div class="infra-card-detail">${t.detail}</div>
+      <div class="infra-damage-bar"><div class="infra-damage-fill" style="width:${t.damage}%;background:${statusColor}"></div></div>
+      <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.45rem;color:var(--text3);margin-top:3px">
+        <span>DAMAGE ASSESSMENT</span><span>${t.damage}% DEGRADED</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 // ===== INIT =====
 updateDayCount();
 updateClock();
@@ -2593,6 +3020,8 @@ fetchNews();
 // Render static sections
 renderImpactDashboard();
 renderForcesPanel();
+renderFleetTracker();
+renderInfraTracker();
 renderStreamNav();
 
 // Lazy-load sections on tab click
