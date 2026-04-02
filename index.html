@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Real-time conflict intelligence dashboard monitoring the US-Israel military operations against Iran. Live maps, news feeds, OSINT, maritime/air traffic tracking, and military order of battle.">
+<meta name="theme-color" content="#080a0e">
+<meta property="og:title" content="WARTIME — Iran Conflict Dashboard">
+<meta property="og:description" content="Real-time conflict intelligence dashboard with live maps, news, OSINT, and military tracking.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☠</text></svg>">
 <title>WARTIME — Iran Conflict Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -93,9 +100,7 @@
   .nav-tab.active{color:var(--red);border-bottom-color:var(--red);background:var(--surface2)}
   .nav-tab .tab-icon{margin-right:6px;font-size:.9rem}
 
-  /* PANELS */
-  .panel{display:none;padding:0}
-  .panel.active{display:block}
+  /* PANELS — see transition styles below */
 
   /* GRID LAYOUT */
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
@@ -483,16 +488,96 @@
   .split-layout .sidebar{border-right:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
   .split-layout .main-area{overflow:hidden;position:relative}
 
+  /* SKIP NAV */
+  .skip-nav{
+    position:absolute;top:-100%;left:16px;z-index:9999;
+    background:var(--red);color:#fff;padding:8px 16px;border-radius:0 0 6px 6px;
+    font-family:var(--mono);font-size:.75rem;font-weight:600;
+    transition:top .2s;
+  }
+  .skip-nav:focus{top:0}
+
+  /* PANEL TRANSITIONS */
+  .panel{display:none;padding:0;animation:fadeIn .25s ease}
+  .panel.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+  /* NEWS SEARCH */
+  .news-search{
+    display:flex;align-items:center;gap:6px;padding:6px 12px;
+    border-bottom:1px solid var(--border);background:var(--surface);
+  }
+  .news-search input{
+    flex:1;background:var(--surface2);border:1px solid var(--border);
+    color:var(--text);padding:5px 10px;border-radius:4px;
+    font-family:var(--mono);font-size:.65rem;outline:none;
+  }
+  .news-search input:focus{border-color:var(--red)}
+  .news-search input::placeholder{color:var(--text3)}
+  .news-search-icon{color:var(--text3);font-size:.75rem;flex-shrink:0}
+
+  /* KEYBOARD SHORTCUT HINT */
+  .kbd-hint{
+    position:fixed;bottom:20px;left:20px;z-index:998;
+    background:rgba(13,17,23,0.9);border:1px solid var(--border);
+    border-radius:8px;padding:12px 16px;font-family:var(--mono);font-size:.6rem;
+    color:var(--text2);backdrop-filter:blur(8px);display:none;
+    max-width:280px;line-height:1.8;
+  }
+  .kbd-hint.show{display:block;animation:fadeIn .2s ease}
+  .kbd-hint kbd{
+    display:inline-block;background:var(--surface3);border:1px solid var(--border2);
+    border-radius:3px;padding:1px 5px;font-family:var(--mono);font-size:.55rem;
+    color:var(--text);margin:0 2px;
+  }
+
+  /* FOOTER */
+  .site-footer{
+    padding:12px 24px;background:var(--surface);border-top:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    font-family:var(--mono);font-size:.55rem;color:var(--text3);
+  }
+  .site-footer a{color:var(--text3)}
+  .site-footer a:hover{color:var(--text2)}
+
   /* RESPONSIVE */
   @media(max-width:900px){
     .split-layout{grid-template-columns:1fr}
     .grid-2,.grid-3{grid-template-columns:1fr}
     .split-layout .sidebar{height:50vh}
     .split-layout .main-area{height:50vh}
+    .impact-section h3{font-size:.7rem}
+    #panel-impact > div:nth-child(3){grid-template-columns:1fr}
+  }
+  @media(max-width:768px){
+    .ticker{flex-wrap:nowrap;overflow-x:auto}
+    .tick{min-width:130px;padding:8px 12px}
+    .tick-value{font-size:.85rem}
+    .tick-label{font-size:.5rem}
+    .header-right{display:none}
+    .header{padding:10px 12px}
+    .forces-grid,.nuke-grid,.casualty-grid{grid-template-columns:1fr}
+    .links-grid{grid-template-columns:1fr;padding:12px}
+    .site-footer{flex-direction:column;text-align:center;gap:6px}
+    .pip-player{width:240px;bottom:10px;right:10px}
   }
   @media(max-width:600px){
-    .header{padding:10px 12px}
     .nav-tab{padding:8px 12px;font-size:.7rem}
+    .section-head{padding:8px 12px;font-size:.6rem;flex-wrap:wrap;gap:6px}
+    .section-head > div{flex-wrap:wrap}
+    .overlay-btn{font-size:.55rem;padding:4px 8px}
+    .clips-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+    .osint-grid{grid-template-columns:1fr}
+    .impact-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+    .news-controls{overflow-x:auto;scrollbar-width:none}
+    .news-controls::-webkit-scrollbar{display:none}
+  }
+  @media(max-width:400px){
+    .logo{font-size:1rem;letter-spacing:1px}
+    .live-pill{font-size:.55rem;padding:2px 6px}
+    .threat-pill{display:none}
+    .nav-tab{padding:6px 8px;font-size:.6rem}
+    .nav-tab .tab-icon{display:none}
   }
 
   /* STREAM CAROUSEL */
@@ -594,6 +679,9 @@
 </head>
 <body>
 
+<!-- SKIP NAV -->
+<a class="skip-nav" href="#panel-overview">Skip to content</a>
+
 <!-- THREAT BAR -->
 <div class="threat-bar"></div>
 
@@ -643,7 +731,7 @@
 </div>
 
 <!-- NAV -->
-<div class="nav-tabs" role="tablist">
+<div class="nav-tabs" role="tablist" aria-label="Dashboard navigation">
   <div class="nav-tab active" role="tab" tabindex="0" data-panel="overview"><span class="tab-icon">◉</span>OVERVIEW</div>
   <div class="nav-tab" role="tab" tabindex="0" data-panel="warmap"><span class="tab-icon">⊕</span>WAR MAP</div>
   <div class="nav-tab" role="tab" tabindex="0" data-panel="maritime"><span class="tab-icon">⚓</span>MARITIME</div>
@@ -748,6 +836,11 @@
   </div>
   <div class="split-layout" style="height:calc(100vh - 170px)">
     <div class="sidebar">
+      <!-- Search bar -->
+      <div class="news-search">
+        <span class="news-search-icon">&#128269;</span>
+        <input type="text" id="newsSearchInput" placeholder="Search news... (type to filter)" oninput="searchNews(this.value)" autocomplete="off">
+      </div>
       <!-- Source + category filter tabs -->
       <div class="news-controls" id="newsSourceTabs">
         <div class="news-filter-tab active" data-src="all" onclick="filterNews('all')">ALL</div>
@@ -1061,12 +1154,28 @@
   <iframe id="pipFrame" src="" allow="autoplay;encrypted-media" allowfullscreen></iframe>
 </div>
 
+<!-- KEYBOARD SHORTCUT HINT -->
+<div class="kbd-hint" id="kbdHint">
+  <div style="margin-bottom:6px;color:var(--text);font-weight:600">Keyboard Shortcuts</div>
+  <kbd>1</kbd>-<kbd>9</kbd>,<kbd>0</kbd> Switch tabs &nbsp;
+  <kbd>R</kbd> Refresh &nbsp;
+  <kbd>N</kbd> Night mode &nbsp;
+  <kbd>?</kbd> This help &nbsp;
+  <kbd>Esc</kbd> Close modal
+</div>
+
 <!-- VIDEO MODAL -->
 <div class="modal-overlay" id="videoModal">
   <div class="modal-content">
     <button class="modal-close" onclick="closeModal()">&#10005;</button>
     <iframe id="modalFrame" src="" allow="autoplay;encrypted-media" allowfullscreen></iframe>
   </div>
+</div>
+
+<!-- FOOTER -->
+<div class="site-footer" id="siteFooter">
+  <span>WARTIME DASHBOARD — Open-source conflict intelligence aggregator</span>
+  <span>Data from public sources · Not affiliated with any government · <kbd style="background:var(--surface3);border:1px solid var(--border2);border-radius:2px;padding:0 4px;font-size:.5rem">?</kbd> Keyboard shortcuts</span>
 </div>
 
 <script>
@@ -1100,6 +1209,8 @@ function activateTab(tab){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   tab.classList.add('active');
   document.getElementById('panel-'+tab.dataset.panel).classList.add('active');
+  // Scroll to top on panel switch
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 document.querySelectorAll('.nav-tab').forEach(tab=>{
   tab.addEventListener('click',()=>activateTab(tab));
@@ -1308,6 +1419,13 @@ function renderNewsFeed(containerId,items){
     display=items.filter(i=>i.title.toLowerCase().includes('breaking'));
   }else if(currentNewsFilter!=='all'){
     display=items.filter(i=>i.category&&i.category.key===currentNewsFilter);
+  }
+  // Apply search query
+  if(newsSearchQuery){
+    display=display.filter(i=>{
+      const text=(i.title+' '+(i.description||'')+' '+(i.sourceName||'')).toLowerCase();
+      return text.includes(newsSearchQuery);
+    });
   }
 
   // For the full news feed panel, clicking loads in article reader; for overview sidebar, opens in new tab
@@ -2510,6 +2628,44 @@ document.querySelectorAll('.nav-tab').forEach(tab=>{
       closePip();
     }
   });
+});
+
+// ===== NEWS SEARCH =====
+let newsSearchQuery='';
+function searchNews(query){
+  newsSearchQuery=query.toLowerCase().trim();
+  renderNewsFeed('newsFeedFull',allFilteredNews);
+}
+
+// ===== KEYBOARD SHORTCUTS =====
+document.addEventListener('keydown',e=>{
+  // Don't trigger shortcuts when typing in inputs
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT') return;
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+
+  const tabs=[...document.querySelectorAll('.nav-tab')];
+  // Number keys 1-9, 0 for tabs
+  if(e.key>='1'&&e.key<='9'){
+    const idx=parseInt(e.key)-1;
+    if(idx<tabs.length){e.preventDefault();activateTab(tabs[idx])}
+  }
+  if(e.key==='0'&&tabs.length>=10){
+    e.preventDefault();activateTab(tabs[9]);
+  }
+  // R = refresh current feed
+  if(e.key==='r'||e.key==='R'){
+    e.preventDefault();
+    if(currentPanel==='videos') fetchVideos();
+    else if(currentPanel==='osint') fetchOsint();
+    else fetchNews();
+  }
+  // N = night ops toggle
+  if(e.key==='n'||e.key==='N'){e.preventDefault();toggleNightOps()}
+  // ? = toggle keyboard shortcut hint
+  if(e.key==='?'){
+    e.preventDefault();
+    document.getElementById('kbdHint').classList.toggle('show');
+  }
 });
 
 // Auto-refresh news every 3 minutes, videos/OSINT every 5 minutes
