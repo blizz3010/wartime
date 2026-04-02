@@ -695,6 +695,7 @@
   .forces-subnav{
     display:flex;gap:0;background:var(--surface);border-bottom:1px solid var(--border);
     overflow-x:auto;scrollbar-width:none;position:sticky;top:52px;z-index:20;
+    justify-content:center;
   }
   .forces-subnav::-webkit-scrollbar{display:none}
   .forces-subnav-btn{
@@ -823,6 +824,7 @@
   <div class="nav-tab" role="tab" tabindex="0" data-panel="livestreams"><span class="tab-icon">◉</span>LIVE STREAMS</div>
   <div class="nav-tab" role="tab" tabindex="0" data-panel="osint"><span class="tab-icon">◎</span>OSINT / SOCIAL</div>
   <div class="nav-tab" role="tab" tabindex="0" data-panel="forces"><span class="tab-icon">⚔</span>FORCES</div>
+  <div class="nav-tab" role="tab" tabindex="0" data-panel="assets"><span class="tab-icon">🎯</span>ASSETS</div>
   <div class="nav-tab" role="tab" tabindex="0" data-panel="impact"><span class="tab-icon">◈</span>IMPACT</div>
   <div class="nav-tab" role="tab" tabindex="0" data-panel="resources"><span class="tab-icon">≡</span>RESOURCES</div>
 </div>
@@ -1027,13 +1029,8 @@
   </div>
 </div>
 
-<!-- ==================== FORCES & ASSETS PANEL ==================== -->
+<!-- ==================== FORCES PANEL ==================== -->
 <div class="panel" id="panel-forces">
-  <div class="section-head">
-    <span>⚔ MILITARY FORCES & ORDER OF BATTLE</span>
-    <span class="badge">ESTIMATED</span>
-  </div>
-
   <!-- Forces Sub-Navigation -->
   <div class="forces-subnav" id="forcesSubnav">
     <button class="forces-subnav-btn active" onclick="scrollForceSection('sect-coalition')">Coalition</button>
@@ -1041,10 +1038,6 @@
     <button class="forces-subnav-btn" onclick="scrollForceSection('sect-iran')">Iranian Forces</button>
     <button class="forces-subnav-btn" onclick="scrollForceSection('sect-proxy')">Proxies</button>
     <button class="forces-subnav-btn" onclick="scrollForceSection('sect-weapons')">Weapons</button>
-    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-fleet')">Naval Fleet</button>
-    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-bases')">Bases</button>
-    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-infra')">Infrastructure</button>
-    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-nukes')">Nuclear</button>
     <button class="forces-subnav-btn" onclick="scrollForceSection('sect-casualties')">Casualties</button>
   </div>
 
@@ -1071,6 +1064,25 @@
   <div class="force-section-head" id="sect-weapons">🎯 KEY WEAPONS SYSTEMS DEPLOYED</div>
   <div class="forces-grid" id="weaponsSystems"></div>
 
+  <!-- Casualties Tracker -->
+  <div class="force-section-head" id="sect-casualties">📊 CASUALTY & HUMANITARIAN ESTIMATES</div>
+  <div class="casualty-grid" id="casualtyStats"></div>
+
+  <div style="padding:12px 20px;font-family:var(--mono);font-size:.55rem;color:var(--text3);border-top:1px solid var(--border)">
+    DATA SOURCES: ISW, CENTCOM, IISS Military Balance, Janes, ACLED, Reuters, AP, OSINT · All figures are estimates based on open-source reporting
+  </div>
+</div>
+
+<!-- ==================== ASSETS & DAMAGE ASSESSMENT PANEL ==================== -->
+<div class="panel" id="panel-assets">
+  <!-- Assets Sub-Navigation -->
+  <div class="forces-subnav" id="assetsSubnav">
+    <button class="forces-subnav-btn active" onclick="scrollForceSection('sect-fleet')">Naval Fleet</button>
+    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-bases')">Military Bases</button>
+    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-infra')">Infrastructure</button>
+    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-nukes')">Nuclear Facilities</button>
+  </div>
+
   <!-- Iranian Naval Fleet Tracker -->
   <div class="force-section-head" id="sect-fleet">🚢 IRANIAN NAVAL FLEET — OPERATION EPIC FURY</div>
   <div class="fleet-summary" id="fleetSummary"></div>
@@ -1089,12 +1101,8 @@
   <div class="force-section-head" id="sect-nukes">☢ NUCLEAR FACILITY STATUS</div>
   <div class="nuke-grid" id="nukeStatus"></div>
 
-  <!-- Casualties Tracker -->
-  <div class="force-section-head" id="sect-casualties">📊 CASUALTY & HUMANITARIAN ESTIMATES</div>
-  <div class="casualty-grid" id="casualtyStats"></div>
-
   <div style="padding:12px 20px;font-family:var(--mono);font-size:.55rem;color:var(--text3);border-top:1px solid var(--border)">
-    DATA SOURCES: ISW, CENTCOM, IISS Military Balance, Janes, ACLED, Reuters, AP, OSINT · All figures are estimates based on open-source reporting · Classified asset dispositions may differ
+    DATA SOURCES: ISW, CENTCOM, IISS Military Balance, Janes, ACLED, Reuters, AP, OSINT · Classified asset dispositions may differ · Damage assessments based on satellite imagery and open-source reporting
   </div>
 </div>
 
