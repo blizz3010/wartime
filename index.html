@@ -2998,13 +2998,13 @@ const SCORING_WEIGHTS={
     'hormuz open':40,'strait reopen':40,'shipping resumes':35,'transit resumes':35,
     'vessels transit':25,'ships passing':25,'tanker through':20,'convoy escort':20,
     'limited transit':15,'naval escort':15,'merchant vessel':10,'commercial shipping':10,
-    'hormuz closed':0,'blockade':0,'mine':0,'strait shut':0,
-    'hormuz block':0,'no transit':0,'shipping halt':0,
   },
   hormuzClosed:{
-    'hormuz closed':-30,'blockade hormuz':-25,'strait blocked':-25,'mines hormuz':-20,
-    'shipping halt':-20,'no transit':-15,'strait shut':-20,'naval mine':-15,
-    'hormuz block':-25,'tanker seized':-15,'vessel seized':-15,'embargo':-10,
+    'hormuz closed':30,'blockade hormuz':25,'strait blocked':25,'mines hormuz':20,
+    'shipping halt':20,'no transit':15,'strait shut':20,'naval mine':15,
+    'hormuz block':25,'tanker seized':15,'vessel seized':15,'embargo':10,
+    'blockade':10,'hormuz':5,'strait of hormuz':8,'oil transit':5,
+    'persian gulf':3,'shipping disruption':15,'maritime threat':10,
   },
   military:{
     'carrier deploy':10,'strike group':10,'b-2':8,'stealth bomber':8,
@@ -3012,6 +3012,10 @@ const SCORING_WEIGHTS={
     'aircraft carrier':8,'submarine':8,'special forces':8,
     'airstrike':10,'bombing':10,'sortie':6,'interception':8,
     'shot down':10,'drone strike':8,'missile launch':12,'air defense':6,
+    'military':4,'strike':6,'attack':5,'war ':5,'conflict':4,
+    'irgc':6,'pentagon':5,'centcom':6,'navy':4,'troops':4,
+    'missile':6,'drone':4,'fighter jet':6,'airspace':4,
+    'carrier':5,'deploy':4,'combat':5,'operation':4,
   },
 };
 
@@ -3038,10 +3042,10 @@ function computeDashboardScores(newsItems){
       if(text.includes(kw)) deescalationScore+=score;
     }
     for(const[kw,score] of Object.entries(SCORING_WEIGHTS.hormuzTraffic)){
-      if(text.includes(kw)){hormuzOpenScore+=score;hormuzTrafficMentions++;}
+      if(text.includes(kw)){hormuzOpenScore+=score;if(score>0)hormuzTrafficMentions++;}
     }
     for(const[kw,score] of Object.entries(SCORING_WEIGHTS.hormuzClosed)){
-      if(text.includes(kw)) hormuzClosedScore+=Math.abs(score);
+      if(text.includes(kw)) hormuzClosedScore+=score;
     }
     for(const[kw,score] of Object.entries(SCORING_WEIGHTS.military)){
       if(text.includes(kw)) militaryScore+=score;
