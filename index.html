@@ -1442,18 +1442,7 @@ function setMaritimeSrc(lat,lon,zoom){
 function setAirSrc(url){document.getElementById('airFrame').src=url}
 
 // ===== NEWS FEED (Redesigned) =====
-const RSS_FEEDS=[
-  {name:'Al Jazeera',cls:'src-aljazeera',url:'https://www.aljazeera.com/xml/rss/all.xml'},
-  {name:'BBC',cls:'src-bbc',url:'https://feeds.bbci.co.uk/news/world/middle_east/rss.xml'},
-  {name:'Reuters',cls:'src-reuters',url:'https://www.reutersagency.com/feed/'},
-  {name:'NPR',cls:'src-npr',url:'https://feeds.npr.org/1004/rss.xml'},
-  {name:'CNN',cls:'src-cnn',url:'https://rss.cnn.com/rss/edition_meast.rss'},
-  {name:'Guardian',cls:'src-guardian',url:'https://www.theguardian.com/world/middleeast/rss'},
-  {name:'JPost',cls:'src-jpost',url:'https://www.jpost.com/rss/rssfeedsmiddleeast'},
-  {name:'Times of Israel',cls:'src-toi',url:'https://www.timesofisrael.com/feed/'},
-  {name:'FOX',cls:'src-fox',url:'https://moxie.foxnews.com/google-publisher/world.xml'},
-  {name:'NBC',cls:'src-nbc',url:'https://feeds.nbcnews.com/nbcnews/public/world'},
-];
+const TOTAL_FEEDS=10; // Number of RSS feeds aggregated server-side
 
 // Category classification for news items
 const NEWS_CATEGORIES={
@@ -1478,71 +1467,11 @@ let allFilteredNews=[];
 let currentNewsFilter='all';
 let compactNewsView=false;
 
-// News cache: store fetched items in localStorage to reduce API calls across tabs/reloads
-const NEWS_CACHE_KEY='wartime_news_cache';
-const NEWS_CACHE_TTL=5*60*1000; // 5 minutes
-
-function getNewsCache(){
-  try{
-    const raw=localStorage.getItem(NEWS_CACHE_KEY);
-    if(!raw) return null;
-    const cache=JSON.parse(raw);
-    if(Date.now()-cache.ts<NEWS_CACHE_TTL) return cache.items;
-  }catch(e){}
-  return null;
-}
-
-function setNewsCache(items){
-  try{localStorage.setItem(NEWS_CACHE_KEY,JSON.stringify({ts:Date.now(),items}));}catch(e){}
-}
-
-async function fetchRSS(feedUrl){
-  // Method 1: Our own Vercel API proxy (cached server-side for 5 min)
-  try{
-    const res=await fetch(`/api/news?url=${encodeURIComponent(feedUrl)}`);
-    if(res.ok){
-      const text=await res.text();
-      const items=parseRSSXml(text);
-      if(items.length>0) return items;
-    }
-  }catch(e){}
-
-  // Method 2: rss2json (structured JSON)
-  try{
-    const proxy=`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}&count=20`;
-    const res=await fetch(proxy);
-    if(res.ok){
-      const data=await res.json();
-      if(data.items&&data.items.length>0) return data.items;
-    }
-  }catch(e){}
-
-  // Method 3: allorigins CORS proxy
-  try{
-    const proxy2=`https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`;
-    const res=await fetch(proxy2);
-    if(res.ok){
-      const text=await res.text();
-      const items=parseRSSXml(text);
-      if(items.length>0) return items;
-    }
-  }catch(e){}
-
-  return [];
-}
-
-function parseRSSXml(xmlText){
-  try{
-    const parser=new DOMParser();
-    const doc=parser.parseFromString(xmlText,'text/xml');
-    const items=doc.querySelectorAll('item');
-    return Array.from(items).map(item=>({
-      title:item.querySelector('title')?.textContent||'',
-      link:item.querySelector('link')?.textContent||'',
-      description:item.querySelector('description')?.textContent||'',
-      pubDate:item.querySelector('pubDate')?.textContent||'',
-    }));
-  }catch(e){return []}
+// Fetch all news from server-side aggregator (single request, CDN-cached 5 min)
+async function fetchAllNews(){
+  const res=await fetch('/api/news');
+  if(!res.ok) throw new Error('API returned '+res.status);
+  return await res.json();
 }
 
 const MAJOR_KEYWORDS=['strike','attack','bomb','missile','killed','dead','explosion','retaliation','nuclear','invasion','ceasefire','surrender','shot down','intercept','sanctions','blockade','evacuate','casualt'];
@@ -1551,36 +1480,29 @@ async function fetchNews(forceRefresh=false){
   const refreshBtns=document.querySelectorAll('.refresh-btn');
   refreshBtns.forEach(b=>b.classList.add('spinning'));
 
-  // Check localStorage cache first (shared across tabs)
-  if(!forceRefresh){
-    const cached=getNewsCache();
-    if(cached&&cached.length>0){
-      processNewsItems(cached);
-      refreshBtns.forEach(b=>b.classList.remove('spinning'));
-      return;
-    }
-  }
-
   const containers=['newsFeed','newsFeedFull'];
   containers.forEach(id=>{
     const el=document.getElementById(id);
-    if(el) el.innerHTML='<div class="loading"><div class="spinner"></div>Fetching latest news...</div>';
+    if(el&&(!allFilteredNews.length||forceRefresh)) el.innerHTML='<div class="loading"><div class="spinner"></div>Fetching latest news...</div>';
   });
 
-  let allItems=[];
-  const results=await Promise.allSettled(RSS_FEEDS.map(async feed=>{
-    const items=await fetchRSS(feed.url);
-    return items.map(item=>({...item,sourceName:feed.name,sourceCls:feed.cls}));
-  }));
-
-  results.forEach(r=>{if(r.status==='fulfilled')allItems.push(...r.value)});
-
-  const feedCount=results.filter(r=>r.status==='fulfilled').length;
-
-  // Save raw items to cache for other tabs
-  if(allItems.length>0) setNewsCache(allItems);
-
-  processNewsItems(allItems,feedCount);
+  try{
+    // Single API call — server fetches all 10 feeds, deduplicates, caches on CDN for 5 min
+    const data=await fetchAllNews();
+    // Map source names to CSS classes
+    const clsMap={'Al Jazeera':'src-aljazeera','BBC':'src-bbc','Reuters':'src-reuters','NPR':'src-npr','CNN':'src-cnn','Guardian':'src-guardian','JPost':'src-jpost','Times of Israel':'src-toi','FOX':'src-fox','NBC':'src-nbc'};
+    const items=(data.items||[]).map(i=>({...i,sourceCls:clsMap[i.sourceName]||''}));
+    processNewsItems(items,data.feedCount||0);
+  }catch(e){
+    console.error('News fetch failed:',e);
+    // Show error state if no cached data
+    if(!allFilteredNews.length){
+      containers.forEach(id=>{
+        const el=document.getElementById(id);
+        if(el) el.innerHTML='<div style="padding:20px;font-family:var(--mono);font-size:.7rem;color:var(--text3)">Failed to load news. Click REFRESH to retry.</div>';
+      });
+    }
+  }
   refreshBtns.forEach(b=>b.classList.remove('spinning'));
 }
 
@@ -1619,7 +1541,7 @@ function processNewsItems(allItems,feedCount=0){
   // Update stats bar
   const breakingCount=filtered.filter(i=>i.title.toLowerCase().includes('breaking')).length;
   const majorCount=filtered.filter(i=>MAJOR_KEYWORDS.some(k=>i.title.toLowerCase().includes(k))).length;
-  if(!feedCount) feedCount=RSS_FEEDS.length; // default for cached items
+  if(!feedCount) feedCount=TOTAL_FEEDS; // default for cached items
   const statTotal=document.getElementById('newsStatTotal');
   const statBreaking=document.getElementById('newsStatBreaking');
   const statMajor=document.getElementById('newsStatMajor');
@@ -1627,10 +1549,10 @@ function processNewsItems(allItems,feedCount=0){
   if(statTotal) statTotal.textContent=filtered.length;
   if(statBreaking) statBreaking.textContent=breakingCount;
   if(statMajor) statMajor.textContent=majorCount;
-  if(statSources) statSources.textContent=`${feedCount}/${RSS_FEEDS.length}`;
+  if(statSources) statSources.textContent=`${feedCount}/${TOTAL_FEEDS}`;
 
   const updatedTime=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
-  const updatedText=`Updated ${updatedTime} · ${filtered.length} items · ${feedCount}/${RSS_FEEDS.length} feeds`;
+  const updatedText=`Updated ${updatedTime} · ${filtered.length} items · ${feedCount}/${TOTAL_FEEDS} feeds`;
   document.querySelectorAll('.news-updated').forEach(el=>el.textContent=updatedText);
 
   // Update breaking news marquee
@@ -2409,7 +2331,18 @@ async function fetchOsint(){
   ];
   const rssFetches=osintRSSFeeds.map(async feed=>{
     try{
-      const items=await fetchRSS(feed.url);
+      const proxyUrl=`https://api.allorigins.win/raw?url=${encodeURIComponent(feed.url)}`;
+      const res=await fetch(proxyUrl);
+      if(!res.ok) return;
+      const xml=await res.text();
+      const parser=new DOMParser();
+      const doc=parser.parseFromString(xml,'text/xml');
+      const items=Array.from(doc.querySelectorAll('item')).map(el=>({
+        title:el.querySelector('title')?.textContent||'',
+        link:el.querySelector('link')?.textContent||'',
+        description:el.querySelector('description')?.textContent||'',
+        pubDate:el.querySelector('pubDate')?.textContent||'',
+      }));
       const iranKw=['iran','tehran','hormuz','persian','irgc','hezbollah','middle east','nuclear','conflict'];
       items.filter(i=>iranKw.some(k=>(i.title||'').toLowerCase().includes(k))).forEach(i=>{
         allOsintPosts.push({
