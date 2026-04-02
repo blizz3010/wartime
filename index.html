@@ -1516,15 +1516,9 @@ function processNewsItems(allItems,feedCount=0){
     return true;
   });
 
-  // Filter for Iran/war related
-  const keywords=['iran','tehran','hormuz','hezbollah','israel','strike','missile','war','bomb','attack','military','pentagon','trump','irgc','khamenei','netanyahu','gulf','qatar','naval','drone','oil','crude','strait','conflict','lebanon','beirut','houthi','yemen','proxy','sanctions','nuclear','ceasefire','diplomacy','centcom','idf','airstrikes','carrier','navy','artillery','infantry','natanz','fordow','enrichment','iaea','refinery','tanker','shipping','red sea','basij','quds','hamas','peshmerga','conscription','mobilization','bunker','radar','intercept','patriot','iron dome','thaad','s-300','humanitarian','refugee','displaced','casualties','convoy','special forces','jsoc','stealth','b-2','f-35','sortie','airspace','notam'];
-  let filtered=allItems.filter(item=>{
-    const text=(item.title+' '+(item.description||'')).toLowerCase();
-    return keywords.some(k=>text.includes(k));
-  });
-
+  // Server already filters for relevance — just sort by date
+  let filtered=[...allItems];
   filtered.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));
-  if(filtered.length===0) filtered=allItems.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate)).slice(0,30);
 
   // Categorize each article
   filtered=filtered.slice(0,80).map(item=>({
