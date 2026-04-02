@@ -80,11 +80,51 @@ export default async function handler(req, res) {
       return true;
     });
 
+    // Filter for Iran/war relevance
+    // Strong keywords: one match in title = article passes
+    const STRONG = ['iran','tehran','hormuz','irgc','persian gulf','hezbollah','houthi',
+      'centcom','natanz','fordow','basij','quds force','strait of hormuz',
+      'operation epic fury','khamenei','iranian','idf','iron dome','arrow-3',
+      'thaad','patriot missile','b-2 spirit','f-35','carrier strike group'];
+    // Medium keywords: one match in title OR two matches anywhere
+    const MEDIUM = ['missile','airstrike','strike','bomb','drone','torpedo',
+      'warship','naval','blockade','sanctions','nuclear','enrichment','iaea',
+      'ceasefire','escalat','retaliat','deploy','military operation'];
+    // Weak keywords: need 2+ matches across title+description to qualify
+    const WEAK = ['israel','military','attack','conflict','war','pentagon',
+      'troops','navy','oil','crude','tanker','refugee','humanitarian',
+      'diplomat','sanction','convoy','intercept','casualties','combat',
+      'fighter jet','airspace','carrier','submarine','artillery','drone',
+      'trump','netanyahu','gulf','qatar','yemen','lebanon','beirut','syria'];
+
+    allItems = allItems.filter(item => {
+      const title = (item.title || '').toLowerCase();
+      const desc = (item.description || '').toLowerCase();
+      const full = title + ' ' + desc;
+
+      // Strong keyword in title = instant pass
+      if (STRONG.some(k => title.includes(k))) return true;
+
+      // Medium keyword in title = pass
+      if (MEDIUM.some(k => title.includes(k))) return true;
+
+      // Medium keyword in description + any other keyword = pass
+      const mediumHits = MEDIUM.filter(k => full.includes(k)).length;
+      if (mediumHits >= 2) return true;
+
+      // Weak keywords: need 2+ distinct matches to pass
+      const weakHits = WEAK.filter(k => full.includes(k)).length;
+      if (mediumHits >= 1 && weakHits >= 1) return true;
+      if (weakHits >= 3) return true;
+
+      return false;
+    });
+
     // Sort by date (newest first)
     allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
-    // Return max 150 items
-    allItems = allItems.slice(0, 150);
+    // Return max 100 filtered items
+    allItems = allItems.slice(0, 100);
 
     // Cache on Vercel CDN for 5 min, serve stale for 10 min while revalidating
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
