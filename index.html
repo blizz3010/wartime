@@ -760,6 +760,10 @@
   .forces-subnav-btn:hover{color:var(--text);background:var(--surface2)}
   .forces-subnav-btn.active{color:var(--red);border-bottom-color:var(--red)}
 
+  /* Sub-page system — show/hide sections */
+  .subpage{display:none}
+  .subpage.active{display:block}
+
   /* Ship type icons */
   .ship-type-icon{
     display:inline-flex;align-items:center;justify-content:center;
@@ -1093,32 +1097,41 @@
 <div class="panel" id="panel-forces">
   <!-- Forces Sub-Navigation -->
   <div class="forces-subnav" id="forcesSubnav">
-    <button class="forces-subnav-btn active" onclick="scrollForceSection('sect-comparison')">⚔ Force Comparison</button>
-    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-support')">🤝 Support Nations</button>
-    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-proxy')">⚡ Proxy Breakdown</button>
-    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-weapons')">🎯 Weapons</button>
-    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-casualties')">📊 Casualties</button>
+    <button class="forces-subnav-btn active" onclick="showForceSubpage('comparison')">⚔ Force Comparison</button>
+    <button class="forces-subnav-btn" onclick="showForceSubpage('support')">🤝 Support Nations</button>
+    <button class="forces-subnav-btn" onclick="showForceSubpage('proxy')">⚡ Proxy Breakdown</button>
+    <button class="forces-subnav-btn" onclick="showForceSubpage('weapons')">🎯 Weapons</button>
+    <button class="forces-subnav-btn" onclick="showForceSubpage('casualties')">📊 Casualties</button>
   </div>
 
   <!-- FORCE COMPARISON — Side by Side -->
-  <div id="sect-comparison" style="scroll-margin-top:140px"></div>
-  <div class="force-compare" id="forceCompare"></div>
+  <div class="subpage active" id="forces-page-comparison">
+    <div class="force-compare" id="forceCompare"></div>
+  </div>
 
   <!-- Support / Logistics Nations -->
-  <div class="force-section-head" id="sect-support">🤝 SUPPORT & LOGISTICS NATIONS <span style="font-weight:400;color:var(--text3);font-size:.5rem;letter-spacing:0;text-transform:none">— Not conducting offensive operations</span></div>
-  <div class="forces-grid" id="supportForces"></div>
+  <div class="subpage" id="forces-page-support">
+    <div class="force-section-head">🤝 SUPPORT & LOGISTICS NATIONS <span style="font-weight:400;color:var(--text3);font-size:.5rem;letter-spacing:0;text-transform:none">— Not conducting offensive operations</span></div>
+    <div id="supportForces"></div>
+  </div>
 
-  <!-- Proxy & Non-State Actors (detailed breakdown) -->
-  <div class="force-section-head" id="sect-proxy">⚡ PROXY & NON-STATE ACTORS — DETAILED BREAKDOWN</div>
-  <div class="forces-grid" id="proxyForces"></div>
+  <!-- Proxy & Non-State Actors -->
+  <div class="subpage" id="forces-page-proxy">
+    <div class="force-section-head">⚡ PROXY & NON-STATE ACTORS — DETAILED BREAKDOWN</div>
+    <div id="proxyForces"></div>
+  </div>
 
   <!-- Weapons Systems Deployed -->
-  <div class="force-section-head" id="sect-weapons">🎯 KEY WEAPONS SYSTEMS DEPLOYED</div>
-  <div class="forces-grid" id="weaponsSystems"></div>
+  <div class="subpage" id="forces-page-weapons">
+    <div class="force-section-head">🎯 KEY WEAPONS SYSTEMS DEPLOYED</div>
+    <div id="weaponsSystems"></div>
+  </div>
 
   <!-- Casualties Tracker -->
-  <div class="force-section-head" id="sect-casualties">📊 CASUALTY & HUMANITARIAN ESTIMATES</div>
-  <div class="casualty-grid" id="casualtyStats"></div>
+  <div class="subpage" id="forces-page-casualties">
+    <div class="force-section-head">📊 CASUALTY & HUMANITARIAN ESTIMATES</div>
+    <div class="casualty-grid" id="casualtyStats"></div>
+  </div>
 
   <div style="padding:12px 20px;font-family:var(--mono);font-size:.55rem;color:var(--text3);border-top:1px solid var(--border)">
     DATA SOURCES: ISW, CENTCOM, IISS Military Balance, Janes, ACLED, Reuters, AP, OSINT · All figures are estimates based on open-source reporting
@@ -1129,29 +1142,37 @@
 <div class="panel" id="panel-assets">
   <!-- Assets Sub-Navigation -->
   <div class="forces-subnav" id="assetsSubnav">
-    <button class="forces-subnav-btn active" onclick="scrollForceSection('sect-fleet')">Naval Fleet</button>
-    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-bases')">Military Bases</button>
-    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-infra')">Infrastructure</button>
-    <button class="forces-subnav-btn" onclick="scrollForceSection('sect-nukes')">Nuclear Facilities</button>
+    <button class="forces-subnav-btn active" onclick="showAssetSubpage('fleet')">🚢 Naval Fleet</button>
+    <button class="forces-subnav-btn" onclick="showAssetSubpage('bases')">🏗 Military Bases</button>
+    <button class="forces-subnav-btn" onclick="showAssetSubpage('infra')">🎯 Infrastructure</button>
+    <button class="forces-subnav-btn" onclick="showAssetSubpage('nukes')">☢ Nuclear</button>
   </div>
 
   <!-- Iranian Naval Fleet Tracker -->
-  <div class="force-section-head" id="sect-fleet">🚢 IRANIAN NAVAL FLEET — OPERATION EPIC FURY</div>
-  <div class="fleet-summary" id="fleetSummary"></div>
-  <div class="fleet-grid" id="fleetTracker"></div>
+  <div class="subpage active" id="assets-page-fleet">
+    <div class="force-section-head">🚢 IRANIAN NAVAL FLEET — OPERATION EPIC FURY</div>
+    <div class="fleet-summary" id="fleetSummary"></div>
+    <div class="fleet-grid" id="fleetTracker"></div>
+  </div>
 
   <!-- Military Base Status -->
-  <div class="force-section-head" id="sect-bases">🏗 MILITARY BASE STATUS — IRAN</div>
-  <div class="forces-grid" id="baseStatus"></div>
+  <div class="subpage" id="assets-page-bases">
+    <div class="force-section-head">🏗 MILITARY BASE STATUS — IRAN</div>
+    <div id="baseStatus"></div>
+  </div>
 
   <!-- Infrastructure Targets -->
-  <div class="force-section-head" id="sect-infra">🎯 INFRASTRUCTURE TARGETS — DAMAGE ASSESSMENT</div>
-  <div class="fleet-summary" id="infraSummary"></div>
-  <div class="infra-grid" id="infraTracker"></div>
+  <div class="subpage" id="assets-page-infra">
+    <div class="force-section-head">🎯 INFRASTRUCTURE TARGETS — DAMAGE ASSESSMENT</div>
+    <div class="fleet-summary" id="infraSummary"></div>
+    <div class="infra-grid" id="infraTracker"></div>
+  </div>
 
   <!-- Nuclear Facilities -->
-  <div class="force-section-head" id="sect-nukes">☢ NUCLEAR FACILITY STATUS</div>
-  <div class="nuke-grid" id="nukeStatus"></div>
+  <div class="subpage" id="assets-page-nukes">
+    <div class="force-section-head">☢ NUCLEAR FACILITY STATUS</div>
+    <div class="nuke-grid" id="nukeStatus"></div>
+  </div>
 
   <div style="padding:12px 20px;font-family:var(--mono);font-size:.55rem;color:var(--text3);border-top:1px solid var(--border)">
     DATA SOURCES: ISW, CENTCOM, IISS Military Balance, Janes, ACLED, Reuters, AP, OSINT · Classified asset dispositions may differ · Damage assessments based on satellite imagery and open-source reporting
@@ -1160,29 +1181,43 @@
 
 <!-- ==================== IMPACT / STATISTICS PANEL ==================== -->
 <div class="panel" id="panel-impact">
-  <div class="section-head"><span>◈ CONFLICT IMPACT DASHBOARD</span><span class="badge">ESTIMATED</span></div>
-  <div class="impact-grid" id="impactStats"></div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)">
-    <div style="background:var(--surface)">
+  <div class="forces-subnav" id="impactSubnav">
+    <button class="forces-subnav-btn active" onclick="showImpactSubpage('overview')">◈ Overview</button>
+    <button class="forces-subnav-btn" onclick="showImpactSubpage('infrastructure')">🏗 Infrastructure</button>
+    <button class="forces-subnav-btn" onclick="showImpactSubpage('timeline')">📅 Timeline</button>
+    <button class="forces-subnav-btn" onclick="showImpactSubpage('cyber')">🖥 Cyber Warfare</button>
+  </div>
+
+  <!-- Impact Overview -->
+  <div class="subpage active" id="impact-page-overview">
+    <div class="section-head"><span>◈ CONFLICT IMPACT DASHBOARD</span><span class="badge">ESTIMATED</span></div>
+    <div class="impact-grid" id="impactStats"></div>
+    <div style="background:var(--surface);border-top:1px solid var(--border)">
       <div class="impact-section">
         <h3>Infrastructure Impact</h3>
         <div id="impactBars"></div>
       </div>
     </div>
-    <div style="background:var(--surface)">
-      <div class="impact-section">
-        <h3>Key Events Timeline</h3>
-        <div id="impactTimeline"></div>
-      </div>
-    </div>
   </div>
+
+  <!-- Infrastructure Detail -->
+  <div class="subpage" id="impact-page-infrastructure">
+    <div class="section-head"><span>🏗 INFRASTRUCTURE DAMAGE ASSESSMENT</span><span class="badge">ESTIMATED</span></div>
+    <div id="impactInfraDetail"></div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="subpage" id="impact-page-timeline">
+    <div class="section-head"><span>📅 KEY EVENTS TIMELINE</span></div>
+    <div id="impactTimeline"></div>
+  </div>
+
   <!-- Cyber Warfare -->
-  <div style="background:var(--surface);border-top:1px solid var(--border)">
-    <div class="impact-section">
-      <h3>🖥 Cyber Warfare Operations</h3>
-      <div id="cyberOps"></div>
-    </div>
+  <div class="subpage" id="impact-page-cyber">
+    <div class="section-head"><span>🖥 CYBER WARFARE OPERATIONS</span></div>
+    <div id="cyberOps"></div>
   </div>
+
   <div style="padding:12px 20px;font-family:var(--mono);font-size:.55rem;color:var(--text3);border-top:1px solid var(--border)">
     DATA SOURCES: ACLED, UNRWA, WHO, Reuters, AP, ISW, CISA, Recorded Future · Figures are estimates based on open-source reporting · Updated periodically
   </div>
@@ -2399,14 +2434,36 @@ function renderOsint(){
   `).join('');
 }
 
-// ===== FORCES SUB-NAVIGATION =====
-function scrollForceSection(id){
-  const el=document.getElementById(id);
-  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
-  // Update active button
-  document.querySelectorAll('.forces-subnav-btn').forEach(b=>b.classList.remove('active'));
-  const btn=document.querySelector(`.forces-subnav-btn[onclick*="${id}"]`);
+// ===== SUB-PAGE NAVIGATION =====
+function showForceSubpage(id){
+  document.querySelectorAll('#panel-forces .subpage').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#forcesSubnav .forces-subnav-btn').forEach(b=>b.classList.remove('active'));
+  const page=document.getElementById('forces-page-'+id);
+  if(page) page.classList.add('active');
+  const btn=document.querySelector(`#forcesSubnav .forces-subnav-btn[onclick*="'${id}'"]`);
   if(btn) btn.classList.add('active');
+  // Scroll to top of panel
+  document.getElementById('panel-forces').scrollTo({top:0,behavior:'smooth'});
+}
+
+function showAssetSubpage(id){
+  document.querySelectorAll('#panel-assets .subpage').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#assetsSubnav .forces-subnav-btn').forEach(b=>b.classList.remove('active'));
+  const page=document.getElementById('assets-page-'+id);
+  if(page) page.classList.add('active');
+  const btn=document.querySelector(`#assetsSubnav .forces-subnav-btn[onclick*="'${id}'"]`);
+  if(btn) btn.classList.add('active');
+  document.getElementById('panel-assets').scrollTo({top:0,behavior:'smooth'});
+}
+
+function showImpactSubpage(id){
+  document.querySelectorAll('#panel-impact .subpage').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#impactSubnav .forces-subnav-btn').forEach(b=>b.classList.remove('active'));
+  const page=document.getElementById('impact-page-'+id);
+  if(page) page.classList.add('active');
+  const btn=document.querySelector(`#impactSubnav .forces-subnav-btn[onclick*="'${id}'"]`);
+  if(btn) btn.classList.add('active');
+  document.getElementById('panel-impact').scrollTo({top:0,behavior:'smooth'});
 }
 
 // ===== FORCES & ORDER OF BATTLE =====
@@ -2496,15 +2553,30 @@ function renderForcesPanel(){
     ]},
   ];
 
-  supportEl.innerHTML=support.map(f=>`
-    <div class="force-card ${f.cls}" style="opacity:.85">
-      <div class="force-card-header">
-        <span class="force-card-flag">${f.flag}</span>
-        <div><div class="force-card-name">${f.name}</div><div class="force-card-role">${f.role}</div></div>
+  supportEl.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1px;background:var(--border)">
+    ${support.map(f=>`
+      <div style="background:var(--surface);padding:20px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <span style="font-size:2rem">${f.flag}</span>
+          <div>
+            <div style="font-family:var(--mono);font-size:.85rem;font-weight:700;color:var(--text)">${f.name}</div>
+            <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);letter-spacing:.5px">${f.role}</div>
+          </div>
+        </div>
+        ${f.items.map(i=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span style="font-family:var(--mono);font-size:.65rem;color:var(--text2)">${i.label}</span>
+            <span style="font-family:var(--mono);font-size:.65rem;font-weight:600;color:var(--text);text-align:right">${i.val}</span>
+          </div>
+        `).join('')}
       </div>
-      ${f.items.map(i=>`<div class="force-item"><span class="force-item-label">${i.label}</span><span class="force-item-val">${i.val}</span></div>`).join('')}
+    `).join('')}
     </div>
-  `).join('');
+    <div style="padding:12px 20px;font-family:var(--mono);font-size:.5rem;color:var(--text3);background:var(--surface);border-top:1px solid var(--border)">
+      ⚠️ DISCLAIMER: These nations are providing support & logistics only. None are conducting offensive military operations against Iran.
+    </div>
+  `;
 
   // Proxy & Non-State Actors
   const proxyEl=document.getElementById('proxyForces');
@@ -2539,15 +2611,30 @@ function renderForcesPanel(){
     ]},
   ];
 
-  proxyEl.innerHTML=proxies.map(f=>`
-    <div class="force-card ${f.cls}">
-      <div class="force-card-header">
-        <span class="force-card-flag">${f.flag}</span>
-        <div><div class="force-card-name">${f.name}</div><div class="force-card-role">${f.role}</div></div>
-      </div>
-      ${f.items.map(i=>`<div class="force-item"><span class="force-item-label">${i.label}</span><span class="force-item-val">${i.val}</span></div>`).join('')}
+  proxyEl.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1px;background:var(--border)">
+    ${proxies.map(f=>{
+      const threatColor=f.name==='Hezbollah'?'var(--red)':f.name==='Houthis (Ansar Allah)'?'var(--orange)':'var(--orange)';
+      return `
+      <div style="background:var(--surface);padding:20px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <span style="font-size:2rem">${f.flag}</span>
+          <div>
+            <div style="font-family:var(--mono);font-size:.85rem;font-weight:700;color:var(--text)">${f.name}</div>
+            <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);letter-spacing:.5px">${f.role}</div>
+          </div>
+        </div>
+        <div style="display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:.55rem;padding:3px 8px;border-radius:3px;background:${threatColor==='var(--red)'?'var(--red-dim)':'var(--orange-dim)'};color:${threatColor};margin-bottom:12px">⚠️ ${f.items.find(i=>i.label==='📊 Status')?.val||'Active'}</div>
+        ${f.items.filter(i=>i.label!=='📊 Status').map(i=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span style="font-family:var(--mono);font-size:.65rem;color:var(--text2)">${i.label}</span>
+            <span style="font-family:var(--mono);font-size:.65rem;font-weight:600;color:var(--text);text-align:right">${i.val}</span>
+          </div>
+        `).join('')}
+      </div>`;
+    }).join('')}
     </div>
-  `).join('');
+  `;
 
   // Weapons Systems
   const weaponsEl=document.getElementById('weaponsSystems');
@@ -2592,15 +2679,29 @@ function renderForcesPanel(){
     ]},
   ];
 
-  weaponsEl.innerHTML=weapons.map(f=>`
-    <div class="force-card ${f.cls}">
-      <div class="force-card-header">
-        <span class="force-card-flag">${f.flag}</span>
-        <div><div class="force-card-name">${f.name}</div><div class="force-card-role">${f.role}</div></div>
-      </div>
-      ${f.items.map(i=>`<div class="force-item"><span class="force-item-label">${i.label}</span><span class="force-item-val">${i.val}</span></div>`).join('')}
+  weaponsEl.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1px;background:var(--border)">
+    ${weapons.map(f=>{
+      const sideColor=f.cls==='iran'?'var(--iran)':'var(--blue)';
+      return `
+      <div style="background:var(--surface);padding:20px;border-top:3px solid ${sideColor}">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <span style="font-size:1.6rem">${f.flag}</span>
+          <div>
+            <div style="font-family:var(--mono);font-size:.85rem;font-weight:700;color:var(--text)">${f.name}</div>
+            <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);letter-spacing:.5px">${f.role}</div>
+          </div>
+        </div>
+        ${f.items.map(i=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
+            <span style="font-family:var(--mono);font-size:.6rem;color:var(--text2)">${i.label}</span>
+            <span style="font-family:var(--mono);font-size:.6rem;font-weight:600;color:var(--text);text-align:right">${i.val}</span>
+          </div>
+        `).join('')}
+      </div>`;
+    }).join('')}
     </div>
-  `).join('');
+  `;
 
   // Military Base Status
   const baseEl=document.getElementById('baseStatus');
@@ -2637,15 +2738,45 @@ function renderForcesPanel(){
     ]},
   ];
 
-  baseEl.innerHTML=bases.map(f=>`
-    <div class="force-card ${f.cls}">
-      <div class="force-card-header">
-        <span class="force-card-flag">${f.flag}</span>
-        <div><div class="force-card-name">${f.name}</div><div class="force-card-role">${f.role}</div></div>
-      </div>
-      ${f.items.map(i=>`<div class="force-item"><span class="force-item-label">${i.label}</span><span class="force-item-val">${i.val}</span></div>`).join('')}
+  // Summary counts
+  const baseCounts={destroyed:0,damaged:0,operational:0};
+  bases.forEach(b=>{
+    const statusText=b.items.find(i=>i.label==='Status')?.val||'';
+    if(statusText.includes('Severely')||statusText.includes('destroyed')) baseCounts.destroyed++;
+    else if(statusText.includes('damaged')||statusText.includes('Struck')) baseCounts.damaged++;
+    else baseCounts.operational++;
+  });
+
+  baseEl.innerHTML=`
+    <div class="fleet-summary" style="display:flex;gap:16px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border)">
+      <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--red)"></div>SEVERELY DAMAGED: ${baseCounts.destroyed}</div>
+      <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--orange)"></div>DAMAGED: ${baseCounts.damaged}</div>
+      <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--green)"></div>OPERATIONAL: ${baseCounts.operational}</div>
+      <div class="fleet-summary-item" style="margin-left:auto;color:var(--text3)">TOTAL BASES: ${bases.length}</div>
     </div>
-  `).join('');
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1px;background:var(--border)">
+    ${bases.map(f=>{
+      const statusText=f.items.find(i=>i.label==='Status')?.val||'';
+      const borderColor=statusText.includes('Severely')||statusText.includes('destroyed')?'var(--red)':statusText.includes('Operational')?'var(--green)':'var(--orange)';
+      return `
+      <div style="background:var(--surface);padding:18px;border-left:3px solid ${borderColor}">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <span style="font-size:1.4rem">${f.flag}</span>
+          <div>
+            <div style="font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--text)">${f.name}</div>
+            <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);letter-spacing:.5px">${f.role}</div>
+          </div>
+        </div>
+        ${f.items.map(i=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
+            <span style="font-family:var(--mono);font-size:.65rem;color:var(--text2)">${i.label}</span>
+            <span style="font-family:var(--mono);font-size:.65rem;font-weight:600;color:var(--text);text-align:right">${i.val}</span>
+          </div>
+        `).join('')}
+      </div>`;
+    }).join('')}
+    </div>
+  `;
 
   // Nuclear Facilities
   const nukeEl=document.getElementById('nukeStatus');
@@ -2658,14 +2789,32 @@ function renderForcesPanel(){
     {name:'Parchin Military Complex',location:'Tehran Province — Weapons research',status:'destroyed',statusLabel:'DESTROYED',detail:'Multiple strikes confirmed. Suspected weaponization research facilities. Entire complex non-functional.'},
   ];
 
-  nukeEl.innerHTML=nukes.map(n=>`
-    <div class="nuke-card">
-      <div class="nuke-name">☢ ${n.name}</div>
-      <div class="nuke-location">${n.location}</div>
-      <div class="nuke-status ${n.status}">${n.statusLabel}</div>
-      <div class="nuke-detail">${n.detail}</div>
+  // Summary
+  const nukeCounts={destroyed:0,damaged:0,operational:0};
+  nukes.forEach(n=>{nukeCounts[n.status]=(nukeCounts[n.status]||0)+1});
+
+  nukeEl.innerHTML=`
+    <div class="fleet-summary" style="display:flex;gap:16px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);margin-bottom:0">
+      <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--red)"></div>DESTROYED: ${nukeCounts.destroyed||0}</div>
+      <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--orange)"></div>DAMAGED/STRUCK: ${nukeCounts.damaged||0}</div>
+      <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--green)"></div>NOT TARGETED: ${nukeCounts.operational||0}</div>
+      <div class="fleet-summary-item" style="margin-left:auto;color:var(--text3)">TOTAL: ${nukes.length} FACILITIES</div>
     </div>
-  `).join('');
+  `+nukes.map(n=>{
+    const borderColor=n.status==='destroyed'?'var(--red)':n.status==='damaged'?'var(--orange)':'var(--green)';
+    const bgColor=n.status==='destroyed'?'var(--red-dim)':n.status==='damaged'?'var(--orange-dim)':'var(--green-dim)';
+    return `
+    <div style="background:var(--surface);padding:18px 20px;border-bottom:1px solid var(--border);border-left:3px solid ${borderColor}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div>
+          <div style="font-family:var(--mono);font-size:.85rem;font-weight:700;color:var(--text)">☢ ${n.name}</div>
+          <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);margin-top:2px">${n.location}</div>
+        </div>
+        <span style="display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:.6rem;padding:3px 10px;border-radius:3px;background:${bgColor};color:${borderColor};font-weight:600">${n.statusLabel}</span>
+      </div>
+      <div style="font-size:.65rem;color:var(--text2);line-height:1.5">${n.detail}</div>
+    </div>`;
+  }).join('');
 
   // Casualty Estimates
   const casualtyEl=document.getElementById('casualtyStats');
@@ -2684,13 +2833,41 @@ function renderForcesPanel(){
     {val:'45+',label:'Journalist Casualties',color:'var(--text2)',sub:'Killed or missing'},
   ];
 
-  casualtyEl.innerHTML=casualties.map(c=>`
-    <div class="casualty-card">
-      <div class="casualty-val" style="color:${c.color}">${c.val}</div>
-      <div class="casualty-label">${c.label}</div>
-      <div class="casualty-sub">${c.sub}</div>
+  // Split casualties into Iran vs Coalition vs Humanitarian
+  const iranCas=casualties.filter(c=>c.label.includes('Iranian')||c.label.includes('Hezbollah')||c.label.includes('Houthi'));
+  const coalCas=casualties.filter(c=>c.label.includes('Coalition')||c.label.includes('Israeli Civilian'));
+  const humanCas=casualties.filter(c=>!iranCas.includes(c)&&!coalCas.includes(c));
+
+  const renderCasCards=(arr)=>arr.map(c=>`
+    <div style="background:var(--surface);padding:16px;text-align:center">
+      <div style="font-family:var(--mono);font-size:1.6rem;font-weight:700;line-height:1;margin-bottom:4px;color:${c.color}">${c.val}</div>
+      <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px">${c.label}</div>
+      <div style="font-size:.55rem;color:var(--text3);margin-top:2px">${c.sub}</div>
     </div>
   `).join('');
+
+  casualtyEl.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)">
+      <div style="background:var(--surface);padding:14px 16px;border-bottom:3px solid var(--iran)">
+        <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text);margin-bottom:12px">🇮🇷 IRAN & PROXY CASUALTIES</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1px;background:var(--border)">
+          ${renderCasCards(iranCas)}
+        </div>
+      </div>
+      <div style="background:var(--surface);padding:14px 16px;border-bottom:3px solid var(--blue)">
+        <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text);margin-bottom:12px">🇺🇸 🇮🇱 COALITION CASUALTIES</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1px;background:var(--border)">
+          ${renderCasCards(coalCas)}
+        </div>
+      </div>
+    </div>
+    <div style="background:var(--surface);border-top:1px solid var(--border);padding:14px 16px">
+      <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text);margin-bottom:12px">🌍 HUMANITARIAN IMPACT</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1px;background:var(--border)">
+        ${renderCasCards(humanCas)}
+      </div>
+    </div>
+  `;
 }
 
 // ===== IMPACT / STATISTICS DASHBOARD =====
@@ -2765,12 +2942,12 @@ function renderImpactDashboard(){
   ];
 
   const timelineEl=document.getElementById('impactTimeline');
-  timelineEl.innerHTML=events.map(e=>`
-    <div class="impact-timeline-item">
-      <div class="impact-timeline-date">${e.date}</div>
-      <div class="impact-timeline-text">${e.text}</div>
+  timelineEl.innerHTML=`<div style="padding:16px 20px">${events.map(e=>`
+    <div style="display:flex;gap:16px;padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--orange);min-width:60px;white-space:nowrap">${e.date}</div>
+      <div style="font-family:var(--mono);font-size:.65rem;color:var(--text);line-height:1.5">${e.text}</div>
     </div>
-  `).join('');
+  `).join('')}</div>`;
 
   // Cyber operations
   const cyberOps=[
@@ -2785,15 +2962,46 @@ function renderImpactDashboard(){
   ];
   const cyberEl=document.getElementById('cyberOps');
   if(cyberEl){
-    cyberEl.innerHTML=cyberOps.map(c=>`
-      <div class="impact-timeline-item">
-        <div class="impact-timeline-date">${c.date}</div>
-        <div class="impact-timeline-text">
-          <strong>${c.actor}</strong> → <span style="color:var(--orange)">${c.target}</span><br>
-          <span style="color:var(--text2)">${c.detail}</span>
+    cyberEl.innerHTML=`<div style="padding:16px 20px">${cyberOps.map(c=>`
+      <div style="display:flex;gap:16px;padding:14px 0;border-bottom:1px solid var(--border)">
+        <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--orange);min-width:60px;white-space:nowrap">${c.date}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text)">${c.actor}</span>
+            <span style="font-family:var(--mono);font-size:.55rem;color:var(--text3)">→</span>
+            <span style="font-family:var(--mono);font-size:.7rem;font-weight:600;color:var(--orange)">${c.target}</span>
+          </div>
+          <div style="font-family:var(--mono);font-size:.6rem;color:var(--text2);line-height:1.5">${c.detail}</div>
         </div>
       </div>
-    `).join('');
+    `).join('')}</div>`;
+  }
+
+  // Infrastructure Detail page (expanded view)
+  const infraDetailEl=document.getElementById('impactInfraDetail');
+  if(infraDetailEl){
+    infraDetailEl.innerHTML=`
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--border)">
+      ${bars.map(b=>{
+        const barColor=b.pct<=20?'var(--red)':b.pct<=40?'var(--orange)':b.pct<=60?'var(--orange)':'var(--green)';
+        const statusText=b.pct<=15?'CRITICAL':b.pct<=30?'SEVERE':b.pct<=50?'DEGRADED':'IMPAIRED';
+        return `
+        <div style="background:var(--surface);padding:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--text)">${b.label}</div>
+            <span style="font-family:var(--mono);font-size:.55rem;padding:2px 8px;border-radius:3px;background:${b.pct<=30?'var(--red-dim)':'var(--orange-dim)'};color:${barColor};font-weight:600">${statusText}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <div style="flex:1;height:8px;background:var(--surface3);border-radius:4px;overflow:hidden">
+              <div style="height:100%;width:${b.pct}%;background:${barColor};border-radius:4px;transition:width .5s"></div>
+            </div>
+            <span style="font-family:var(--mono);font-size:.8rem;font-weight:700;color:${barColor}">${b.pct}%</span>
+          </div>
+          <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3)">Estimated operational capacity remaining</div>
+        </div>`;
+      }).join('')}
+      </div>
+    `;
   }
 }
 
@@ -3042,7 +3250,7 @@ function toggleTickerDetail(type){
     hormuz:{
       title:'⚓ STRAIT OF HORMUZ — STATUS DETAIL',
       html:`
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:12px">
           <div>
             <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">📊 SCORING DATA</div>
             <div class="carrier-card-item"><span class="carrier-card-label">Traffic Open Signals</span><span class="carrier-card-val">${s.hormuzOpen||0} pts</span></div>
@@ -3051,9 +3259,19 @@ function toggleTickerDetail(type){
             <div class="carrier-card-item"><span class="carrier-card-label">Current Status</span><span class="carrier-card-val" style="color:var(--orange)">${lastScoringResult.hormuz||'CLOSED'}</span></div>
           </div>
           <div>
+            <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">📐 STATUS LEVELS</div>
+            <div style="font-family:var(--mono);font-size:.6rem;color:var(--text2);line-height:1.8">
+              <span style="color:var(--green)">■</span> OPEN — Normal traffic flow<br>
+              <span style="color:var(--blue)">■</span> RESTRICTED — Limited convoy transit<br>
+              <span style="color:var(--orange)">■</span> MINIMAL TRAFFIC — Sporadic w/ escort<br>
+              <span style="color:var(--orange)">■</span> NEAR CLOSED — Rare transits, high risk<br>
+              <span style="color:var(--red)">■</span> CLOSED — No commercial traffic
+            </div>
+          </div>
+          <div>
             <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">ℹ️ CONTEXT</div>
             <div style="font-family:var(--mono);font-size:.6rem;color:var(--text2);line-height:1.6">
-              The Strait of Hormuz handles ~21% of global oil transit. Iran closed the strait on Feb 28. Status is calculated from news mentions of shipping activity, naval escorts, blockade reports, and transit signals. Some military convoys with naval escort have transited sporadically.
+              The Strait of Hormuz handles ~21% of global oil transit (~17M bbl/day). Iran closed the strait on Feb 28. Status is auto-calculated from news mentions of shipping activity, naval escorts, blockade reports, and transit signals.
             </div>
           </div>
         </div>
@@ -3188,7 +3406,7 @@ function renderFleetTracker(){
       killedBy:'ATACMS / HIMARS',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Fateh_submarine_2.jpg/300px-Fateh_submarine_2.jpg'},
     {name:'IRIS Tariq (901)',class:'Kilo-class SSK (Russian-built)',type:'Submarine',status:'destroyed',location:'Bandar Abbas',date:'Mar 1',
       detail:'Sunk in opening strikes. Hull confirmed destroyed via satellite imagery. One of 3 Russian-built Kilo-class boats.',
-      killedBy:'Tomahawk TLAM'},
+      killedBy:'Tomahawk TLAM',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Kilo_class_submarine.JPG/300px-Kilo_class_submarine.JPG'},
     {name:'IRIS Noor (902)',class:'Kilo-class SSK',type:'Submarine',status:'destroyed',location:'Bandar Abbas',date:'Mar 1',
       detail:'Destroyed alongside Tariq in Bandar Abbas port strikes. Satellite imagery confirms both Kilos sunk at berth.',
       killedBy:'Tomahawk TLAM'},
@@ -3205,7 +3423,7 @@ function renderFleetTracker(){
       killedBy:'Mk 48 torpedo / USS Charlotte',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/IRIS_Dena.jpg/300px-IRIS_Dena.jpg'},
     {name:'IRIS Jamaran (76)',class:'Moudge-class Frigate',type:'Frigate',status:'destroyed',location:'Bandar Abbas',date:'Mar 1',
       detail:'Destroyed in opening strikes at Bandar Abbas. First Iranian-built frigate. Confirmed sunk at berth.',
-      killedBy:'Harpoon / Tomahawk'},
+      killedBy:'Harpoon / Tomahawk',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Jamaran_in_Caspian_sea.jpg/300px-Jamaran_in_Caspian_sea.jpg'},
     {name:'IRIS Damavand (77)',class:'Moudge-class Frigate',type:'Frigate',status:'destroyed',location:'Bandar Abbas',date:'Mar 1',
       detail:'Destroyed alongside Jamaran in port strikes. Capsized at dock.',
       killedBy:'Tomahawk TLAM'},
@@ -3230,21 +3448,21 @@ function renderFleetTracker(){
     // Drone carrier & other IRGCN
     {name:'IRIS Shahid Bagheri',class:'IRGCN Drone/Helicopter Carrier',type:'Drone Carrier',status:'destroyed',location:'Bandar Abbas',date:'Mar 1',
       detail:'180m flight deck with ski-jump. Iran\'s largest military vessel. Sunk in opening hours of Operation Epic Fury.',
-      killedBy:'Multiple Tomahawk / Harpoon strikes'},
+      killedBy:'Multiple Tomahawk / Harpoon strikes',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Shahid_Bagheri_warship.webp/300px-Shahid_Bagheri_warship.webp.png'},
     {name:'IRIS Makran (441)',class:'Makran-class Forward Base Ship',type:'Support Ship',status:'destroyed',location:'Jask area',date:'Mar 1',
       detail:'Former tanker converted to floating forward base. Reported burning and sinking in early strikes. Confirmed lost.',
-      killedBy:'Harpoon ASCM'},
+      killedBy:'Harpoon ASCM',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/IRIS_Makran_%28441%29.jpg/300px-IRIS_Makran_%28441%29.jpg'},
 
     // Bayandor-class corvettes
     {name:'IRIS Bayandor (81)',class:'Bayandor-class Corvette',type:'Corvette',status:'destroyed',location:'Bushehr',date:'Mar 1',
-      detail:'Vosper Mk 5 corvette. Destroyed by airstrike at Bushehr naval pier.',killedBy:'Precision airstrike'},
+      detail:'Vosper Mk 5 corvette. Destroyed by airstrike at Bushehr naval pier.',killedBy:'Precision airstrike',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/IRS_Bayandor_81.jpg/300px-IRS_Bayandor_81.jpg'},
     {name:'IRIS Naghdi (82)',class:'Bayandor-class Corvette',type:'Corvette',status:'destroyed',location:'Bushehr',date:'Mar 1',
       detail:'Destroyed alongside Bayandor at Bushehr. Both corvettes eliminated.',killedBy:'Precision airstrike'},
 
     // Support ships
     {name:'IRIS Kharg (431)',class:'Kharg-class Replenishment',type:'Support Ship',status:'destroyed',location:'Bandar Abbas',date:'Mar 1',
       detail:'Fleet replenishment oiler. Iran\'s only major underway replenishment ship. Destroyed in port. Navy logistics capability eliminated.',
-      killedBy:'Tomahawk TLAM'},
+      killedBy:'Tomahawk TLAM',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/IRIS_Kharg_%28431%29_in_the_Gulf_of_Aden.jpg/300px-IRIS_Kharg_%28431%29_in_the_Gulf_of_Aden.jpg'},
 
     // IRGCN Fast Attack fleet
     {name:'IRGCN Fast Attack Fleet',class:'~1,500 boats (Peykaap, Zolfaqar, Seraj, etc.)',type:'Fast Attack Swarm',status:'damaged',location:'Dispersed — coastal',date:'Ongoing',
@@ -3272,10 +3490,11 @@ function renderFleetTracker(){
   const gridEl=document.getElementById('fleetTracker');
   gridEl.innerHTML=vessels.map(v=>{
     const icon=SHIP_ICONS[v.type]||'🔹';
-    const imgHtml=v.img?`<img src="${v.img}" alt="${v.name}" style="width:100%;height:80px;object-fit:cover;border-radius:3px;margin-top:8px;border:1px solid var(--border);opacity:.85" loading="lazy" onerror="this.style.display='none'">`:'';
-    const killedByHtml=v.killedBy?`<span style="color:var(--red)">⚔ ${v.killedBy}</span>`:'';
+    const imgHtml=v.img?`<img src="${v.img}" alt="${v.name}" style="width:100%;height:120px;object-fit:cover;border-radius:3px;margin-top:8px;border:1px solid var(--border);opacity:${v.status==='destroyed'?'.6':'0.85'};${v.status==='destroyed'?'filter:grayscale(50%)':''}" loading="lazy" onerror="this.style.display='none'">`:'';
+    const killedByHtml=v.killedBy?`<span style="color:var(--red);font-weight:600">⚔ ${v.killedBy}</span>`:'';
+    const borderColor=v.status==='destroyed'?'var(--red)':v.status==='damaged'?'var(--orange)':v.status==='operational'?'var(--green)':'var(--text3)';
     return `
-    <div class="fleet-card">
+    <div class="fleet-card" style="border-left:3px solid ${borderColor}">
       <div class="fleet-card-header">
         <div style="display:flex;align-items:center">
           <span class="ship-type-icon">${icon}</span>
