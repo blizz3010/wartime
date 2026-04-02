@@ -3031,31 +3031,50 @@ function computeDashboardScores(newsItems){
   let escalationScore=0,deescalationScore=0,hormuzOpenScore=0,hormuzClosedScore=0,militaryScore=0;
   let hormuzMentions=0,hormuzTrafficMentions=0;
 
-  // Only score recent news (last 48h)
-  const cutoff=Date.now()-48*60*60*1000;
-  const recent=newsItems.filter(n=>new Date(n.pubDate)>cutoff);
-  const items=recent.length>0?recent:newsItems.slice(0,30);
+  const now=Date.now();
+
+  // Time decay — recent articles carry more weight
+  function timeDecay(pubDate){
+    const age=now-new Date(pubDate).getTime();
+    const hours=age/(1000*60*60);
+    if(hours<=6) return 1.0;     // Last 6 hours: full weight
+    if(hours<=24) return 0.8;    // Same day: 80%
+    if(hours<=48) return 0.5;    // Yesterday: 50%
+    if(hours<=72) return 0.3;    // 2-3 days: 30%
+    return 0.15;                  // 3+ days: 15%
+  }
+
+  // Score all items (use top 50 if no dates available)
+  const items=newsItems.slice(0,80);
 
   items.forEach(item=>{
     const text=((item.title||'')+' '+(item.description||'')).toLowerCase();
+    const decay=item.pubDate?timeDecay(item.pubDate):0.5;
 
     for(const[kw,score] of Object.entries(SCORING_WEIGHTS.escalation)){
-      if(text.includes(kw)) escalationScore+=score;
+      if(text.includes(kw)) escalationScore+=score*decay;
     }
     for(const[kw,score] of Object.entries(SCORING_WEIGHTS.deescalation)){
-      if(text.includes(kw)) deescalationScore+=score;
+      if(text.includes(kw)) deescalationScore+=score*decay;
     }
     for(const[kw,score] of Object.entries(SCORING_WEIGHTS.hormuzTraffic)){
-      if(text.includes(kw)){hormuzOpenScore+=score;if(score>0)hormuzTrafficMentions++;}
+      if(text.includes(kw)){hormuzOpenScore+=score*decay;if(score>0)hormuzTrafficMentions++;}
     }
     for(const[kw,score] of Object.entries(SCORING_WEIGHTS.hormuzClosed)){
-      if(text.includes(kw)) hormuzClosedScore+=score;
+      if(text.includes(kw)) hormuzClosedScore+=score*decay;
     }
     for(const[kw,score] of Object.entries(SCORING_WEIGHTS.military)){
-      if(text.includes(kw)) militaryScore+=score;
+      if(text.includes(kw)) militaryScore+=score*decay;
     }
     if(text.includes('hormuz')||text.includes('strait')) hormuzMentions++;
   });
+
+  // Round scores for cleaner display
+  escalationScore=Math.round(escalationScore);
+  deescalationScore=Math.round(deescalationScore);
+  hormuzOpenScore=Math.round(hormuzOpenScore);
+  hormuzClosedScore=Math.round(hormuzClosedScore);
+  militaryScore=Math.round(militaryScore);
 
   // --- THREAT LEVEL ---
   // Military contributes less (it's always high during a war); escalation keywords are the real signal
