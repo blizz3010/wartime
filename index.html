@@ -3000,22 +3000,26 @@ const SCORING_WEIGHTS={
     'limited transit':15,'naval escort':15,'merchant vessel':10,'commercial shipping':10,
   },
   hormuzClosed:{
-    'hormuz closed':30,'blockade hormuz':25,'strait blocked':25,'mines hormuz':20,
-    'shipping halt':20,'no transit':15,'strait shut':20,'naval mine':15,
-    'hormuz block':25,'tanker seized':15,'vessel seized':15,'embargo':10,
-    'blockade':10,'hormuz':5,'strait of hormuz':8,'oil transit':5,
-    'persian gulf':3,'shipping disruption':15,'maritime threat':10,
+    // Direct closure signals
+    'hormuz closed':25,'blockade hormuz':20,'strait blocked':20,'mines hormuz':18,
+    'shipping halt':15,'no transit':12,'strait shut':18,'naval mine':12,
+    'hormuz block':20,'tanker seized':12,'vessel seized':12,'embargo':8,
+    // Contextual — only small weight since they appear in many articles
+    'blockade':5,'strait of hormuz':4,'shipping disruption':10,'maritime threat':8,
+    'oil transit':3,
   },
   military:{
-    'carrier deploy':10,'strike group':10,'b-2':8,'stealth bomber':8,
-    'tomahawk':8,'cruise missile':10,'ballistic missile':12,'icbm':20,
-    'aircraft carrier':8,'submarine':8,'special forces':8,
-    'airstrike':10,'bombing':10,'sortie':6,'interception':8,
-    'shot down':10,'drone strike':8,'missile launch':12,'air defense':6,
-    'military':4,'strike':6,'attack':5,'war ':5,'conflict':4,
-    'irgc':6,'pentagon':5,'centcom':6,'navy':4,'troops':4,
-    'missile':6,'drone':4,'fighter jet':6,'airspace':4,
-    'carrier':5,'deploy':4,'combat':5,'operation':4,
+    // Specific high-value signals
+    'carrier deploy':8,'strike group':8,'b-2':6,'stealth bomber':6,
+    'tomahawk':6,'cruise missile':8,'ballistic missile':10,'icbm':15,
+    'aircraft carrier':6,'submarine':6,'special forces':6,
+    'airstrike':6,'bombing':6,'sortie':4,'interception':6,
+    'shot down':8,'drone strike':6,'missile launch':8,'air defense':4,
+    // Common terms — low weight (appear in most articles during conflict)
+    'military':1,'strike':2,'attack':2,'conflict':1,
+    'irgc':3,'pentagon':2,'centcom':3,'navy':2,'troops':2,
+    'missile':3,'drone':2,'fighter jet':4,'airspace':2,
+    'carrier':2,'deploy':2,'combat':2,'operation':1,
   },
 };
 
@@ -3054,34 +3058,38 @@ function computeDashboardScores(newsItems){
   });
 
   // --- THREAT LEVEL ---
-  const netEscalation=escalationScore-deescalationScore+militaryScore*0.5;
+  // Military contributes less (it's always high during a war); escalation keywords are the real signal
+  const netEscalation=escalationScore-deescalationScore+militaryScore*0.15;
   let threat,threatClass,threatSub;
-  if(netEscalation>=150){threat='MAXIMUM';threatClass='red tick-critical';threatSub='ACTIVE ESCALATION DETECTED';}
-  else if(netEscalation>=80){threat='CRITICAL';threatClass='red tick-critical';threatSub='HIGH ESCALATION SIGNALS';}
-  else if(netEscalation>=40){threat='SEVERE';threatClass='red';threatSub='ELEVATED CONFLICT ACTIVITY';}
-  else if(netEscalation>=15){threat='HIGH';threatClass='orange';threatSub='SIGNIFICANT MILITARY OPS';}
+  if(netEscalation>=200){threat='MAXIMUM';threatClass='red tick-critical';threatSub='ACTIVE NUCLEAR/WMD ESCALATION';}
+  else if(netEscalation>=60){threat='CRITICAL';threatClass='red tick-critical';threatSub='HIGH ESCALATION SIGNALS';}
+  else if(netEscalation>=30){threat='SEVERE';threatClass='red';threatSub='ELEVATED CONFLICT ACTIVITY';}
+  else if(netEscalation>=10){threat='HIGH';threatClass='orange';threatSub='SIGNIFICANT MILITARY OPS';}
   else if(netEscalation>=0){threat='ELEVATED';threatClass='orange';threatSub='ONGOING TENSIONS';}
   else{threat='GUARDED';threatClass='green';threatSub='DE-ESCALATION SIGNALS';}
 
   // --- DEFCON ---
-  const defconScore=escalationScore+militaryScore-deescalationScore*0.8;
+  // Separate calculation — only jumps to 1 on nuclear/WMD signals, not routine military activity
+  const defconScore=escalationScore-deescalationScore*0.5+militaryScore*0.1;
   let defcon,defconSub;
-  if(defconScore>=200){defcon=1;defconSub='MAXIMUM READINESS';}
-  else if(defconScore>=100){defcon=2;defconSub='ARMED FORCES READY';}
-  else if(defconScore>=50){defcon=3;defconSub='INCREASE READINESS';}
-  else if(defconScore>=20){defcon=4;defconSub='ABOVE NORMAL READINESS';}
+  if(defconScore>=180){defcon=1;defconSub='MAXIMUM READINESS';}
+  else if(defconScore>=40){defcon=2;defconSub='ARMED FORCES READY';}
+  else if(defconScore>=20){defcon=3;defconSub='INCREASE READINESS';}
+  else if(defconScore>=8){defcon=4;defconSub='ABOVE NORMAL READINESS';}
   else{defcon=5;defconSub='NORMAL READINESS';}
 
   // --- STRAIT OF HORMUZ ---
+  // Separate from military scoring — only cares about shipping/transit keywords
+  // During an active conflict, default assumption is near-closed unless open signals appear
   const hormuzNet=hormuzOpenScore-hormuzClosedScore;
   let hormuzStatus,hormuzStatusClass,hormuzSub;
   if(hormuzNet>=60){
     hormuzStatus='OPEN';hormuzStatusClass='green';hormuzSub='NORMAL TRAFFIC FLOW';
   }else if(hormuzNet>=30){
     hormuzStatus='RESTRICTED';hormuzStatusClass='blue';hormuzSub='LIMITED CONVOY TRANSIT';
-  }else if(hormuzNet>=10||hormuzTrafficMentions>=3){
+  }else if(hormuzNet>=0&&hormuzTrafficMentions>=3){
     hormuzStatus='MINIMAL TRAFFIC';hormuzStatusClass='orange tick-pulse';hormuzSub='SPORADIC TRANSITS W/ ESCORT';
-  }else if(hormuzNet>=-10&&hormuzMentions>0){
+  }else if(hormuzNet>=-30||(hormuzMentions>0&&hormuzClosedScore<60)){
     hormuzStatus='NEAR CLOSED';hormuzStatusClass='orange tick-pulse';hormuzSub='RARE TRANSITS · HIGH RISK';
   }else{
     hormuzStatus='CLOSED';hormuzStatusClass='red tick-pulse';hormuzSub='NO COMMERCIAL TRAFFIC';
