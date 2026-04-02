@@ -380,6 +380,11 @@
   .carrier-card{
     flex:1;min-width:280px;padding:16px 20px;border-right:1px solid var(--border);
   }
+  .carrier-card-img{
+    width:100%;height:120px;object-fit:cover;border-radius:4px;margin-bottom:10px;
+    border:1px solid var(--border);opacity:.9;transition:opacity .3s;
+  }
+  .carrier-card-img:hover{opacity:1}
   .carrier-card-name{font-family:var(--mono);font-weight:700;font-size:.85rem;color:var(--blue);margin-bottom:2px}
   .carrier-card-hull{font-family:var(--mono);font-size:.6rem;color:var(--text3);margin-bottom:8px}
   .carrier-card-item{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.6rem}
@@ -2912,6 +2917,8 @@ const CARRIER_GROUPS=[
   {
     name:'USS Gerald R. Ford (CVN-78)',hull:'CVN-78 · Gerald R. Ford-class',
     status:'DEPLOYED — Persian Gulf',statusColor:'var(--blue)',
+    img:'https://upload.wikimedia.org/wikipedia/commons/b/b2/USS_Gerald_R._Ford_%28CVN-78%29_underway_on_8_April_2017.JPG',
+    link:'https://www.airlant.usff.navy.mil/cvn78/',
     items:[
       {label:'Air Wing',val:'CVW-8 (~75 aircraft)'},
       {label:'F/A-18E/F Super Hornets',val:'44 aircraft'},
@@ -2926,6 +2933,8 @@ const CARRIER_GROUPS=[
   {
     name:'USS Abraham Lincoln (CVN-72)',hull:'CVN-72 · Nimitz-class',
     status:'DEPLOYED — Gulf of Oman',statusColor:'var(--blue)',
+    img:'https://upload.wikimedia.org/wikipedia/commons/d/db/USS_Abraham_Lincoln_%28CVN-72%29_underway_in_the_Atlantic_Ocean_on_30_January_2019_%28190130-N-PW716-1312%29.JPG',
+    link:'https://www.airlant.usff.navy.mil/cvn72/',
     items:[
       {label:'Air Wing',val:'CVW-9 (~70 aircraft)'},
       {label:'F/A-18E/F Super Hornets',val:'44 aircraft'},
@@ -2939,6 +2948,8 @@ const CARRIER_GROUPS=[
   {
     name:'USS Theodore Roosevelt (CVN-71)',hull:'CVN-71 · Nimitz-class',
     status:'DEPLOYED — Eastern Mediterranean',statusColor:'var(--blue)',
+    img:'https://upload.wikimedia.org/wikipedia/commons/0/04/USS_Theodore_Roosevelt_%28CVN-71%29_underway_the_Pacific_Ocean_on_30_April_2017.JPG',
+    link:'https://www.surfor.usff.navy.mil/cvn71/',
     items:[
       {label:'Air Wing',val:'CVW-11 (~70 aircraft)'},
       {label:'F/A-18E/F Super Hornets',val:'44 aircraft'},
@@ -2967,8 +2978,9 @@ function renderCarrierPanel(){
   const inner=document.getElementById('carrierPanelInner');
   inner.innerHTML=CARRIER_GROUPS.map(csg=>`
     <div class="carrier-card">
+      <img src="${csg.img}" alt="${csg.name}" class="carrier-card-img" loading="lazy" onerror="this.style.display='none'">
       <div class="carrier-card-name">${csg.name}</div>
-      <div class="carrier-card-hull">${csg.hull}</div>
+      <div class="carrier-card-hull">${csg.hull}${csg.link?` · <a href="${csg.link}" target="_blank" style="color:var(--blue);font-size:.55rem">Navy.mil ↗</a>`:''}</div>
       ${csg.items.map(i=>`
         <div class="carrier-card-item">
           <span class="carrier-card-label">${i.label}</span>
