@@ -16,9 +16,22 @@ Real-time conflict intelligence dashboard monitoring US-Israel military operatio
 - **Video Clips** — Curated conflict video sources
 - **Live Streams** — 10 news channel live streams with server-side video ID discovery and PiP mini-player
 - **OSINT / Social** — Reddit OSINT feeds (r/OSINT, r/CombatFootage, r/worldnews, r/geopolitics, r/CredibleDefense) + ISW/CSIS analysis
-- **Forces Page** — Sub-page navigation with side-by-side Coalition vs Iran force comparison, support nations, proxy breakdown, weapons systems, and casualties (split Iran/Coalition/Humanitarian)
-- **Assets Page** — Sub-pages for Iranian Naval Fleet tracker (Operation Epic Fury with ship photos and kill attribution), military base status, infrastructure damage assessment, nuclear facility status
-- **Impact Dashboard** — Sub-pages for conflict statistics, infrastructure capacity breakdown, key events timeline, and cyber warfare operations log
+- **Forces Page** — Sub-page navigation:
+  - *Force Comparison* — Full-width side-by-side Coalition vs Iran grid (12 categories: personnel, aircraft, missiles, naval, drones, cyber, etc.)
+  - *Support Nations* — UK, Saudi Arabia, UAE, Bahrain with role breakdowns and disclaimer
+  - *Proxy Breakdown* — Hezbollah, Houthis, Iraqi PMF, Syrian Militias with status badges and stats
+  - *Weapons Systems* — US Air Power, US Missiles, Iranian Missiles, Israeli Systems with color-coded borders
+  - *Casualties* — Split into Iran & Proxy / Coalition / Humanitarian sections
+- **Assets Page** — Sub-page navigation (defaults to Naval Fleet):
+  - *Naval Fleet* — 21 Iranian vessels with status (destroyed/damaged/operational), ship photos from Wikimedia Commons, kill attribution (weapon + unit), grayscale filter on destroyed ships
+  - *Military Bases* — 6 Iranian bases with damage status, summary bar, color-coded borders
+  - *Infrastructure* — 20 targets across air bases, naval bases, missile sites, air defense, C2, oil/energy with damage percentage bars
+  - *Nuclear Facilities* — 6 facilities (Natanz, Fordow, Isfahan, Arak, Bushehr, Parchin) with strike status and IAEA context
+- **Impact Dashboard** — Sub-page navigation:
+  - *Overview* — 8 key conflict metrics + infrastructure capacity bars
+  - *Infrastructure* — Expanded card view with status badges per sector (Power Grid, Internet, Airports, etc.)
+  - *Timeline* — 20 key events from Feb 28 through Mar 22
+  - *Cyber Warfare* — 8 operations with actor, target, and detail (USCYBERCOM, Unit 8200, APT33, etc.)
 - **Breaking News Marquee** — Auto-detected from headlines
 - **Dark theme** with CRT scanline overlay and night vision mode
 
