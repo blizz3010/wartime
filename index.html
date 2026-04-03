@@ -418,7 +418,7 @@
   .fleet-summary-dot{width:8px;height:8px;border-radius:50%}
 
   /* INFRASTRUCTURE TARGET TRACKER */
-  .infra-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1px;background:var(--border)}
+  .infra-grid{display:grid;grid-template-columns:1fr;gap:1px;background:var(--border)}
   .infra-card{background:var(--surface);padding:14px 16px}
   .infra-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
   .infra-card-name{font-family:var(--mono);font-weight:700;font-size:.75rem;color:var(--text)}
@@ -792,6 +792,14 @@
   .nuke-status.unknown{background:var(--surface3);color:var(--text3)}
   .nuke-detail{font-size:.65rem;color:var(--text2);margin-top:4px;line-height:1.4}
 
+  /* Map modal overlay */
+  .map-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:none;align-items:center;justify-content:center;cursor:zoom-out;backdrop-filter:blur(4px)}
+  .map-modal-overlay.show{display:flex}
+  .map-modal-content{position:relative;width:90vw;max-width:800px;background:var(--bg);border:1px solid var(--border);border-radius:8px;overflow:hidden;cursor:default;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+  .map-modal-header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface)}
+  .map-modal-close{background:none;border:1px solid var(--border);color:var(--text2);padding:4px 10px;border-radius:4px;font-family:var(--mono);font-size:.65rem;cursor:pointer}
+  .map-modal-close:hover{background:var(--surface3);color:var(--text)}
+
   /* Links panel */
   .links-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:20px}
   .link-card{
@@ -1113,8 +1121,8 @@
 
   <!-- Nuclear Facilities -->
   <div class="subpage" id="assets-page-nukes">
-    <div class="force-section-head">☢ NUCLEAR FACILITY STATUS</div>
-    <div class="nuke-grid" id="nukeStatus"></div>
+    <div class="force-section-head">☢ IRAN'S NUCLEAR PROGRAM — STATUS & DAMAGE ASSESSMENT</div>
+    <div id="nukeStatus"></div>
   </div>
 
   <div style="padding:12px 20px;font-family:var(--mono);font-size:.55rem;color:var(--text3);border-top:1px solid var(--border)">
@@ -2553,25 +2561,31 @@ function renderForcesPanel(){
   const latToY=lat=>((40-lat)/(40-25))*mapH;
   const iranBorder=`M${lonToX(44.05)},${latToY(39.4)} L${lonToX(44.8)},${latToY(39.65)} L${lonToX(45.5)},${latToY(38.9)} L${lonToX(46.2)},${latToY(38.85)} L${lonToX(47.5)},${latToY(39.15)} L${lonToX(48.4)},${latToY(38.6)} L${lonToX(48.9)},${latToY(38.45)} L${lonToX(49)},${latToY(37.5)} L${lonToX(50.4)},${latToY(37.3)} L${lonToX(51.0)},${latToY(36.8)} L${lonToX(53.9)},${latToY(37.0)} L${lonToX(54.8)},${latToY(37.3)} L${lonToX(55.5)},${latToY(37.2)} L${lonToX(57.2)},${latToY(37.6)} L${lonToX(59.3)},${latToY(37.5)} L${lonToX(60.6)},${latToY(36.6)} L${lonToX(61.2)},${latToY(36.6)} L${lonToX(61.15)},${latToY(35.3)} L${lonToX(61.3)},${latToY(34.2)} L${lonToX(60.5)},${latToY(33.7)} L${lonToX(60.6)},${latToY(32.9)} L${lonToX(60.8)},${latToY(31.5)} L${lonToX(61.7)},${latToY(31.4)} L${lonToX(61.8)},${latToY(30.8)} L${lonToX(60.9)},${latToY(29.9)} L${lonToX(61.6)},${latToY(28.8)} L${lonToX(62.8)},${latToY(27.2)} L${lonToX(63.2)},${latToY(27.2)} L${lonToX(63.3)},${latToY(26.6)} L${lonToX(62.5)},${latToY(26.4)} L${lonToX(61.9)},${latToY(25.8)} L${lonToX(61.4)},${latToY(25.2)} L${lonToX(59.5)},${latToY(25.4)} L${lonToX(57.8)},${latToY(25.65)} L${lonToX(57.0)},${latToY(25.9)} L${lonToX(56.4)},${latToY(26.2)} L${lonToX(56.1)},${latToY(26.1)} L${lonToX(55.4)},${latToY(25.8)} L${lonToX(54.8)},${latToY(25.6)} L${lonToX(53.7)},${latToY(26.7)} L${lonToX(51.6)},${latToY(27.1)} L${lonToX(50.8)},${latToY(27.0)} L${lonToX(50.0)},${latToY(27.6)} L${lonToX(49.5)},${latToY(27.7)} L${lonToX(49.1)},${latToY(28.4)} L${lonToX(48.8)},${latToY(29.3)} L${lonToX(48.6)},${latToY(29.9)} L${lonToX(48.0)},${latToY(30.5)} L${lonToX(48.0)},${latToY(31.0)} L${lonToX(47.7)},${latToY(31.0)} L${lonToX(47.8)},${latToY(31.8)} L${lonToX(47.0)},${latToY(32.3)} L${lonToX(46.0)},${latToY(32.8)} L${lonToX(46.1)},${latToY(33.2)} L${lonToX(45.4)},${latToY(33.9)} L${lonToX(45.4)},${latToY(34.6)} L${lonToX(45.1)},${latToY(35.5)} L${lonToX(46.0)},${latToY(35.7)} L${lonToX(46.0)},${latToY(36.4)} L${lonToX(45.2)},${latToY(36.8)} L${lonToX(44.8)},${latToY(37.2)} L${lonToX(44.2)},${latToY(37.3)} L${lonToX(44.6)},${latToY(38.0)} L${lonToX(44.0)},${latToY(39.4)} Z`;
 
-  function miniMapSvg(b){
+  function svgMapMarkup(b,height){
     const x=lonToX(b.coord.lon),y=latToY(b.coord.lat);
     const col=b.damage>=75?'var(--red)':b.damage>=30?'var(--orange)':'var(--green)';
-    return `<div style="overflow:hidden;border-radius:4px;margin-bottom:12px;border:1px solid var(--border);background:var(--bg)">
-      <svg viewBox="0 0 ${mapW} ${mapH}" style="width:100%;height:130px" xmlns="http://www.w3.org/2000/svg">
+    return `<svg viewBox="0 0 ${mapW} ${mapH}" style="width:100%;height:${height}" xmlns="http://www.w3.org/2000/svg">
         <path d="${iranBorder}" fill="rgba(139,148,158,0.06)" stroke="rgba(139,148,158,0.2)" stroke-width="1.5"/>
-        <text x="${lonToX(51)}" y="${latToY(26.5)}" fill="rgba(88,166,255,0.2)" font-size="10" font-family="var(--mono)" text-anchor="middle">PERSIAN GULF</text>
-        <circle cx="${x}" cy="${y}" r="12" fill="none" stroke="${col}" stroke-width="1" opacity="0.6">
-          <animate attributeName="r" from="8" to="24" dur="2s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" from="0.7" to="0" dur="2s" repeatCount="indefinite"/>
-        </circle>
-        <circle cx="${x}" cy="${y}" r="12" fill="none" stroke="${col}" stroke-width="0.5" opacity="0.4">
-          <animate attributeName="r" from="12" to="32" dur="2s" begin="0.5s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" from="0.5" to="0" dur="2s" begin="0.5s" repeatCount="indefinite"/>
-        </circle>
+        <text x="${lonToX(51)}" y="${latToY(26.5)}" fill="rgba(88,166,255,0.15)" font-size="10" font-family="var(--mono)" text-anchor="middle">PERSIAN GULF</text>
+        <text x="${lonToX(57.5)}" y="${latToY(25.0)}" fill="rgba(88,166,255,0.12)" font-size="8" font-family="var(--mono)" text-anchor="middle">Gulf of Oman</text>
+        <circle cx="${x}" cy="${y}" r="12" fill="none" stroke="${col}" stroke-width="1" opacity="0.6"><animate attributeName="r" from="8" to="24" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.7" to="0" dur="2s" repeatCount="indefinite"/></circle>
+        <circle cx="${x}" cy="${y}" r="12" fill="none" stroke="${col}" stroke-width="0.5" opacity="0.4"><animate attributeName="r" from="12" to="32" dur="2s" begin="0.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.5" to="0" dur="2s" begin="0.5s" repeatCount="indefinite"/></circle>
         <circle cx="${x}" cy="${y}" r="7" fill="${col}" stroke="var(--bg)" stroke-width="2" opacity="0.95"/>
         <text x="${x}" y="${y-14}" fill="var(--text)" font-size="8" font-family="var(--mono)" text-anchor="middle" font-weight="700">${b.name.split('(')[0].split('/')[0].trim()}</text>
-        <text x="${x}" y="${y+20}" fill="var(--text3)" font-size="6.5" font-family="var(--mono)" text-anchor="middle">${b.coord.lat.toFixed(2)}°N, ${b.coord.lon.toFixed(2)}°E</text>
-      </svg>
+        <text x="${x}" y="${y+22}" fill="var(--text3)" font-size="6.5" font-family="var(--mono)" text-anchor="middle">${b.coord.lat.toFixed(2)}°N, ${b.coord.lon.toFixed(2)}°E</text>
+      </svg>`;
+  }
+
+  function miniMapSvg(b){
+    const col=b.damage>=75?'var(--red)':b.damage>=30?'var(--orange)':'var(--green)';
+    const statusLabel=b.damage>=75?'SEVERELY DAMAGED':b.damage>=30?'DAMAGED':'OPERATIONAL';
+    const safeName=b.name.replace(/'/g,"\\'");
+    const modalSvg=svgMapMarkup(b,'400px').replace(/'/g,"\\'").replace(/\n/g,'');
+    return `<div onclick="openMapModal('${safeName}','${modalSvg}')" style="cursor:pointer;position:relative;overflow:hidden;border-radius:6px;margin-bottom:12px;border:1px solid var(--border);background:var(--bg);transition:border-color .2s" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
+      ${svgMapMarkup(b,'130px')}
+      <div style="position:absolute;top:6px;left:8px;padding:2px 8px;border-radius:3px;font-family:var(--mono);font-size:.45rem;font-weight:600;background:rgba(0,0,0,0.6);color:var(--text3);letter-spacing:.5px;backdrop-filter:blur(4px)">${b.type}</div>
+      <div style="position:absolute;top:6px;right:8px;padding:2px 8px;border-radius:3px;font-family:var(--mono);font-size:.45rem;font-weight:700;background:${col};color:#fff">${statusLabel}</div>
+      <div style="position:absolute;bottom:6px;right:8px;font-family:var(--mono);font-size:.4rem;color:var(--text3);opacity:0.7">CLICK TO ENLARGE</div>
     </div>`;
   }
 
@@ -2587,31 +2601,29 @@ function renderForcesPanel(){
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:1px;background:var(--border)">
     ${bases.map(b=>{
       const borderColor=b.damage>=75?'var(--red)':b.damage>=30?'var(--orange)':'var(--green)';
-      const statusLabel=b.damage>=75?'SEVERELY DAMAGED':b.damage>=30?'DAMAGED':'OPERATIONAL';
-      const statusClass=b.damage>=75?'destroyed':b.damage>=30?'damaged':'active';
-      const typeIcon=b.type==='AIR BASE'?'✈️':b.type==='NAVAL BASE'?'⚓':'🎯';
+      const typeIcon=b.type==='AIR BASE'?'✈️':b.type==='NAVAL BASE'?'⚓':b.type==='MISSILE BASE'?'🚀':'🛡';
       const dmgBarColor=b.damage>=75?'var(--red)':b.damage>=30?'var(--orange)':'var(--green)';
       return '<div style="background:var(--surface);padding:16px;border-left:3px solid '+borderColor+'">'+
         miniMapSvg(b)+
-        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
-          '<span style="font-size:1.2rem">'+typeIcon+'</span>'+
-          '<div style="flex:1">'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'+
+          '<div style="width:36px;height:36px;border-radius:6px;background:linear-gradient(135deg,'+borderColor+',transparent);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">'+typeIcon+'</div>'+
+          '<div style="flex:1;min-width:0">'+
             '<div style="font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--text)">'+b.name+'</div>'+
-            '<div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);letter-spacing:.5px">'+b.role+'</div>'+
+            '<div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);letter-spacing:.5px">'+b.role+'</div>'+
           '</div>'+
         '</div>'+
-        '<div style="margin:10px 0;background:var(--border);border-radius:3px;height:6px;overflow:hidden">'+
-          '<div style="width:'+b.damage+'%;height:100%;background:'+dmgBarColor+';border-radius:3px"></div>'+
+        '<div style="margin:10px 0;background:var(--border);border-radius:3px;height:8px;overflow:hidden;position:relative">'+
+          '<div style="width:'+b.damage+'%;height:100%;background:'+dmgBarColor+';border-radius:3px;transition:width .5s ease"></div>'+
         '</div>'+
         '<div style="display:flex;justify-content:space-between;margin-bottom:10px">'+
           '<span style="font-family:var(--mono);font-size:.55rem;color:var(--text3)">DAMAGE ASSESSMENT</span>'+
-          '<span style="font-family:var(--mono);font-size:.55rem;font-weight:700;color:'+dmgBarColor+'">'+b.damage+'%</span>'+
+          '<span style="font-family:var(--mono);font-size:.65rem;font-weight:700;color:'+dmgBarColor+'">'+b.damage+'%</span>'+
         '</div>'+
-        '<div style="font-family:var(--mono);font-size:.58rem;color:var(--text2);line-height:1.5;margin-bottom:10px">'+b.detail+'</div>'+
-        '<div style="border-top:1px solid var(--border);padding-top:8px">'+
-          b.stats.map(function(s){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border)">'+
-            '<span style="font-family:var(--mono);font-size:.6rem;color:var(--text3)">'+s.k+'</span>'+
-            '<span style="font-family:var(--mono);font-size:.6rem;font-weight:600;color:var(--text)">'+s.v+'</span>'+
+        '<div style="font-family:var(--mono);font-size:.58rem;color:var(--text2);line-height:1.6;margin-bottom:12px;padding:10px;background:var(--bg);border-radius:4px;border:1px solid var(--border)">'+b.detail+'</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">'+
+          b.stats.map(function(s){return '<div style="padding:6px 8px;background:var(--bg);border-radius:4px;border:1px solid var(--border)">'+
+            '<div style="font-family:var(--mono);font-size:.45rem;color:var(--text3);letter-spacing:.5px;margin-bottom:2px">'+s.k.toUpperCase()+'</div>'+
+            '<div style="font-family:var(--mono);font-size:.58rem;font-weight:600;color:var(--text)">'+s.v+'</div>'+
           '</div>';}).join('')+
         '</div>'+
       '</div>';
@@ -2619,43 +2631,126 @@ function renderForcesPanel(){
     </div>
   `;
 
-  // Nuclear Facilities
+  // Nuclear Facilities — Wiki-style layout
   const nukeEl=document.getElementById('nukeStatus');
   const nukes=[
-    {name:'Natanz (FEP)',location:'Isfahan Province — Underground enrichment',status:'damaged',statusLabel:'STRUCK',detail:'Confirmed GBU-57 MOP and JASSM-ER strikes. Centrifuge halls partially destroyed. IAEA inspectors evacuated. Enrichment status unknown.'},
-    {name:'Fordow (FFEP)',location:'Qom Province — Deep underground',status:'damaged',statusLabel:'STRUCK — UNCERTAIN',detail:'Multiple MOP strikes on mountain facility. Depth of penetration uncertain. Iran claims facility intact. US claims "functionally destroyed."'},
-    {name:'Isfahan (UCF)',location:'Isfahan — Uranium conversion',status:'destroyed',statusLabel:'DESTROYED',detail:'UF6 conversion facility heavily struck. Satellite imagery shows complete destruction of above-ground structures.'},
-    {name:'Arak (IR-40)',location:'Markazi Province — Heavy water reactor',status:'damaged',statusLabel:'DAMAGED',detail:'Modified reactor struck. Heavy water production halted. Radiation leak concerns reported by IAEA.'},
-    {name:'Bushehr NPP',location:'Bushehr Province — Power reactor',status:'operational',statusLabel:'NOT TARGETED',detail:'Russian-built civilian reactor. Deliberately avoided per coalition ROE. IAEA monitoring continues.'},
-    {name:'Parchin Military Complex',location:'Tehran Province — Weapons research',status:'destroyed',statusLabel:'DESTROYED',detail:'Multiple strikes confirmed. Suspected weaponization research facilities. Entire complex non-functional.'},
+    {name:'Natanz (FEP)',fullName:'Natanz Fuel Enrichment Plant',location:'Isfahan Province',type:'Underground Enrichment',status:'damaged',statusLabel:'STRUCK',damage:70,
+      coord:{lat:33.72,lon:51.73},
+      detail:'Iran\'s primary uranium enrichment facility, buried 8 meters underground beneath reinforced concrete. Houses thousands of IR-1 and advanced IR-6 centrifuges. The facility was the target of the 2010 Stuxnet cyberattack.',
+      strikeDetail:'Confirmed GBU-57 Massive Ordnance Penetrator (MOP) strikes by B-2 Spirit bombers on Mar 3-4. JASSM-ER cruise missiles targeted surface infrastructure. Centrifuge halls partially destroyed. IAEA inspectors evacuated before strikes. Current enrichment status unknown — US claims "significant disruption," Iran claims partial operations resumed.',
+      keyFacts:['Houses IR-1 and IR-6 centrifuges','Buried 8m underground + reinforced concrete','B-2 Spirit delivered GBU-57 MOPs','IAEA inspectors evacuated pre-strike']},
+    {name:'Fordow (FFEP)',fullName:'Fordow Fuel Enrichment Plant',location:'Qom Province',type:'Deep Underground Enrichment',status:'damaged',statusLabel:'STRUCK — UNCERTAIN',damage:45,
+      coord:{lat:34.88,lon:51.00},
+      detail:'Built inside a mountain near Qom, Fordow is Iran\'s most hardened nuclear site. Designed to withstand aerial bombardment. Contains ~1,000 centrifuges enriching uranium to 60% (near weapons-grade). Existence revealed by Western intelligence in 2009.',
+      strikeDetail:'Multiple GBU-57 MOP strikes attempted on the mountain facility. Depth of penetration uncertain — the facility is buried under 80+ meters of rock and concrete. Seismic sensors detected impacts. Iran claims facility intact and operational. Pentagon claims "functionally destroyed" but independent verification impossible without ground access.',
+      keyFacts:['Buried 80m+ inside mountain','Near weapons-grade enrichment (60%)','GBU-57 penetration depth uncertain','Conflicting claims on operational status']},
+    {name:'Isfahan (UCF)',fullName:'Isfahan Uranium Conversion Facility',location:'Isfahan Province',type:'Uranium Conversion',status:'destroyed',statusLabel:'DESTROYED',damage:95,
+      coord:{lat:32.65,lon:51.68},
+      detail:'The Isfahan UCF converts yellowcake (U₃O₈) into uranium hexafluoride (UF₆) — the feedstock for centrifuge enrichment. Without this facility, Iran cannot feed its enrichment cascade at Natanz and Fordow.',
+      strikeDetail:'Heavily struck by JASSM-ER cruise missiles on Mar 3. Satellite imagery from Mar 5 shows complete destruction of above-ground processing buildings, storage tanks, and conversion halls. Secondary chemical fires burned for 48+ hours. Potential UF₆ release detected by environmental monitors.',
+      keyFacts:['Converts yellowcake → UF₆ feedstock','Complete destruction confirmed by satellite','Chemical fires burned 48+ hours','Critical chokepoint in fuel cycle']},
+    {name:'Arak (IR-40)',fullName:'Arak Heavy Water Reactor Complex',location:'Markazi Province',type:'Heavy Water Reactor',status:'damaged',statusLabel:'DAMAGED',damage:55,
+      coord:{lat:34.37,lon:49.24},
+      detail:'Originally designed as a 40MW heavy water reactor capable of producing weapons-grade plutonium. Modified under JCPOA to reduce plutonium output. The adjacent heavy water production plant is critical infrastructure.',
+      strikeDetail:'Reactor building struck by precision munitions on Mar 5. Heavy water production plant damaged — production halted. Radiation leak concerns reported by IAEA, though levels described as "localized and low." Containment vessel integrity uncertain. Iran has restricted IAEA access to assess damage.',
+      keyFacts:['Modified under JCPOA to limit Pu output','Heavy water production halted','IAEA reports localized radiation leak','Containment vessel integrity unknown']},
+    {name:'Bushehr NPP',fullName:'Bushehr Nuclear Power Plant',location:'Bushehr Province',type:'Civilian Power Reactor',status:'operational',statusLabel:'NOT TARGETED',damage:0,
+      coord:{lat:28.83,lon:50.89},
+      detail:'Iran\'s only operational nuclear power plant, built with Russian assistance (Rosatom). Generates ~1,000MW of electricity. Under IAEA safeguards and Russian fuel supply agreement. Spent fuel returned to Russia.',
+      strikeDetail:'Deliberately avoided per coalition rules of engagement. Striking a civilian reactor would risk catastrophic radioactive release affecting the Persian Gulf region. Russia reportedly issued private warnings against targeting. IAEA monitoring continues — inspectors remain on-site. Grid connection intact but regional power disruptions affect distribution.',
+      keyFacts:['Russian-built (Rosatom) — 1,000MW','Under IAEA safeguards','Coalition ROE explicitly excluded','Spent fuel returned to Russia']},
+    {name:'Parchin Military Complex',fullName:'Parchin Military Research Complex',location:'Tehran Province',type:'Weapons Research',status:'destroyed',statusLabel:'DESTROYED',damage:90,
+      coord:{lat:35.52,lon:51.77},
+      detail:'A large military complex southeast of Tehran long suspected of hosting nuclear weapons research. Contains explosive testing chambers, hydrodynamic facilities, and suspected weaponization labs. Iran has repeatedly denied IAEA access to certain buildings.',
+      strikeDetail:'Multiple waves of strikes confirmed Mar 3-6 using Tomahawk cruise missiles and JASSM-ER. Above-ground buildings systematically destroyed. Underground facilities targeted with bunker-busting munitions. Satellite imagery shows the entire complex rendered non-functional. Suspected neutron initiator research lab destroyed.',
+      keyFacts:['Suspected weaponization research site','IAEA access repeatedly denied','Systematically destroyed Mar 3-6','Neutron initiator lab suspected destroyed']},
   ];
 
-  // Summary
   const nukeCounts={destroyed:0,damaged:0,operational:0};
   nukes.forEach(n=>{nukeCounts[n.status]=(nukeCounts[n.status]||0)+1});
 
+  // Build wiki-style page
   nukeEl.innerHTML=`
-    <div class="fleet-summary" style="display:flex;gap:16px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);margin-bottom:0">
-      <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--red)"></div>DESTROYED: ${nukeCounts.destroyed||0}</div>
-      <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--orange)"></div>DAMAGED/STRUCK: ${nukeCounts.damaged||0}</div>
-      <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--green)"></div>NOT TARGETED: ${nukeCounts.operational||0}</div>
-      <div class="fleet-summary-item" style="margin-left:auto;color:var(--text3)">TOTAL: ${nukes.length} FACILITIES</div>
+    <!-- Summary bar -->
+    <div style="display:flex;gap:16px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center">
+      <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--red)"></div>DESTROYED: ${nukeCounts.destroyed}</div>
+      <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--orange)"></div>STRUCK/DAMAGED: ${nukeCounts.damaged}</div>
+      <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--green)"></div>NOT TARGETED: ${nukeCounts.operational}</div>
+      <div style="margin-left:auto;font-family:var(--mono);font-size:.55rem;color:var(--text3)">☢ ${nukes.length} KNOWN FACILITIES</div>
     </div>
-  `+nukes.map(n=>{
-    const borderColor=n.status==='destroyed'?'var(--red)':n.status==='damaged'?'var(--orange)':'var(--green)';
-    const bgColor=n.status==='destroyed'?'var(--red-dim)':n.status==='damaged'?'var(--orange-dim)':'var(--green-dim)';
-    return `
-    <div style="background:var(--surface);padding:18px 20px;border-bottom:1px solid var(--border);border-left:3px solid ${borderColor}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-        <div>
-          <div style="font-family:var(--mono);font-size:.85rem;font-weight:700;color:var(--text)">☢ ${n.name}</div>
-          <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);margin-top:2px">${n.location}</div>
-        </div>
-        <span style="display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:.6rem;padding:3px 10px;border-radius:3px;background:${bgColor};color:${borderColor};font-weight:600">${n.statusLabel}</span>
+
+    <!-- Intro context block -->
+    <div style="padding:20px 24px;background:var(--surface);border-bottom:1px solid var(--border)">
+      <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text);letter-spacing:1px;margin-bottom:10px">IRAN'S NUCLEAR PROGRAM — BACKGROUND</div>
+      <div style="font-family:var(--mono);font-size:.6rem;color:var(--text2);line-height:1.7;max-width:900px">
+        Iran's nuclear program encompasses uranium enrichment, conversion, reactor technology, and suspected weapons research across multiple facilities — many built deep underground to resist aerial attack. Coalition strikes during Operation Epic Fury targeted the complete nuclear fuel cycle, with the stated aim of setting Iran's breakout capability back "by decades." The IAEA has been unable to independently verify damage to hardened underground sites. Below is a facility-by-facility assessment based on satellite imagery, IAEA reports, and coalition briefings.
       </div>
-      <div style="font-size:.65rem;color:var(--text2);line-height:1.5">${n.detail}</div>
-    </div>`;
-  }).join('');
+    </div>
+
+    <!-- Facility entries -->
+    ${nukes.map((n,i)=>{
+      const col=n.status==='destroyed'?'var(--red)':n.status==='damaged'?'var(--orange)':'var(--green)';
+      const bgDim=n.status==='destroyed'?'rgba(248,81,73,0.06)':n.status==='damaged'?'rgba(210,153,34,0.06)':'rgba(63,185,80,0.06)';
+      // Damage ring SVG
+      const r=36;const circ=2*Math.PI*r;const off=circ-(n.damage/100)*circ;
+      const ringColor=n.damage>=75?'#f85149':n.damage>=30?'#d29922':'#3fb950';
+      const dmgRingSvg=`<svg width="90" height="90" viewBox="0 0 90 90" style="flex-shrink:0">
+        <circle cx="45" cy="45" r="${r}" fill="none" stroke="var(--border)" stroke-width="5"/>
+        <circle cx="45" cy="45" r="${r}" fill="none" stroke="${ringColor}" stroke-width="5" stroke-linecap="round"
+          stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 45 45)">
+          ${n.damage>0?'<animate attributeName="stroke-dashoffset" from="'+circ.toFixed(1)+'" to="'+off.toFixed(1)+'" dur="1.5s" fill="freeze"/>':''}
+        </circle>
+        <text x="45" y="40" text-anchor="middle" font-family="var(--mono)" font-size="16" font-weight="700" fill="${ringColor}">${n.damage}%</text>
+        <text x="45" y="54" text-anchor="middle" font-family="var(--mono)" font-size="8" fill="var(--text3)">DAMAGE</text>
+      </svg>`;
+
+      return `
+      <div style="padding:24px;border-bottom:2px solid var(--border);background:${i%2===0?'var(--bg)':'var(--surface)'}">
+        <!-- Header row -->
+        <div style="display:flex;gap:20px;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap">
+          ${dmgRingSvg}
+          <div style="flex:1;min-width:250px">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px">
+              <span style="font-size:1.4rem">☢</span>
+              <div style="font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--text)">${n.fullName}</div>
+              <span style="font-family:var(--mono);font-size:.55rem;padding:2px 8px;border-radius:3px;font-weight:700;background:${col};color:#fff">${n.statusLabel}</span>
+            </div>
+            <div style="display:flex;gap:16px;font-family:var(--mono);font-size:.55rem;color:var(--text3);flex-wrap:wrap">
+              <span>📍 ${n.location}</span>
+              <span>🏷 ${n.type}</span>
+              <span>📐 ${n.coord.lat.toFixed(2)}°N, ${n.coord.lon.toFixed(2)}°E</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Two-column content -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <!-- Left: Background -->
+          <div>
+            <div style="font-family:var(--mono);font-size:.6rem;font-weight:700;color:var(--text);letter-spacing:.5px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">FACILITY BACKGROUND</div>
+            <div style="font-family:var(--mono);font-size:.58rem;color:var(--text2);line-height:1.7">${n.detail}</div>
+          </div>
+          <!-- Right: Strike assessment -->
+          <div>
+            <div style="font-family:var(--mono);font-size:.6rem;font-weight:700;color:${col};letter-spacing:.5px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">STRIKE ASSESSMENT</div>
+            <div style="font-family:var(--mono);font-size:.58rem;color:var(--text2);line-height:1.7">${n.strikeDetail}</div>
+          </div>
+        </div>
+
+        <!-- Key facts chips -->
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px">
+          ${n.keyFacts.map(f=>`<span style="font-family:var(--mono);font-size:.5rem;padding:4px 10px;background:${bgDim};border:1px solid var(--border);border-radius:4px;color:var(--text2)">• ${f}</span>`).join('')}
+        </div>
+      </div>`;
+    }).join('')}
+
+    <!-- Footer context -->
+    <div style="padding:16px 24px;background:var(--surface);border-top:1px solid var(--border)">
+      <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);line-height:1.6">
+        <strong style="color:var(--text2)">NOTE:</strong> Damage assessments for underground facilities (Natanz, Fordow) carry high uncertainty. Coalition claims are based on seismic data and signals intelligence. Independent verification by IAEA has not been possible due to ongoing hostilities. Iran's actual remaining enrichment capability is classified. Bushehr NPP exclusion reflects coalition policy — not technical inability to strike.
+      </div>
+    </div>
+  `;
 
   // Casualty Estimates
   const casualtyEl=document.getElementById('casualtyStats');
@@ -3499,22 +3594,22 @@ function renderFleetTracker(){
 function renderInfraTracker(){
   const targets=[
     // Oil & Energy
-    {name:'Kharg Island Oil Terminal',type:'OIL / ENERGY',location:'Persian Gulf',status:'damaged',damage:40,detail:'Major oil export terminal — handles 90% of Iran\'s exports. Military radar/AA targeted. Export capacity reduced ~60%. Global oil prices spiked.',lastStrike:'Mar 10'},
-    {name:'Abadan Refinery',type:'OIL / ENERGY',location:'Khuzestan Province',status:'damaged',damage:35,detail:'Iran\'s largest refinery. Selective strikes on fuel depot supplying IRGC. Civilian capacity partially intact but operating at ~40%.',lastStrike:'Mar 11'},
-    {name:'Isfahan Refinery',type:'OIL / ENERGY',location:'Isfahan Province',status:'damaged',damage:30,detail:'Major domestic fuel refinery. Struck near co-located military targets. Gasoline production significantly reduced. Fuel rationing in effect.',lastStrike:'Mar 8'},
-    {name:'South Pars Gas Field (onshore)',type:'OIL / ENERGY',location:'Bushehr Province',status:'damaged',damage:20,detail:'World\'s largest gas field (shared with Qatar). Onshore processing hub struck. Pipeline damage confirmed. Qatar operations unaffected.',lastStrike:'Mar 12'},
+    {name:'Kharg Island Oil Terminal',type:'OIL / ENERGY',icon:'🛢️',location:'Persian Gulf',status:'damaged',damage:40,detail:'Major oil export terminal — handles 90% of Iran\'s exports. Military radar/AA targeted. Export capacity reduced ~60%. Global oil prices spiked.',lastStrike:'Mar 10',impact:'Oil exports down 60%'},
+    {name:'Abadan Refinery',type:'OIL / ENERGY',icon:'🛢️',location:'Khuzestan Province',status:'damaged',damage:35,detail:'Iran\'s largest refinery. Selective strikes on fuel depot supplying IRGC. Civilian capacity partially intact but operating at ~40%.',lastStrike:'Mar 11',impact:'Operating at 40% capacity'},
+    {name:'Isfahan Refinery',type:'OIL / ENERGY',icon:'🛢️',location:'Isfahan Province',status:'damaged',damage:30,detail:'Major domestic fuel refinery. Struck near co-located military targets. Gasoline production significantly reduced. Fuel rationing in effect.',lastStrike:'Mar 8',impact:'Fuel rationing in effect'},
+    {name:'South Pars Gas Field (onshore)',type:'OIL / ENERGY',icon:'🛢️',location:'Bushehr Province',status:'damaged',damage:20,detail:'World\'s largest gas field (shared with Qatar). Onshore processing hub struck. Pipeline damage confirmed. Qatar operations unaffected.',lastStrike:'Mar 12',impact:'Pipeline damage confirmed'},
     // Electrical Grid
-    {name:'Isfahan Power Plant',type:'ELECTRICAL',location:'Isfahan Province',status:'destroyed',damage:80,detail:'Major thermal power station. Turbine halls destroyed. Isfahan experiencing rolling blackouts. 3M+ affected.',lastStrike:'Mar 5'},
-    {name:'Tehran West Transmission Hub',type:'ELECTRICAL',location:'Tehran Province',status:'damaged',damage:50,detail:'400kV transmission substation. Transformer banks damaged. Tehran power grid operating at ~60% capacity.',lastStrike:'Mar 10'},
-    {name:'Bushehr Coastal Grid',type:'ELECTRICAL',location:'Bushehr Province',status:'damaged',damage:45,detail:'Regional distribution network. Multiple substations damaged in proximity to military strikes. Bushehr NPP grid connection intact.',lastStrike:'Mar 10'},
+    {name:'Isfahan Power Plant',type:'ELECTRICAL',icon:'⚡',location:'Isfahan Province',status:'destroyed',damage:80,detail:'Major thermal power station. Turbine halls destroyed. Isfahan experiencing rolling blackouts. 3M+ affected.',lastStrike:'Mar 5',impact:'3M+ in rolling blackouts'},
+    {name:'Tehran West Transmission Hub',type:'ELECTRICAL',icon:'⚡',location:'Tehran Province',status:'damaged',damage:50,detail:'400kV transmission substation. Transformer banks damaged. Tehran power grid operating at ~60% capacity.',lastStrike:'Mar 10',impact:'Tehran grid at 60%'},
+    {name:'Bushehr Coastal Grid',type:'ELECTRICAL',icon:'⚡',location:'Bushehr Province',status:'damaged',damage:45,detail:'Regional distribution network. Multiple substations damaged in proximity to military strikes. Bushehr NPP grid connection intact.',lastStrike:'Mar 10',impact:'NPP grid intact'},
     // Communications
-    {name:'Natanz Comms Hub',type:'COMMUNICATIONS',location:'Isfahan Province',status:'destroyed',damage:85,detail:'Military communications relay co-located with nuclear facility. Fiber optic nodes severed. Regional military comms disrupted.',lastStrike:'Mar 4'},
-    {name:'Tehran Internet Exchange',type:'COMMUNICATIONS',location:'Tehran',status:'damaged',damage:65,detail:'Primary internet exchange point. Partially struck in proximity to IRGC HQ. Iran internet connectivity reduced to ~4% of pre-war.',lastStrike:'Mar 15'},
+    {name:'Natanz Comms Hub',type:'COMMUNICATIONS',icon:'📡',location:'Isfahan Province',status:'destroyed',damage:85,detail:'Military communications relay co-located with nuclear facility. Fiber optic nodes severed. Regional military comms disrupted.',lastStrike:'Mar 4',impact:'Regional comms disrupted'},
+    {name:'Tehran Internet Exchange',type:'COMMUNICATIONS',icon:'📡',location:'Tehran',status:'damaged',damage:65,detail:'Primary internet exchange point. Partially struck in proximity to IRGC HQ. Iran internet connectivity reduced to ~4% of pre-war.',lastStrike:'Mar 15',impact:'Internet at ~4% capacity'},
     // Command & Control
-    {name:'IRGC HQ Complex',type:'C2 / COMMAND',location:'Tehran',status:'damaged',damage:40,detail:'Multiple buildings struck. Underground bunker targeted with deep-penetration munitions. Command relocated to dispersed sites.',lastStrike:'Mar 15'},
+    {name:'IRGC HQ Complex',type:'C2 / COMMAND',icon:'🎯',location:'Tehran',status:'damaged',damage:40,detail:'Multiple buildings struck. Underground bunker targeted with deep-penetration munitions. Command relocated to dispersed sites.',lastStrike:'Mar 15',impact:'Command dispersed'},
     // Transport
-    {name:'Bandar Abbas Commercial Port',type:'TRANSPORT',location:'Hormozgan Province',status:'damaged',damage:45,detail:'Iran\'s busiest commercial port. Military wharf destroyed. Civilian port partially operational but shipping routes disrupted by Hormuz closure.',lastStrike:'Mar 14'},
-    {name:'Isfahan Highway Bridge (Route 7)',type:'TRANSPORT',location:'Isfahan Province',status:'destroyed',damage:90,detail:'Strategic highway bridge on Tehran-Isfahan corridor. Destroyed to interdict IRGC logistics movement. Civilian traffic rerouted.',lastStrike:'Mar 6'},
+    {name:'Bandar Abbas Commercial Port',type:'TRANSPORT',icon:'🚢',location:'Hormozgan Province',status:'damaged',damage:45,detail:'Iran\'s busiest commercial port. Military wharf destroyed. Civilian port partially operational but shipping routes disrupted by Hormuz closure.',lastStrike:'Mar 14',impact:'Shipping routes disrupted'},
+    {name:'Isfahan Highway Bridge (Route 7)',type:'TRANSPORT',icon:'🛣️',location:'Isfahan Province',status:'destroyed',damage:90,detail:'Strategic highway bridge on Tehran-Isfahan corridor. Destroyed to interdict IRGC logistics movement. Civilian traffic rerouted.',lastStrike:'Mar 6',impact:'Traffic rerouted'},
   ];
 
   // Summary
@@ -3525,6 +3620,14 @@ function renderInfraTracker(){
     typeCounts[t.type]=(typeCounts[t.type]||0)+1;
   });
 
+  // Avg damage per sector
+  const sectorDmg={};
+  const sectorCount={};
+  targets.forEach(t=>{
+    sectorDmg[t.type]=(sectorDmg[t.type]||0)+t.damage;
+    sectorCount[t.type]=(sectorCount[t.type]||0)+1;
+  });
+
   const summaryEl=document.getElementById('infraSummary');
   summaryEl.innerHTML=`
     <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--red)"></div>DESTROYED: ${statusCounts.destroyed||0}</div>
@@ -3533,24 +3636,62 @@ function renderInfraTracker(){
     <div class="fleet-summary-item" style="margin-left:auto;color:var(--text3)">TOTAL TARGETS: ${targets.length}</div>
   `;
 
+  // Sector overview cards
+  const sectors=Object.keys(sectorDmg);
+  const sectorIcons={'OIL / ENERGY':'🛢️','ELECTRICAL':'⚡','COMMUNICATIONS':'📡','C2 / COMMAND':'🎯','TRANSPORT':'🚢'};
+
   const gridEl=document.getElementById('infraTracker');
-  gridEl.innerHTML=targets.map(t=>{
+  gridEl.innerHTML=`
+    <div style="grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;padding:12px;background:var(--surface)">
+      ${sectors.map(s=>{
+        const avg=Math.round(sectorDmg[s]/sectorCount[s]);
+        const col=avg>=60?'var(--red)':avg>=30?'var(--orange)':'var(--green)';
+        const radius=28;
+        const circ=2*Math.PI*radius;
+        const offset=circ-(avg/100)*circ;
+        return `<div style="text-align:center;padding:14px 8px;background:var(--bg);border-radius:6px;border:1px solid var(--border)">
+          <svg width="70" height="70" viewBox="0 0 70 70" style="margin-bottom:6px">
+            <circle cx="35" cy="35" r="${radius}" fill="none" stroke="var(--border)" stroke-width="4"/>
+            <circle cx="35" cy="35" r="${radius}" fill="none" stroke="${col}" stroke-width="4" stroke-linecap="round"
+              stroke-dasharray="${circ}" stroke-dashoffset="${offset}" transform="rotate(-90 35 35)"/>
+            <text x="35" y="33" text-anchor="middle" font-family="var(--mono)" font-size="13" font-weight="700" fill="${col}">${avg}%</text>
+            <text x="35" y="44" text-anchor="middle" font-family="var(--mono)" font-size="7" fill="var(--text3)">DMG</text>
+          </svg>
+          <div style="font-family:var(--mono);font-size:.55rem;font-weight:600;color:var(--text);letter-spacing:.5px">${s}</div>
+          <div style="font-family:var(--mono);font-size:.45rem;color:var(--text3);margin-top:2px">${sectorCount[s]} TARGET${sectorCount[s]>1?'S':''}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  `+targets.map(t=>{
     const statusColor=t.status==='destroyed'?'var(--red)':t.status==='damaged'?'var(--orange)':'var(--green)';
-    const statusBg=t.status==='destroyed'?'var(--red-dim)':t.status==='damaged'?'var(--orange-dim)':'var(--green-dim)';
+    const statusLabel=t.status.toUpperCase();
+    // Radial damage gauge
+    const radius=22;
+    const circ=2*Math.PI*radius;
+    const offset=circ-(t.damage/100)*circ;
     return `
-    <div class="infra-card">
-      <div class="infra-card-header">
-        <div class="infra-card-name">${t.name}</div>
-        <div class="infra-card-type">${t.type}</div>
+    <div style="background:var(--surface);padding:16px;display:flex;gap:14px;align-items:flex-start">
+      <div style="flex-shrink:0;text-align:center">
+        <svg width="56" height="56" viewBox="0 0 56 56">
+          <circle cx="28" cy="28" r="${radius}" fill="none" stroke="var(--border)" stroke-width="3.5"/>
+          <circle cx="28" cy="28" r="${radius}" fill="none" stroke="${statusColor}" stroke-width="3.5" stroke-linecap="round"
+            stroke-dasharray="${circ}" stroke-dashoffset="${offset}" transform="rotate(-90 28 28)"/>
+          <text x="28" y="26" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="700" fill="${statusColor}">${t.damage}%</text>
+          <text x="28" y="36" text-anchor="middle" font-family="var(--mono)" font-size="5.5" fill="var(--text3)">DMG</text>
+        </svg>
+        <div style="font-size:.9rem;margin-top:2px">${t.icon}</div>
       </div>
-      <div class="infra-card-location">📍 ${t.location} · Last strike: ${t.lastStrike}</div>
-      <div class="infra-card-status">
-        <span class="fleet-card-status ${t.status}"><span class="force-status ${t.status==='operational'?'active':t.status}"></span>${t.status.toUpperCase()}</span>
-      </div>
-      <div class="infra-card-detail">${t.detail}</div>
-      <div class="infra-damage-bar"><div class="infra-damage-fill" style="width:${t.damage}%;background:${statusColor}"></div></div>
-      <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.45rem;color:var(--text3);margin-top:3px">
-        <span>DAMAGE ASSESSMENT</span><span>${t.damage}% DEGRADED</span>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+          <div style="font-family:var(--mono);font-size:.75rem;font-weight:700;color:var(--text)">${t.name}</div>
+          <span class="fleet-card-status ${t.status}" style="font-size:.45rem;padding:1px 6px"><span class="force-status ${t.status==='operational'?'active':t.status}"></span>${statusLabel}</span>
+        </div>
+        <div style="display:flex;gap:12px;font-family:var(--mono);font-size:.5rem;color:var(--text3);margin-bottom:6px">
+          <span>📍 ${t.location}</span>
+          <span>💥 Last strike: ${t.lastStrike}</span>
+        </div>
+        <div style="font-family:var(--mono);font-size:.55rem;color:var(--text2);line-height:1.5;margin-bottom:8px">${t.detail}</div>
+        <div style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:var(--bg);border-radius:4px;border:1px solid var(--border);font-family:var(--mono);font-size:.5rem;color:${statusColor};font-weight:600">⚠ ${t.impact}</div>
       </div>
     </div>`;
   }).join('');
@@ -3646,6 +3787,29 @@ document.addEventListener('keydown',e=>{
 setInterval(fetchNews,300000); // Auto-refresh every 5 min (uses cache if fresh)
 setInterval(()=>{if(allVideoClips.length>0)fetchVideos()},1800000); // 30 min refresh
 setInterval(()=>{if(allOsintPosts.length>0)fetchOsint()},300000);
+// ===== MAP MODAL =====
+function openMapModal(baseName,svgContent){
+  let overlay=document.getElementById('mapModalOverlay');
+  if(!overlay){
+    overlay=document.createElement('div');
+    overlay.id='mapModalOverlay';
+    overlay.className='map-modal-overlay';
+    overlay.innerHTML=`<div class="map-modal-content">
+      <div class="map-modal-header"><span id="mapModalTitle" style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text);letter-spacing:1px"></span><button class="map-modal-close" onclick="closeMapModal()">ESC · CLOSE</button></div>
+      <div id="mapModalBody" style="padding:8px;background:var(--bg)"></div>
+    </div>`;
+    overlay.addEventListener('click',e=>{if(e.target===overlay)closeMapModal()});
+    document.body.appendChild(overlay);
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMapModal()});
+  }
+  document.getElementById('mapModalTitle').textContent=baseName;
+  document.getElementById('mapModalBody').innerHTML=svgContent;
+  overlay.classList.add('show');
+}
+function closeMapModal(){
+  const o=document.getElementById('mapModalOverlay');
+  if(o)o.classList.remove('show');
+}
 </script>
 </body>
 </html>
