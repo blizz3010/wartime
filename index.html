@@ -1072,7 +1072,7 @@
   <!-- Casualties Tracker -->
   <div class="subpage" id="forces-page-casualties">
     <div class="force-section-head">📊 CASUALTY & HUMANITARIAN ESTIMATES</div>
-    <div class="casualty-grid" id="casualtyStats"></div>
+    <div id="casualtyStats"></div>
   </div>
 
   <div style="padding:12px 20px;font-family:var(--mono);font-size:.55rem;color:var(--text3);border-top:1px solid var(--border)">
@@ -2547,35 +2547,35 @@ function renderForcesPanel(){
     else baseCounts.operational++;
   });
 
-  // SVG Map of Iran with base locations
+  // Mini map helper — Iran outline with single pulsing marker per card
   const mapW=600,mapH=400;
   const lonToX=lon=>((lon-44)/(63.5-44))*mapW;
   const latToY=lat=>((40-lat)/(40-25))*mapH;
+  const iranBorder=`M${lonToX(44.05)},${latToY(39.4)} L${lonToX(44.8)},${latToY(39.65)} L${lonToX(45.5)},${latToY(38.9)} L${lonToX(46.2)},${latToY(38.85)} L${lonToX(47.5)},${latToY(39.15)} L${lonToX(48.4)},${latToY(38.6)} L${lonToX(48.9)},${latToY(38.45)} L${lonToX(49)},${latToY(37.5)} L${lonToX(50.4)},${latToY(37.3)} L${lonToX(51.0)},${latToY(36.8)} L${lonToX(53.9)},${latToY(37.0)} L${lonToX(54.8)},${latToY(37.3)} L${lonToX(55.5)},${latToY(37.2)} L${lonToX(57.2)},${latToY(37.6)} L${lonToX(59.3)},${latToY(37.5)} L${lonToX(60.6)},${latToY(36.6)} L${lonToX(61.2)},${latToY(36.6)} L${lonToX(61.15)},${latToY(35.3)} L${lonToX(61.3)},${latToY(34.2)} L${lonToX(60.5)},${latToY(33.7)} L${lonToX(60.6)},${latToY(32.9)} L${lonToX(60.8)},${latToY(31.5)} L${lonToX(61.7)},${latToY(31.4)} L${lonToX(61.8)},${latToY(30.8)} L${lonToX(60.9)},${latToY(29.9)} L${lonToX(61.6)},${latToY(28.8)} L${lonToX(62.8)},${latToY(27.2)} L${lonToX(63.2)},${latToY(27.2)} L${lonToX(63.3)},${latToY(26.6)} L${lonToX(62.5)},${latToY(26.4)} L${lonToX(61.9)},${latToY(25.8)} L${lonToX(61.4)},${latToY(25.2)} L${lonToX(59.5)},${latToY(25.4)} L${lonToX(57.8)},${latToY(25.65)} L${lonToX(57.0)},${latToY(25.9)} L${lonToX(56.4)},${latToY(26.2)} L${lonToX(56.1)},${latToY(26.1)} L${lonToX(55.4)},${latToY(25.8)} L${lonToX(54.8)},${latToY(25.6)} L${lonToX(53.7)},${latToY(26.7)} L${lonToX(51.6)},${latToY(27.1)} L${lonToX(50.8)},${latToY(27.0)} L${lonToX(50.0)},${latToY(27.6)} L${lonToX(49.5)},${latToY(27.7)} L${lonToX(49.1)},${latToY(28.4)} L${lonToX(48.8)},${latToY(29.3)} L${lonToX(48.6)},${latToY(29.9)} L${lonToX(48.0)},${latToY(30.5)} L${lonToX(48.0)},${latToY(31.0)} L${lonToX(47.7)},${latToY(31.0)} L${lonToX(47.8)},${latToY(31.8)} L${lonToX(47.0)},${latToY(32.3)} L${lonToX(46.0)},${latToY(32.8)} L${lonToX(46.1)},${latToY(33.2)} L${lonToX(45.4)},${latToY(33.9)} L${lonToX(45.4)},${latToY(34.6)} L${lonToX(45.1)},${latToY(35.5)} L${lonToX(46.0)},${latToY(35.7)} L${lonToX(46.0)},${latToY(36.4)} L${lonToX(45.2)},${latToY(36.8)} L${lonToX(44.8)},${latToY(37.2)} L${lonToX(44.2)},${latToY(37.3)} L${lonToX(44.6)},${latToY(38.0)} L${lonToX(44.0)},${latToY(39.4)} Z`;
 
-  baseMapEl.innerHTML=`
-    <div style="background:var(--surface);border-bottom:1px solid var(--border);padding:16px;overflow-x:auto">
-      <div style="font-family:var(--mono);font-size:.65rem;color:var(--text3);margin-bottom:10px;letter-spacing:1px">OPERATIONAL MAP — IRANIAN MILITARY INSTALLATIONS</div>
-      <svg viewBox="0 0 ${mapW} ${mapH}" style="width:100%;max-width:700px;height:auto;background:var(--bg);border:1px solid var(--border);border-radius:6px" xmlns="http://www.w3.org/2000/svg">
-        <path d="M${lonToX(44.05)},${latToY(39.4)} L${lonToX(44.8)},${latToY(39.65)} L${lonToX(45.5)},${latToY(38.9)} L${lonToX(46.2)},${latToY(38.85)} L${lonToX(47.5)},${latToY(39.15)} L${lonToX(48.4)},${latToY(38.6)} L${lonToX(48.9)},${latToY(38.45)} L${lonToX(49)},${latToY(37.5)} L${lonToX(50.4)},${latToY(37.3)} L${lonToX(51.0)},${latToY(36.8)} L${lonToX(53.9)},${latToY(37.0)} L${lonToX(54.8)},${latToY(37.3)} L${lonToX(55.5)},${latToY(37.2)} L${lonToX(57.2)},${latToY(37.6)} L${lonToX(59.3)},${latToY(37.5)} L${lonToX(60.6)},${latToY(36.6)} L${lonToX(61.2)},${latToY(36.6)} L${lonToX(61.15)},${latToY(35.3)} L${lonToX(61.3)},${latToY(34.2)} L${lonToX(60.5)},${latToY(33.7)} L${lonToX(60.6)},${latToY(32.9)} L${lonToX(60.8)},${latToY(31.5)} L${lonToX(61.7)},${latToY(31.4)} L${lonToX(61.8)},${latToY(30.8)} L${lonToX(60.9)},${latToY(29.9)} L${lonToX(61.6)},${latToY(28.8)} L${lonToX(62.8)},${latToY(27.2)} L${lonToX(63.2)},${latToY(27.2)} L${lonToX(63.3)},${latToY(26.6)} L${lonToX(62.5)},${latToY(26.4)} L${lonToX(61.9)},${latToY(25.8)} L${lonToX(61.4)},${latToY(25.2)} L${lonToX(59.5)},${latToY(25.4)} L${lonToX(57.8)},${latToY(25.65)} L${lonToX(57.0)},${latToY(25.9)} L${lonToX(56.4)},${latToY(26.2)} L${lonToX(56.1)},${latToY(26.1)} L${lonToX(55.4)},${latToY(25.8)} L${lonToX(54.8)},${latToY(25.6)} L${lonToX(53.7)},${latToY(26.7)} L${lonToX(51.6)},${latToY(27.1)} L${lonToX(50.8)},${latToY(27.0)} L${lonToX(50.0)},${latToY(27.6)} L${lonToX(49.5)},${latToY(27.7)} L${lonToX(49.1)},${latToY(28.4)} L${lonToX(48.8)},${latToY(29.3)} L${lonToX(48.6)},${latToY(29.9)} L${lonToX(48.0)},${latToY(30.5)} L${lonToX(48.0)},${latToY(31.0)} L${lonToX(47.7)},${latToY(31.0)} L${lonToX(47.8)},${latToY(31.8)} L${lonToX(47.0)},${latToY(32.3)} L${lonToX(46.0)},${latToY(32.8)} L${lonToX(46.1)},${latToY(33.2)} L${lonToX(45.4)},${latToY(33.9)} L${lonToX(45.4)},${latToY(34.6)} L${lonToX(45.1)},${latToY(35.5)} L${lonToX(46.0)},${latToY(35.7)} L${lonToX(46.0)},${latToY(36.4)} L${lonToX(45.2)},${latToY(36.8)} L${lonToX(44.8)},${latToY(37.2)} L${lonToX(44.2)},${latToY(37.3)} L${lonToX(44.6)},${latToY(38.0)} L${lonToX(44.0)},${latToY(39.4)} Z"
-          fill="rgba(139,148,158,0.08)" stroke="rgba(139,148,158,0.3)" stroke-width="1.5"/>
-        <text x="${lonToX(51)}" y="${latToY(26.5)}" fill="rgba(88,166,255,0.3)" font-size="10" font-family="var(--mono)" text-anchor="middle">PERSIAN GULF</text>
-        <text x="${lonToX(57.5)}" y="${latToY(25.0)}" fill="rgba(88,166,255,0.3)" font-size="8" font-family="var(--mono)" text-anchor="middle">Gulf of Oman</text>
-        <text x="${lonToX(56.3)}" y="${latToY(26.7)}" fill="rgba(248,81,73,0.5)" font-size="7" font-family="var(--mono)" text-anchor="middle" font-weight="bold">HORMUZ</text>
-        ${bases.map(b=>{
-          const x=lonToX(b.coord.lon),y=latToY(b.coord.lat);
-          const col=b.damage>=75?'var(--red)':b.damage>=30?'var(--orange)':'var(--green)';
-          const pulse=b.damage>=75?'<circle cx="'+x+'" cy="'+y+'" r="8" fill="none" stroke="'+col+'" stroke-width="0.5" opacity="0.5"><animate attributeName="r" from="6" to="14" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="2s" repeatCount="indefinite"/></circle>':'';
-          return pulse+
-            '<circle cx="'+x+'" cy="'+y+'" r="5" fill="'+col+'" stroke="var(--bg)" stroke-width="1.5" opacity="0.9"/>'+
-            '<text x="'+x+'" y="'+(y-8)+'" fill="var(--text)" font-size="6.5" font-family="var(--mono)" text-anchor="middle" font-weight="600">'+b.name.split('(')[0].split('/')[0].trim()+'</text>'+
-            '<text x="'+x+'" y="'+(y+14)+'" fill="var(--text3)" font-size="5" font-family="var(--mono)" text-anchor="middle">'+b.type+' · '+b.damage+'% DMG</text>';
-        }).join('')}
-        <circle cx="15" cy="${mapH-35}" r="4" fill="var(--red)"/><text x="23" y="${mapH-32}" fill="var(--text2)" font-size="7" font-family="var(--mono)">DESTROYED (75%+)</text>
-        <circle cx="15" cy="${mapH-22}" r="4" fill="var(--orange)"/><text x="23" y="${mapH-19}" fill="var(--text2)" font-size="7" font-family="var(--mono)">DAMAGED (30-74%)</text>
-        <circle cx="15" cy="${mapH-9}" r="4" fill="var(--green)"/><text x="23" y="${mapH-6}" fill="var(--text2)" font-size="7" font-family="var(--mono)">OPERATIONAL (&lt;30%)</text>
+  function miniMapSvg(b){
+    const x=lonToX(b.coord.lon),y=latToY(b.coord.lat);
+    const col=b.damage>=75?'var(--red)':b.damage>=30?'var(--orange)':'var(--green)';
+    return `<div style="overflow:hidden;border-radius:4px;margin-bottom:12px;border:1px solid var(--border);background:var(--bg)">
+      <svg viewBox="0 0 ${mapW} ${mapH}" style="width:100%;height:130px" xmlns="http://www.w3.org/2000/svg">
+        <path d="${iranBorder}" fill="rgba(139,148,158,0.06)" stroke="rgba(139,148,158,0.2)" stroke-width="1.5"/>
+        <text x="${lonToX(51)}" y="${latToY(26.5)}" fill="rgba(88,166,255,0.2)" font-size="10" font-family="var(--mono)" text-anchor="middle">PERSIAN GULF</text>
+        <circle cx="${x}" cy="${y}" r="12" fill="none" stroke="${col}" stroke-width="1" opacity="0.6">
+          <animate attributeName="r" from="8" to="24" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" from="0.7" to="0" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="${x}" cy="${y}" r="12" fill="none" stroke="${col}" stroke-width="0.5" opacity="0.4">
+          <animate attributeName="r" from="12" to="32" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" from="0.5" to="0" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="${x}" cy="${y}" r="7" fill="${col}" stroke="var(--bg)" stroke-width="2" opacity="0.95"/>
+        <text x="${x}" y="${y-14}" fill="var(--text)" font-size="8" font-family="var(--mono)" text-anchor="middle" font-weight="700">${b.name.split('(')[0].split('/')[0].trim()}</text>
+        <text x="${x}" y="${y+20}" fill="var(--text3)" font-size="6.5" font-family="var(--mono)" text-anchor="middle">${b.coord.lat.toFixed(2)}°N, ${b.coord.lon.toFixed(2)}°E</text>
       </svg>
-    </div>
-  `;
+    </div>`;
+  }
+
+  baseMapEl.innerHTML='';
 
   baseEl.innerHTML=`
     <div class="fleet-summary" style="display:flex;gap:16px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border)">
@@ -2591,19 +2591,8 @@ function renderForcesPanel(){
       const statusClass=b.damage>=75?'destroyed':b.damage>=30?'damaged':'active';
       const typeIcon=b.type==='AIR BASE'?'✈️':b.type==='NAVAL BASE'?'⚓':'🎯';
       const dmgBarColor=b.damage>=75?'var(--red)':b.damage>=30?'var(--orange)':'var(--green)';
-      const imgHtml=b.img?'<div style="position:relative;overflow:hidden;border-radius:4px;margin-bottom:12px;border:1px solid var(--border)">'+
-        '<img src="'+b.img+'" alt="'+b.name+'" style="width:100%;height:180px;object-fit:cover;display:block;opacity:0.85;'+(b.damage>=75?'filter:saturate(0.6) brightness(0.9)':'')+'" loading="lazy" onerror="this.parentElement.style.display=\'none\'">'+
-        '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(transparent 50%,rgba(0,0,0,0.7))"></div>'+
-        '<div style="position:absolute;bottom:8px;left:10px;font-family:var(--mono);font-size:.55rem;color:#fff;text-shadow:0 1px 3px #000">📍 '+b.coord.lat.toFixed(2)+'°N, '+b.coord.lon.toFixed(2)+'°E</div>'+
-        '<div style="position:absolute;top:6px;right:6px;padding:2px 8px;border-radius:3px;font-family:var(--mono);font-size:.5rem;font-weight:700;background:'+borderColor+';color:#fff">'+statusLabel+'</div>'+
-        '<div style="position:absolute;top:6px;left:6px;padding:2px 8px;border-radius:3px;font-family:var(--mono);font-size:.5rem;font-weight:600;background:rgba(0,0,0,0.6);color:var(--text)">'+b.type+'</div>'+
-      '</div>':
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
-        '<div style="padding:2px 8px;border-radius:3px;font-family:var(--mono);font-size:.5rem;font-weight:600;background:var(--surface2,rgba(139,148,158,0.1));color:var(--text3)">'+b.type+'</div>'+
-        '<div class="fleet-card-status '+statusClass+'" style="font-size:.5rem;padding:2px 6px"><span class="force-status '+statusClass+'"></span>'+statusLabel+'</div>'+
-      '</div>';
       return '<div style="background:var(--surface);padding:16px;border-left:3px solid '+borderColor+'">'+
-        imgHtml+
+        miniMapSvg(b)+
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
           '<span style="font-size:1.2rem">'+typeIcon+'</span>'+
           '<div style="flex:1">'+
@@ -2749,7 +2738,7 @@ function renderForcesPanel(){
           <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">Displacement, economic damage & press freedom</div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px">
         <div style="text-align:center;padding:16px;background:var(--bg);border-radius:6px;border:1px solid var(--border)">
           <div style="font-size:1.8rem;margin-bottom:4px">🏚</div>
           <div style="font-family:var(--mono);font-size:1.6rem;font-weight:700;color:var(--blue)">30M+</div>
@@ -3462,11 +3451,14 @@ function renderFleetTracker(){
   const gridEl=document.getElementById('fleetTracker');
   gridEl.innerHTML=vessels.map(v=>{
     const icon=SHIP_ICONS[v.type]||'🔹';
-    const imgHtml=v.img?`<div style="position:relative;overflow:hidden;border-radius:4px;margin-bottom:10px;border:1px solid var(--border)">
-      <img src="${v.img}" alt="${v.name}" style="width:100%;height:160px;object-fit:cover;display:block;opacity:${v.status==='destroyed'?'.5':'0.9'};${v.status==='destroyed'?'filter:grayscale(60%)':''}" loading="lazy" onerror="this.parentElement.style.display='none'">
+    const statusGrad=v.status==='destroyed'?'rgba(248,81,73,0.12),rgba(13,17,23,0.95)':v.status==='damaged'?'rgba(210,153,34,0.12),rgba(13,17,23,0.95)':v.status==='operational'?'rgba(63,185,80,0.12),rgba(13,17,23,0.95)':'rgba(139,148,158,0.12),rgba(13,17,23,0.95)';
+    const imgHtml=`<div style="position:relative;overflow:hidden;border-radius:4px;margin-bottom:10px;height:100px;background:linear-gradient(135deg,${statusGrad});border:1px solid var(--border);display:flex;align-items:center;justify-content:center">
+      <span style="font-size:3rem;opacity:0.2;filter:${v.status==='destroyed'?'grayscale(1)':'none'}">${icon}</span>
       <div style="position:absolute;top:6px;right:6px"><div class="fleet-card-status ${v.status}" style="font-size:.5rem;padding:2px 6px"><span class="force-status ${v.status==='operational'?'active':v.status}"></span>${v.status.toUpperCase()}</div></div>
-      ${v.status==='destroyed'?'<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(248,81,73,.15));height:40px"></div>':''}
-    </div>`:'';
+      <div style="position:absolute;bottom:8px;left:10px;font-family:var(--mono);font-size:.5rem;color:var(--text3);letter-spacing:.5px">${v.type.toUpperCase()}</div>
+      <div style="position:absolute;bottom:8px;right:10px;font-family:var(--mono);font-size:.45rem;color:var(--text3)">📍 ${v.location}</div>
+      ${v.status==='destroyed'?'<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(248,81,73,.08));height:25px"></div>':''}
+    </div>`;
     const killedByHtml=v.killedBy?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px;padding:4px 8px;background:var(--red-dim);border-radius:3px;font-family:var(--mono);font-size:.55rem;color:var(--red);font-weight:600">⚔ ${v.killedBy}</div>`:'';
     const borderColor=v.status==='destroyed'?'var(--red)':v.status==='damaged'?'var(--orange)':v.status==='operational'?'var(--green)':'var(--text3)';
     const wikiHtml=v.wiki?`<a href="${v.wiki}" target="_blank" style="font-family:var(--mono);font-size:.5rem;color:var(--blue);text-decoration:none;margin-top:4px;display:inline-block">Wikipedia ↗</a>`:'';
@@ -3482,7 +3474,7 @@ function renderFleetTracker(){
             <div class="fleet-card-class">${v.class}</div>
           </div>
         </div>
-        ${!v.img?`<div class="fleet-card-status ${v.status}"><span class="force-status ${v.status==='operational'?'active':v.status}"></span>${v.status.toUpperCase()}</div>`:''}
+        ${''}<!-- status shown in header -->
       </div>
       <div style="display:flex;gap:12px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
         <div style="flex:1">
