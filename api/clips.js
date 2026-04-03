@@ -1,9 +1,39 @@
 // Server-side video clip aggregator
-// Fetches from Reddit (multiple subs including CombatFootage) and YouTube RSS
-// CDN-cached so thousands of visitors share one response
+// Fetches from Reddit (CombatFootage, worldnews, etc.) and YouTube RSS
+// CDN-cached so thousands of visitors share one response — prevents rate limiting
+//
+// Key design: fewer Reddit API calls to avoid 429 rate limits.
+// Reddit allows ~10 req/min for unauthenticated. We batch smartly.
+
+// In-memory cache for serverless warm starts (supplements CDN cache)
+let memoryCache = null;
+let memoryCacheTime = 0;
+const MEMORY_CACHE_TTL = 300000; // 5 minutes
+
 module.exports = async (req, res) => {
-  const REDDIT_SUBS = ['CombatFootage', 'worldnews', 'iran', 'MiddleEastNews', 'geopolitics'];
-  const REDDIT_QUERIES = ['iran war', 'iran strike footage', 'iran US military'];
+  // Serve from memory cache if warm and fresh
+  if (memoryCache && Date.now() - memoryCacheTime < MEMORY_CACHE_TTL) {
+    res.setHeader('Cache-Control', 's-maxage=1800, stale-while-revalidate=3600');
+    res.setHeader('X-Cache', 'memory-hit');
+    return res.status(200).json(memoryCache);
+  }
+
+  const REDDIT_FETCHES = [
+    // CombatFootage — primary source for conflict video clips
+    { url: 'https://www.reddit.com/r/CombatFootage/hot.json?limit=50', sub: 'CombatFootage', isHot: true },
+    { url: 'https://www.reddit.com/r/CombatFootage/new.json?limit=30', sub: 'CombatFootage', isNew: true },
+    { url: 'https://www.reddit.com/r/CombatFootage/search.json?q=iran&sort=new&t=week&limit=25&restrict_sr=1', sub: 'CombatFootage' },
+    // combatclips — more raw footage
+    { url: 'https://www.reddit.com/r/combatclips/hot.json?limit=25', sub: 'combatclips', isHot: true },
+    { url: 'https://www.reddit.com/r/combatclips/new.json?limit=25', sub: 'combatclips', isNew: true },
+    // Other subs — single broad query each to minimize calls
+    { url: 'https://www.reddit.com/r/worldnews/search.json?q=iran+strike+footage+video&sort=new&t=week&limit=15&restrict_sr=1', sub: 'worldnews' },
+    { url: 'https://www.reddit.com/r/iran/search.json?q=strike+footage+video+attack&sort=new&t=week&limit=15&restrict_sr=1', sub: 'iran' },
+    { url: 'https://www.reddit.com/r/MiddleEastNews/search.json?q=iran+war+video&sort=new&t=week&limit=10&restrict_sr=1', sub: 'MiddleEastNews' },
+    { url: 'https://www.reddit.com/r/UkraineWarVideoReport/search.json?q=iran&sort=new&t=week&limit=10&restrict_sr=1', sub: 'UkraineWarVideoReport' },
+    { url: 'https://www.reddit.com/r/WarFootage/hot.json?limit=20', sub: 'WarFootage', isHot: true },
+  ];
+
   const YT_CHANNELS = [
     'UCNye-wNBqNL5ZzHSJj3l8Bg', // Al Jazeera
     'UCoMdktPbSTixAyNGwb-UYkQ', // Sky News
@@ -11,12 +41,19 @@ module.exports = async (req, res) => {
     'UCeY0bbntWzzVIaj2z3QigXg', // NBC News
     'UC7fWeaHhqgM4Ry-RMpM2YYw', // TRT World
     'UCknLrEdhRCp1aegoMqRaCZg', // CNN
+    'UCYMwmggPTMKg6GijhVsKGlg', // DW News
   ];
+
   const IRAN_KEYWORDS = ['iran', 'tehran', 'hormuz', 'irgc', 'strike', 'missile', 'war',
     'conflict', 'military', 'bomb', 'nuclear', 'hezbollah', 'houthi', 'navy', 'drone',
-    'persian gulf', 'bandar abbas', 'centcom', 'operation', 'combat', 'attack', 'airstrike'];
+    'persian gulf', 'bandar abbas', 'centcom', 'operation', 'combat', 'attack', 'airstrike',
+    'bridge', 'bombing', 'footage', 'explosion', 'intercept', 'radar', 'patriot', 'thaad',
+    'f-35', 'b-2', 'tomahawk', 'ballistic', 'cruise missile', 'strait'];
   const BLOCKED = ['meme', 'funny', 'compilation', 'prank', 'reaction', 'minecraft',
-    'fortnite', 'gta', 'call of duty', 'edit', 'parody', '#shorts challenge'];
+    'fortnite', 'gta', 'call of duty', 'edit', 'parody', '#shorts challenge', 'tiktok dance'];
+
+  // Combat-focused subreddits — skip Iran keyword filter for these
+  const COMBAT_SUBS = new Set(['combatfootage', 'combatclips', 'warfootage', 'ukrainewarvideoreport']);
 
   function isBlocked(title) {
     const t = (title || '').toLowerCase();
@@ -24,73 +61,76 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const timeRange = req.query.t || 'week';
     const clips = [];
     const seenUrls = new Set();
     const seenTitles = new Set();
 
-    // --- Reddit fetches ---
-    const redditFetches = [];
-    for (const sub of REDDIT_SUBS) {
-      for (const q of REDDIT_QUERIES) {
-        redditFetches.push(
-          fetch(`https://www.reddit.com/r/${sub}/search.json?q=${encodeURIComponent(q)}&sort=new&t=${timeRange}&limit=15&restrict_sr=1`, {
-            headers: { 'User-Agent': 'wartime-dashboard/1.0', 'Accept': 'application/json' },
-            signal: AbortSignal.timeout(8000),
-          }).then(r => r.ok ? r.json() : null).catch(() => null)
-        );
-      }
-    }
+    // --- Staggered Reddit fetches (2 batches to avoid burst rate limit) ---
+    const batch1 = REDDIT_FETCHES.slice(0, 5);
+    const batch2 = REDDIT_FETCHES.slice(5);
 
-    // --- Also fetch CombatFootage hot posts (not just search) ---
-    redditFetches.push(
-      fetch('https://www.reddit.com/r/CombatFootage/hot.json?limit=25', {
-        headers: { 'User-Agent': 'wartime-dashboard/1.0', 'Accept': 'application/json' },
-        signal: AbortSignal.timeout(8000),
-      }).then(r => r.ok ? r.json() : null).catch(() => null)
+    const fetchReddit = (item) =>
+      fetch(item.url, {
+        headers: { 'User-Agent': 'wartime-dashboard/1.0 (conflict tracker)', 'Accept': 'application/json' },
+        signal: AbortSignal.timeout(10000),
+      }).then(r => {
+        if (r.status === 429) return null; // Rate limited — skip gracefully
+        return r.ok ? r.json() : null;
+      }).catch(() => null)
+        .then(data => ({ data, sub: item.sub, isHot: item.isHot, isNew: item.isNew }));
+
+    // Fetch batch 1 first
+    const results1 = await Promise.allSettled(batch1.map(fetchReddit));
+    // Small delay then batch 2
+    await new Promise(r => setTimeout(r, 500));
+    const results2 = await Promise.allSettled(batch2.map(fetchReddit));
+
+    const redditResults = [...results1, ...results2];
+
+    // --- YouTube RSS fetches (no API key needed, no rate limit issues) ---
+    const ytResults = await Promise.allSettled(
+      YT_CHANNELS.map(chId =>
+        fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${chId}`, {
+          signal: AbortSignal.timeout(8000),
+        }).then(r => r.ok ? r.text() : null).catch(() => null)
+      )
     );
-
-    // --- YouTube RSS fetches (no API key needed) ---
-    const ytFetches = YT_CHANNELS.map(chId =>
-      fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${chId}`, {
-        signal: AbortSignal.timeout(8000),
-      }).then(r => r.ok ? r.text() : null).catch(() => null)
-    );
-
-    const [redditResults, ytResults] = await Promise.all([
-      Promise.allSettled(redditFetches),
-      Promise.allSettled(ytFetches),
-    ]);
 
     // Process Reddit results
     for (const result of redditResults) {
-      if (result.status !== 'fulfilled' || !result.value) continue;
-      const data = result.value;
+      if (result.status !== 'fulfilled' || !result.value?.data) continue;
+      const { data, sub, isHot, isNew } = result.value;
       const children = data?.data?.children || [];
+      const isCombatSub = COMBAT_SUBS.has(sub.toLowerCase());
+
       for (const child of children) {
         const p = child.data;
         if (!p) continue;
-        // Must be a video post
+
+        // Must be a video post (or image from combat subs)
         const isVideo = p.is_video || p.domain === 'v.redd.it' ||
           p.domain === 'youtube.com' || p.domain === 'youtu.be' ||
+          p.domain === 'streamable.com' || p.domain === 'gfycat.com' ||
           (p.url && (p.url.includes('youtube.com/watch') || p.url.includes('youtu.be/') ||
-            p.url.includes('v.redd.it') || p.url.includes('streamable.com')));
-        // OR image post from CombatFootage (satellite imagery, aftermath photos)
+            p.url.includes('v.redd.it') || p.url.includes('streamable.com') ||
+            p.url.includes('clips.twitch.tv')));
         const isImage = p.post_hint === 'image' || (p.url && /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(p.url));
-        const isCombatFootage = (p.subreddit || '').toLowerCase() === 'combatfootage';
-        if (!isVideo && !(isImage && isCombatFootage)) continue;
+
+        if (!isVideo && !(isImage && isCombatSub)) continue;
         if (isBlocked(p.title)) continue;
 
-        // Iran relevance check for non-CombatFootage subs
-        if (!isCombatFootage) {
+        // Iran relevance check — skip for combat-focused subs (they're all relevant)
+        if (!isCombatSub) {
           const titleLower = (p.title || '').toLowerCase();
           if (!IRAN_KEYWORDS.some(k => titleLower.includes(k))) continue;
         }
 
-        // Dedupe
+        // Dedupe by URL
         const normUrl = (p.url || '').replace(/[?#].*/, '').toLowerCase();
         if (normUrl && seenUrls.has(normUrl)) continue;
         if (normUrl) seenUrls.add(normUrl);
+
+        // Dedupe by title
         const normTitle = (p.title || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 60);
         if (seenTitles.has(normTitle)) continue;
         seenTitles.add(normTitle);
@@ -120,7 +160,6 @@ module.exports = async (req, res) => {
     for (const result of ytResults) {
       if (result.status !== 'fulfilled' || !result.value) continue;
       const xml = result.value;
-      // Simple regex XML parsing (no DOM parser on server)
       const entries = xml.match(/<entry>[\s\S]*?<\/entry>/g) || [];
       for (const entry of entries) {
         const titleMatch = entry.match(/<title>([\s\S]*?)<\/title>/);
@@ -170,18 +209,30 @@ module.exports = async (req, res) => {
       return dateB - dateA;
     });
 
-    // Cache on CDN for 30 minutes, stale-while-revalidate for 1 hour
-    res.setHeader('Cache-Control', 's-maxage=1800, stale-while-revalidate=3600');
-    res.status(200).json({
-      clips: clips.slice(0, 50),
+    const response = {
+      clips: clips.slice(0, 60),
       meta: {
         total: clips.length,
         reddit: clips.filter(c => c.source === 'reddit').length,
         youtube: clips.filter(c => c.source === 'youtube').length,
         cached: new Date().toISOString(),
       },
-    });
+    };
+
+    // Store in memory cache for warm serverless instances
+    memoryCache = response;
+    memoryCacheTime = Date.now();
+
+    // Cache on CDN for 30 minutes, stale-while-revalidate for 1 hour
+    res.setHeader('Cache-Control', 's-maxage=1800, stale-while-revalidate=3600');
+    res.status(200).json(response);
   } catch (err) {
+    // Serve stale memory cache on error
+    if (memoryCache) {
+      res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+      res.setHeader('X-Cache', 'memory-stale');
+      return res.status(200).json(memoryCache);
+    }
     res.status(500).json({ error: 'Failed to aggregate clips', detail: err.message });
   }
 };
