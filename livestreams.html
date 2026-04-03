@@ -3,28 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Real-time conflict intelligence dashboard monitoring the US-Israel military operations against Iran. Live maps, news feeds, OSINT, maritime/air traffic tracking, and military order of battle.">
+<meta name="description" content="Live news streams from major broadcasters covering the Iran conflict. Al Jazeera, Sky News, CNN, and more.">
 <meta name="theme-color" content="#080a0e">
-<meta property="og:title" content="WARTIME — Iran Conflict Dashboard">
-<meta property="og:description" content="Real-time conflict intelligence dashboard with live maps, news, OSINT, and military tracking.">
-<meta property="og:type" content="website">
-<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☠</text></svg>">
-<title>WARTIME — Iran Conflict Dashboard</title>
+<title>WARTIME — Live Streams</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-
-<!-- SKIP NAV -->
 <a class="skip-nav" href="#main-content">Skip to content</a>
-
-<!-- THREAT BAR -->
 <div class="threat-bar"></div>
-
-<!-- HEADER -->
 <div class="header">
   <div class="header-left">
     <a href="/" style="text-decoration:none"><div class="logo">&#9760; WARTIME <span>/ dashboard</span></div></a>
@@ -36,28 +26,21 @@
     <span class="header-divider">|</span>
     <span class="header-stat" id="clock">--:--:-- UTC</span>
     <span class="header-divider">|</span>
-    <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127470;&#127479;</span> TEHRAN
-      <span id="tehranTime" style="color:var(--text)">--:--</span></span>
+    <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127470;&#127479;</span> TEHRAN <span id="tehranTime" style="color:var(--text)">--:--</span></span>
     <span class="header-divider">|</span>
-    <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127470;&#127473;</span> TLV
-      <span id="tlvTime" style="color:var(--text)">--:--</span></span>
+    <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127470;&#127473;</span> TLV <span id="tlvTime" style="color:var(--text)">--:--</span></span>
     <span class="header-divider">|</span>
-    <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127482;&#127480;</span> DC
-      <span id="dcTime" style="color:var(--text)">--:--</span></span>
+    <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127482;&#127480;</span> DC <span id="dcTime" style="color:var(--text)">--:--</span></span>
     <div class="header-toggles">
       <button class="header-toggle" id="toggleSound" onclick="toggleAlertSound()" title="Breaking news alert sound">&#128264; ALERTS</button>
       <button class="header-toggle" id="toggleNightOps" onclick="toggleNightOps()" title="Night operations theme">&#127761; NV</button>
     </div>
   </div>
 </div>
-
-<!-- BREAKING MARQUEE -->
 <div class="marquee-bar" id="marqueeBar" style="display:none">
   <span class="marquee-label">BREAKING</span>
   <div class="marquee-track"><span class="marquee-text" id="marqueeText"></span></div>
 </div>
-
-<!-- TICKER -->
 <div class="ticker">
   <div class="tick"><div class="tick-label">Conflict</div><div class="tick-value red"><span class="tick-flags"><span class="flag">&#127482;&#127480;</span><span class="flag">&#127470;&#127473;</span> vs <span class="flag">&#127470;&#127479;</span></span></div></div>
   <div class="tick" style="cursor:pointer" id="tickHormuz" onclick="toggleTickerDetail('hormuz')"><div class="tick-label"><span class="tick-icon">&#9875;</span> Strait of Hormuz</div><div class="tick-value orange tick-pulse" id="tickHormuzVal">CLOSED</div><div class="tick-sub" id="tickHormuzSub"></div></div>
@@ -67,78 +50,45 @@
   <div class="tick" style="cursor:pointer" onclick="toggleTickerDetail('defcon')"><div class="tick-label"><span class="tick-icon">&#127915;</span> DEFCON</div><div class="tick-value red tick-critical" id="tickDefcon">LEVEL 2</div><div class="tick-sub" id="tickDefconSub"></div></div>
   <div class="tick" style="cursor:pointer" onclick="toggleTickerDetail('markets')"><div class="tick-label"><span class="tick-icon">&#128200;</span> Markets</div><div class="tick-value orange" id="tickMarkets">VOLATILE</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)" id="tickMarketsSub">CLICK FOR DETAILS</div></div>
 </div>
-
-<!-- TICKER DETAIL PANEL -->
-<div class="carrier-panel" id="tickerDetailPanel">
-  <div style="padding:16px 20px;max-width:900px;margin:0 auto" id="tickerDetailInner"></div>
-</div>
-
-<!-- CARRIER GROUP DETAIL PANEL -->
-<div class="carrier-panel" id="carrierPanel">
-  <div class="carrier-panel-inner" id="carrierPanelInner"></div>
-</div>
-
-<!-- NAV -->
+<div class="carrier-panel" id="tickerDetailPanel"><div style="padding:16px 20px;max-width:900px;margin:0 auto" id="tickerDetailInner"></div></div>
+<div class="carrier-panel" id="carrierPanel"><div class="carrier-panel-inner" id="carrierPanelInner"></div></div>
 <nav class="nav-tabs" role="navigation" aria-label="Dashboard navigation">
-  <a class="nav-tab active" href="/" data-panel="overview"><span class="tab-icon">◉</span>OVERVIEW</a>
+  <a class="nav-tab" href="/" data-panel="overview"><span class="tab-icon">◉</span>OVERVIEW</a>
   <a class="nav-tab" href="/warmap.html" data-panel="warmap"><span class="tab-icon">⊕</span>WAR MAP</a>
   <a class="nav-tab" href="/maritime.html" data-panel="maritime"><span class="tab-icon">⚓</span>MARITIME</a>
   <a class="nav-tab" href="/airtraffic.html" data-panel="airtraffic"><span class="tab-icon">✈</span>AIR TRAFFIC</a>
   <a class="nav-tab" href="/videos.html" data-panel="videos"><span class="tab-icon">▶</span>VIDEO CLIPS</a>
-  <a class="nav-tab" href="/livestreams.html" data-panel="livestreams"><span class="tab-icon">◉</span>LIVE STREAMS</a>
+  <a class="nav-tab active" href="/livestreams.html" data-panel="livestreams"><span class="tab-icon">◉</span>LIVE STREAMS</a>
   <a class="nav-tab" href="/osint.html" data-panel="osint"><span class="tab-icon">◎</span>OSINT / SOCIAL</a>
   <a class="nav-tab" href="/forces.html" data-panel="forces"><span class="tab-icon">⚔</span>FORCES</a>
   <a class="nav-tab" href="/assets.html" data-panel="assets"><span class="tab-icon">🎯</span>ASSETS</a>
   <a class="nav-tab" href="/impact.html" data-panel="impact"><span class="tab-icon">◈</span>IMPACT</a>
   <a class="nav-tab" href="/resources.html" data-panel="resources"><span class="tab-icon">≡</span>RESOURCES</a>
 </nav>
-
-<!-- MAIN CONTENT: OVERVIEW -->
 <main id="main-content">
-  <div class="split-layout">
-    <div class="sidebar">
-      <div class="section-head">
-        <span>⚡ LATEST NEWS <span class="news-updated" id="newsUpdated1" style="font-weight:400;color:var(--text3);margin-left:8px"></span></span>
-        <button class="refresh-btn" onclick="fetchNews(true)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
-      </div>
-      <div class="news-feed" id="newsFeed">
-        <div class="loading"><div class="spinner"></div>Loading news...</div>
-      </div>
+  <div style="height:calc(100vh - 96px);display:flex;flex-direction:column">
+    <div class="stream-nav">
+      <button class="stream-nav-arrow" onclick="switchStream(-1)">&#9664;</button>
+      <div class="stream-channels" id="streamChannels"></div>
+      <button class="stream-nav-arrow" onclick="switchStream(1)">&#9654;</button>
+      <a id="streamOpenBtn" href="#" target="_blank" class="overlay-btn" style="text-decoration:none;margin-left:8px;white-space:nowrap;flex-shrink:0">Open on YouTube ↗</a>
+      <button class="overlay-btn" onclick="refreshCurrentStream()" style="margin-left:4px;flex-shrink:0" title="Re-fetch live stream">↻ Refresh</button>
     </div>
-    <div class="main-area">
-      <div class="section-head"><span>🗺 LIVE WAR MAP — LIVEUAMAP</span><span class="badge">LIVE</span></div>
-      <iframe src="https://iran.liveuamap.com/" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
+    <div style="flex:1;position:relative;background:#000">
+      <iframe id="streamPlayer" src="" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="autoplay;encrypted-media" allowfullscreen></iframe>
     </div>
   </div>
 </main>
-
-<noscript>
-  <div style="padding:40px;text-align:center;font-family:monospace;color:#e6edf3;background:#080a0e">
-    <h2>JavaScript Required</h2>
-    <p>This dashboard requires JavaScript to display live data, maps, and news feeds.</p>
-  </div>
-</noscript>
-
-<!-- KEYBOARD SHORTCUT HINT -->
 <div class="kbd-hint" id="kbdHint">
   <div style="margin-bottom:6px;color:var(--text);font-weight:600">Keyboard Shortcuts</div>
-  <kbd>R</kbd> Refresh &nbsp;
-  <kbd>N</kbd> Night mode &nbsp;
-  <kbd>?</kbd> This help
+  <kbd>R</kbd> Refresh &nbsp;<kbd>N</kbd> Night mode &nbsp;<kbd>?</kbd> This help
 </div>
-
-<!-- FOOTER -->
 <div class="site-footer" id="siteFooter">
   <span>WARTIME DASHBOARD — Open-source conflict intelligence aggregator</span>
-  <span>Data from public sources · Not affiliated with any government · <kbd style="background:var(--surface3);border:1px solid var(--border2);border-radius:2px;padding:0 4px;font-size:.5rem">?</kbd> Keyboard shortcuts</span>
+  <span>Data from public sources · Not affiliated with any government</span>
 </div>
-
 <script src="/js/shared.js"></script>
-<script src="/js/news.js"></script>
-<script>
-  // Initialize news feed
-  fetchNews();
-  setInterval(fetchNews, 300000);
-</script>
+<script src="/js/streams.js"></script>
+<script>renderStreamNav(); selectStream(0);</script>
 </body>
 </html>

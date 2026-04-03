@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080a0e">
+<meta name="description" content="Curated collection of live maps, news sources, military intelligence, and tracking tools for the Iran conflict.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☠</text></svg>">
+<title>WARTIME — Resources &amp; Bookmarks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<a class="skip-nav" href="#main-content">Skip to content</a>
+<div class="threat-bar"></div>
+<div class="header">
+  <div class="header-left">
+    <a href="/" style="text-decoration:none"><div class="logo">&#9760; WARTIME <span>/ dashboard</span></div></a>
+    <div class="live-pill"><span class="live-dot"></span>LIVE</div>
+    <div class="threat-pill">DEFCON 2</div>
+  </div>
+  <div class="header-right">
+    <span class="header-stat"><span class="header-stat-label">DAY</span> <span class="day-count" id="dayCount">--</span> <span style="color:var(--text3);font-size:.55rem">OF CONFLICT</span></span>
+    <span class="header-divider">|</span>
+    <span class="header-stat" id="clock">--:--:-- UTC</span>
+    <span class="header-divider">|</span>
+    <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127470;&#127479;</span> TEHRAN <span id="tehranTime" style="color:var(--text)">--:--</span></span>
+    <span class="header-divider">|</span>
+    <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127470;&#127473;</span> TLV <span id="tlvTime" style="color:var(--text)">--:--</span></span>
+    <span class="header-divider">|</span>
+    <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127482;&#127480;</span> DC <span id="dcTime" style="color:var(--text)">--:--</span></span>
+    <div class="header-toggles">
+      <button class="header-toggle" id="toggleSound" onclick="toggleAlertSound()" title="Breaking news alert sound">&#128264; ALERTS</button>
+      <button class="header-toggle" id="toggleNightOps" onclick="toggleNightOps()" title="Night operations theme">&#127761; NV</button>
+    </div>
+  </div>
+</div>
+<div class="marquee-bar" id="marqueeBar" style="display:none">
+  <span class="marquee-label">BREAKING</span>
+  <div class="marquee-track"><span class="marquee-text" id="marqueeText"></span></div>
+</div>
+<div class="ticker">
+  <div class="tick"><div class="tick-label">Conflict</div><div class="tick-value red"><span class="tick-flags"><span class="flag">&#127482;&#127480;</span><span class="flag">&#127470;&#127473;</span> vs <span class="flag">&#127470;&#127479;</span></span></div></div>
+  <div class="tick" style="cursor:pointer" id="tickHormuz" onclick="toggleTickerDetail('hormuz')"><div class="tick-label"><span class="tick-icon">&#9875;</span> Strait of Hormuz</div><div class="tick-value orange tick-pulse" id="tickHormuzVal">CLOSED</div><div class="tick-sub" id="tickHormuzSub"></div></div>
+  <div class="tick" style="cursor:pointer" onclick="toggleTickerDetail('oil')"><div class="tick-label"><span class="tick-icon">&#128738;</span> Brent Crude</div><div class="tick-value orange" id="tickOil">~$105-115/bbl</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)">PRE-CONFLICT: ~$75</div></div>
+  <div class="tick" style="cursor:pointer" onclick="toggleTickerDetail('threat')"><div class="tick-label"><span class="tick-icon">&#9888;&#65039;</span> Threat Level</div><div class="tick-value red tick-critical" id="tickThreat">CRITICAL</div><div class="tick-sub" id="tickThreatSub"></div></div>
+  <div class="tick" id="tickCarrierWrap" style="cursor:pointer" onclick="toggleCarrierPanel()"><div class="tick-label"><span class="tick-icon">&#9992;</span> Carrier Groups</div><div class="tick-value blue" id="tickCarrier">3 DEPLOYED</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)">CLICK FOR DETAILS</div></div>
+  <div class="tick" style="cursor:pointer" onclick="toggleTickerDetail('defcon')"><div class="tick-label"><span class="tick-icon">&#127915;</span> DEFCON</div><div class="tick-value red tick-critical" id="tickDefcon">LEVEL 2</div><div class="tick-sub" id="tickDefconSub"></div></div>
+  <div class="tick" style="cursor:pointer" onclick="toggleTickerDetail('markets')"><div class="tick-label"><span class="tick-icon">&#128200;</span> Markets</div><div class="tick-value orange" id="tickMarkets">VOLATILE</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)" id="tickMarketsSub">CLICK FOR DETAILS</div></div>
+</div>
+<div class="carrier-panel" id="tickerDetailPanel"><div style="padding:16px 20px;max-width:900px;margin:0 auto" id="tickerDetailInner"></div></div>
+<div class="carrier-panel" id="carrierPanel"><div class="carrier-panel-inner" id="carrierPanelInner"></div></div>
+<nav class="nav-tabs" role="navigation" aria-label="Dashboard navigation">
+  <a class="nav-tab" href="/" data-panel="overview"><span class="tab-icon">◉</span>OVERVIEW</a>
+  <a class="nav-tab" href="/warmap.html" data-panel="warmap"><span class="tab-icon">⊕</span>WAR MAP</a>
+  <a class="nav-tab" href="/maritime.html" data-panel="maritime"><span class="tab-icon">⚓</span>MARITIME</a>
+  <a class="nav-tab" href="/airtraffic.html" data-panel="airtraffic"><span class="tab-icon">✈</span>AIR TRAFFIC</a>
+  <a class="nav-tab" href="/videos.html" data-panel="videos"><span class="tab-icon">▶</span>VIDEO CLIPS</a>
+  <a class="nav-tab" href="/livestreams.html" data-panel="livestreams"><span class="tab-icon">◉</span>LIVE STREAMS</a>
+  <a class="nav-tab" href="/osint.html" data-panel="osint"><span class="tab-icon">◎</span>OSINT / SOCIAL</a>
+  <a class="nav-tab" href="/forces.html" data-panel="forces"><span class="tab-icon">⚔</span>FORCES</a>
+  <a class="nav-tab" href="/assets.html" data-panel="assets"><span class="tab-icon">🎯</span>ASSETS</a>
+  <a class="nav-tab" href="/impact.html" data-panel="impact"><span class="tab-icon">◈</span>IMPACT</a>
+  <a class="nav-tab active" href="/resources.html" data-panel="resources"><span class="tab-icon">≡</span>RESOURCES</a>
+</nav>
+<main id="main-content">
+  <div class="section-head"><span>≡ BOOKMARKS & RESOURCES</span></div>
+  <div class="links-grid">
+    <div class="link-card"><h3>🗺 Liveuamap — Iran</h3><p>Real-time conflict map with geolocated news reports, strikes, and military movements across Iran.</p><a href="https://iran.liveuamap.com/" target="_blank">iran.liveuamap.com →</a></div>
+    <div class="link-card"><h3>🗺 Iran Strike Map</h3><p>Independent OSINT tracker with 115+ confirmed strikes, leader status, and verified video.</p><a href="https://iranstrikemap.com/" target="_blank">iranstrikemap.com →</a></div>
+    <div class="link-card"><h3>🗺 ACLED Iran Crisis</h3><p>Armed Conflict Location & Event Data — updated daily map of all strikes and retaliations.</p><a href="https://acleddata.com/iran-crisis-live/" target="_blank">acleddata.com/iran-crisis-live →</a></div>
+    <div class="link-card"><h3>🗺 ISW/CTP ArcGIS Map</h3><p>Institute for the Study of War interactive strike map companion to their daily conflict coverage.</p><a href="https://storymaps.arcgis.com/stories/089bc1a2fe684405a67d67f13bd31324" target="_blank">storymaps.arcgis.com →</a></div>
+    <div class="link-card"><h3>⚓ MarineTraffic — Hormuz</h3><p>Live AIS ship positions in the Strait of Hormuz and Persian Gulf. Watch vessel movements in real time.</p><a href="https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8" target="_blank">marinetraffic.com →</a></div>
+    <div class="link-card"><h3>⚓ VesselFinder</h3><p>Alternative maritime tracker. Good for cross-referencing ship positions and vessel details.</p><a href="https://www.vesselfinder.com/" target="_blank">vesselfinder.com →</a></div>
+    <div class="link-card"><h3>✈ Flightradar24</h3><p>Live air traffic data. Monitor flight paths, NOTAMs, and airspace closures over the conflict zone.</p><a href="https://www.flightradar24.com/26.51,53.58/5" target="_blank">flightradar24.com →</a></div>
+    <div class="link-card"><h3>✈ ADS-B Exchange</h3><p>Unfiltered flight tracking including military aircraft. No data filtering unlike commercial trackers.</p><a href="https://globe.adsbexchange.com/" target="_blank">adsbexchange.com →</a></div>
+    <div class="link-card"><h3>📰 Al Jazeera Live Blog</h3><p>Minute-by-minute updates on the US-Israel war on Iran. Multiple daily live blogs with video.</p><a href="https://www.aljazeera.com/where/iran/" target="_blank">aljazeera.com/where/iran →</a></div>
+    <div class="link-card"><h3>📰 CNN Live Updates</h3><p>CNN's live update page with maps, charts, and rolling coverage of the Iran conflict.</p><a href="https://www.cnn.com/world/middleeast/iran" target="_blank">cnn.com/world/middleeast/iran →</a></div>
+    <div class="link-card"><h3>📰 NBC News Live Blog</h3><p>Continuously updated live blog with reporting from correspondents across the region.</p><a href="https://www.nbcnews.com/world/iran" target="_blank">nbcnews.com/world/iran →</a></div>
+    <div class="link-card"><h3>📰 BBC News — Iran</h3><p>BBC's Iran coverage hub with analysis, explainers, and correspondent reports.</p><a href="https://www.bbc.com/news/topics/c4wp8v0jnx2t" target="_blank">bbc.com/news →</a></div>
+    <div class="link-card"><h3>📰 NewsNow Iran</h3><p>Aggregated news feed from hundreds of sources. Great for seeing all coverage at once.</p><a href="https://www.newsnow.com/us/World/Middle+East/Iran" target="_blank">newsnow.com →</a></div>
+    <div class="link-card"><h3>📰 JFeed Live</h3><p>Minute-by-minute live ticker with breaking updates from Israeli and international sources.</p><a href="https://www.jfeed.com/latest-news" target="_blank">jfeed.com/latest-news →</a></div>
+    <div class="link-card"><h3>📊 Iran War Map (AI)</h3><p>AI-powered conflict monitor with tension tracker, prediction market odds, and OSINT feed.</p><a href="https://iranwarmap.com/" target="_blank">iranwarmap.com →</a></div>
+    <div class="link-card"><h3>📊 Live War Maps Feed</h3><p>Real-time war updates with oil market data ticker and live event feed.</p><a href="https://livewarmaps.com/live-war-feed.html" target="_blank">livewarmaps.com →</a></div>
+    <div class="link-card"><h3>🎖 ISW — Inst. for Study of War</h3><p>Daily assessments and campaign analysis from former military planners. Critical order of battle info.</p><a href="https://www.understandingwar.org/" target="_blank">understandingwar.org →</a></div>
+    <div class="link-card"><h3>🎖 CENTCOM Press Releases</h3><p>Official US Central Command statements, operational updates, and strike reports.</p><a href="https://www.centcom.mil/MEDIA/PRESS-RELEASES/" target="_blank">centcom.mil →</a></div>
+    <div class="link-card"><h3>🎖 Janes Defence</h3><p>Open-source military intelligence on weapons systems, force structures, and capabilities.</p><a href="https://www.janes.com/" target="_blank">janes.com →</a></div>
+    <div class="link-card"><h3>☢ IAEA — Iran Reports</h3><p>International Atomic Energy Agency updates on Iranian nuclear facilities and safeguards.</p><a href="https://www.iaea.org/newscenter/focus/iran" target="_blank">iaea.org →</a></div>
+    <div class="link-card"><h3>🛢 Oil Price Live</h3><p>Real-time Brent crude and WTI oil prices. Critical for tracking economic impact of Hormuz closure.</p><a href="https://oilprice.com/" target="_blank">oilprice.com →</a></div>
+    <div class="link-card"><h3>🛰 Sentinel Hub (Satellite)</h3><p>Free satellite imagery browser. Monitor damage to infrastructure, fires, and military activity.</p><a href="https://apps.sentinel-hub.com/eo-browser/" target="_blank">sentinel-hub.com →</a></div>
+    <div class="link-card"><h3>📡 RadioFreeEurope — Iran</h3><p>Radio Farda coverage in Farsi and English. Important for internal Iranian perspective.</p><a href="https://en.radiofarda.com/" target="_blank">radiofarda.com →</a></div>
+    <div class="link-card"><h3>🌐 UNHCR — Refugee Data</h3><p>UN refugee agency data on displacement from the Iran conflict zone.</p><a href="https://data.unhcr.org/en/situations" target="_blank">data.unhcr.org →</a></div>
+  </div>
+</main>
+<div class="kbd-hint" id="kbdHint">
+  <div style="margin-bottom:6px;color:var(--text);font-weight:600">Keyboard Shortcuts</div>
+  <kbd>R</kbd> Refresh &nbsp;<kbd>N</kbd> Night mode &nbsp;<kbd>?</kbd> This help
+</div>
+<div class="site-footer" id="siteFooter">
+  <span>WARTIME DASHBOARD — Open-source conflict intelligence aggregator</span>
+  <span>Data from public sources · Not affiliated with any government</span>
+</div>
+<script src="/js/shared.js"></script>
+</body>
+</html>
