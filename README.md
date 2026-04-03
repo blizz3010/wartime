@@ -72,12 +72,6 @@ Deployed on [Vercel](https://vercel.com). No environment variables required — 
 
 That's it. The server-side API routes (`/api/news`, `/api/livestream`, `/api/reddit`) are Vercel serverless functions that run automatically.
 
-### Optional Environment Variables
-
-| Variable | Description |
-|---|---|
-| `YOUTUBE_API_KEY` | Google/YouTube Data API v3 key — enables video search on the Video Clips page. Not required; the page shows curated sources without it. |
-
 ## Architecture
 
 ### News Pipeline
