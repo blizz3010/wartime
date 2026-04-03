@@ -984,7 +984,7 @@
         <option value="week">Past Week</option>
         <option value="month">Past Month</option>
       </select>
-      <button class="refresh-btn" onclick="fetchVideos()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
+      <button class="refresh-btn" onclick="fetchVideos(true)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
     </div>
   </div>
   <div id="vidStatus" style="padding:8px 16px;font-family:var(--mono);font-size:.6rem;color:var(--text3);border-bottom:1px solid var(--border)">
@@ -1024,7 +1024,7 @@
         <button class="vid-src-tab" data-osint="analysis" onclick="filterOsint('analysis')">ANALYSIS</button>
         <button class="vid-src-tab" data-osint="osint" onclick="filterOsint('osint')">OSINT</button>
       </div>
-      <button class="refresh-btn" onclick="fetchOsint()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
+      <button class="refresh-btn" onclick="fetchOsint(true)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
     </div>
   </div>
   <div id="osintStatus" style="padding:8px 16px;font-family:var(--mono);font-size:.6rem;color:var(--text3);border-bottom:1px solid var(--border)">
@@ -1040,6 +1040,7 @@
   <!-- Forces Sub-Navigation -->
   <div class="forces-subnav" id="forcesSubnav">
     <button class="forces-subnav-btn active" onclick="showForceSubpage('comparison')">⚔ Force Comparison</button>
+    <button class="forces-subnav-btn" onclick="showForceSubpage('command')">🎖 Command Structure</button>
     <button class="forces-subnav-btn" onclick="showForceSubpage('support')">🤝 Support Nations</button>
     <button class="forces-subnav-btn" onclick="showForceSubpage('proxy')">⚡ Proxy Breakdown</button>
     <button class="forces-subnav-btn" onclick="showForceSubpage('weapons')">🎯 Weapons</button>
@@ -1048,7 +1049,15 @@
 
   <!-- FORCE COMPARISON — Side by Side -->
   <div class="subpage active" id="forces-page-comparison">
+    <!-- Quick Stats Banner -->
+    <div id="forceQuickStats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border)"></div>
     <div class="force-compare" id="forceCompare"></div>
+  </div>
+
+  <!-- Command Structure -->
+  <div class="subpage" id="forces-page-command">
+    <div class="force-section-head">🎖 COMMAND STRUCTURE & CHAIN OF COMMAND</div>
+    <div id="commandStructure"></div>
   </div>
 
   <!-- Support / Logistics Nations -->
@@ -1084,17 +1093,31 @@
 <div class="panel" id="panel-assets">
   <!-- Assets Sub-Navigation -->
   <div class="forces-subnav" id="assetsSubnav">
-    <button class="forces-subnav-btn active" onclick="showAssetSubpage('fleet')">🚢 Naval Fleet</button>
+    <button class="forces-subnav-btn active" onclick="showAssetSubpage('overview')">◈ Damage Overview</button>
+    <button class="forces-subnav-btn" onclick="showAssetSubpage('fleet')">🚢 Naval Fleet</button>
+    <button class="forces-subnav-btn" onclick="showAssetSubpage('coalition')">⚓ Coalition Fleet</button>
     <button class="forces-subnav-btn" onclick="showAssetSubpage('bases')">🏗 Military Bases</button>
     <button class="forces-subnav-btn" onclick="showAssetSubpage('infra')">🏗 Infrastructure</button>
     <button class="forces-subnav-btn" onclick="showAssetSubpage('nukes')">☢ Nuclear</button>
   </div>
 
+  <!-- Damage Overview -->
+  <div class="subpage active" id="assets-page-overview">
+    <div class="force-section-head">◈ DAMAGE ASSESSMENT OVERVIEW — IRAN</div>
+    <div id="damageOverview"></div>
+  </div>
+
   <!-- Iranian Naval Fleet Tracker -->
-  <div class="subpage active" id="assets-page-fleet">
+  <div class="subpage" id="assets-page-fleet">
     <div class="force-section-head">🚢 IRANIAN NAVAL FLEET — OPERATION EPIC FURY</div>
     <div class="fleet-summary" id="fleetSummary"></div>
     <div class="fleet-grid" id="fleetTracker"></div>
+  </div>
+
+  <!-- Coalition Fleet -->
+  <div class="subpage" id="assets-page-coalition">
+    <div class="force-section-head">⚓ COALITION NAVAL ASSETS — DEPLOYED IN THEATER</div>
+    <div id="coalitionFleet"></div>
   </div>
 
   <!-- Military Base Status -->
@@ -1598,9 +1621,11 @@ function stripHtml(html){
   const d=document.createElement('div');d.innerHTML=html;return d.textContent||'';
 }
 
-// ===== VIDEO CLIPS (Server-side aggregation — like news feed) =====
+// ===== VIDEO CLIPS (Server-side aggregation — CDN cached) =====
 let allVideoClips=[];
 let currentVideoSource='all';
+let videoLastFetch=0;
+const VIDEO_CACHE_MS=600000; // 10 min client-side cache
 
 // Content filter: block memes, parodies, reaction videos, gaming, and off-topic content
 const BLOCKED_TITLE_PATTERNS=[
@@ -1630,8 +1655,14 @@ function getTimeRange(){
   return 'month';
 }
 
-// Single API call — server fetches Reddit (CombatFootage + others) + YouTube RSS, dedupes, caches on CDN
-async function fetchVideos(){
+// Single API call — server fetches Reddit (CombatFootage, combatclips + others) + YouTube RSS, dedupes, caches on CDN
+async function fetchVideos(force){
+  // Client-side cache: skip if fetched recently (server also caches for 30min)
+  if(!force&&allVideoClips.length>0&&Date.now()-videoLastFetch<VIDEO_CACHE_MS){
+    renderVideoClips();
+    return;
+  }
+
   const grid=document.getElementById('clipsGrid');
   const status=document.getElementById('vidStatus');
   grid.innerHTML='<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading clips from YouTube & Reddit...</div>';
@@ -1644,8 +1675,9 @@ async function fetchVideos(){
     const data=await res.json();
 
     allVideoClips=(data.clips||[]).filter(v=>!isBlockedContent(v.title));
+    videoLastFetch=Date.now();
     const meta=data.meta||{};
-    status.textContent=`${meta.youtube||0} YouTube + ${meta.reddit||0} Reddit clips loaded`;
+    status.textContent=`${meta.youtube||0} YouTube + ${meta.reddit||0} Reddit clips loaded · cached server-side`;
     renderVideoClips();
 
     const totalClips=allVideoClips.length;
@@ -1996,17 +2028,11 @@ if(localStorage.getItem('nightOps')==='1'){
   document.getElementById('toggleNightOps').innerHTML='&#127761; NV ON';
 }
 
-// ===== OSINT / SOCIAL FEED =====
-const OSINT_ACCOUNTS=[
-  {sub:'OSINT',queries:['iran OSINT','iran satellite imagery','iran military movement']},
-  {sub:'geopolitics',queries:['iran conflict analysis','iran war strategy']},
-  {sub:'worldnews',queries:['iran breaking','iran strike','iran military']},
-  {sub:'CredibleDefense',queries:['iran','persian gulf','strait of hormuz']},
-  {sub:'MiddleEastNews',queries:['iran war','iran conflict']},
-];
-
+// ===== OSINT / SOCIAL FEED (Server-side cached via /api/osint) =====
 let allOsintPosts=[];
 let currentOsintFilter='all';
+let osintLastFetch=0;
+const OSINT_CACHE_MS=600000; // 10 min client-side cache
 
 function filterOsint(filter){
   currentOsintFilter=filter;
@@ -2016,93 +2042,37 @@ function filterOsint(filter){
   renderOsint();
 }
 
-async function fetchOsint(){
+async function fetchOsint(force){
+  // Client-side cache: skip if fetched recently (server also caches for 20min)
+  if(!force&&allOsintPosts.length>0&&Date.now()-osintLastFetch<OSINT_CACHE_MS){
+    renderOsint();
+    return;
+  }
+
   const grid=document.getElementById('osintGrid');
   const status=document.getElementById('osintStatus');
   grid.innerHTML='<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Fetching OSINT sources...</div>';
   status.textContent='Fetching...';
 
-  allOsintPosts=[];
+  try{
+    const res=await fetch('/api/osint',{signal:AbortSignal.timeout(15000)});
+    if(!res.ok) throw new Error('API returned '+res.status);
+    const data=await res.json();
 
-  // Fetch from Reddit via CORS proxy (same helper used by video clips)
-  const fetches=OSINT_ACCOUNTS.map(async acc=>{
-    for(const q of acc.queries){
-      try{
-        const url=`https://www.reddit.com/r/${acc.sub}/search.json?q=${encodeURIComponent(q)}&sort=new&t=week&limit=15&restrict_sr=1`;
-        const data=await fetchRedditJSON(url);
-        if(!data) continue;
-        const items=(data?.data?.children||[]).map(c=>c.data);
-        items.forEach(p=>{
-          const isOsint=acc.sub==='OSINT'||acc.sub==='CredibleDefense'||p.title.toLowerCase().includes('osint')||p.title.toLowerCase().includes('satellite')||p.title.toLowerCase().includes('analysis');
-          const isGeopolitics=acc.sub==='geopolitics'||acc.sub==='CredibleDefense';
-          allOsintPosts.push({
-            id:p.id,
-            platform:isOsint?'osint':isGeopolitics?'analysis':'social',
-            platformCls:isOsint?'plat-osint':isGeopolitics?'plat-telegram':'plat-twitter',
-            platformLabel:isOsint?'OSINT':isGeopolitics?'ANALYSIS':'SOCIAL',
-            author:p.author||'unknown',
-            handle:'r/'+p.subreddit,
-            text:p.title+(p.selftext?' — '+p.selftext.slice(0,200):''),
-            url:`https://www.reddit.com${p.permalink}`,
-            time:new Date(p.created_utc*1000).toISOString(),
-            score:p.score||0,
-            comments:p.num_comments||0,
-          });
-        });
-      }catch(e){continue}
-    }
-  });
-  await Promise.allSettled(fetches);
+    allOsintPosts=(data.posts||[]).map(p=>({
+      ...p,
+      platformCls:p.platform==='osint'?'plat-osint':p.platform==='analysis'?'plat-telegram':'plat-twitter',
+    }));
+    osintLastFetch=Date.now();
 
-  // Also try fetching OSINT-related RSS feeds as additional sources
-  const osintRSSFeeds=[
-    {name:'ISW',url:'https://www.understandingwar.org/rss.xml'},
-    {name:'CSIS',url:'https://www.csis.org/analysis/feed'},
-  ];
-  const rssFetches=osintRSSFeeds.map(async feed=>{
-    try{
-      const proxyUrl=`https://api.allorigins.win/raw?url=${encodeURIComponent(feed.url)}`;
-      const res=await fetch(proxyUrl);
-      if(!res.ok) return;
-      const xml=await res.text();
-      const parser=new DOMParser();
-      const doc=parser.parseFromString(xml,'text/xml');
-      const items=Array.from(doc.querySelectorAll('item')).map(el=>({
-        title:el.querySelector('title')?.textContent||'',
-        link:el.querySelector('link')?.textContent||'',
-        description:el.querySelector('description')?.textContent||'',
-        pubDate:el.querySelector('pubDate')?.textContent||'',
-      }));
-      const iranKw=['iran','tehran','hormuz','persian','irgc','hezbollah','middle east','nuclear','conflict'];
-      items.filter(i=>iranKw.some(k=>(i.title||'').toLowerCase().includes(k))).forEach(i=>{
-        allOsintPosts.push({
-          id:feed.name+'-'+i.title,
-          platform:'osint',
-          platformCls:'plat-osint',
-          platformLabel:'ANALYSIS',
-          author:feed.name,
-          handle:feed.name,
-          text:i.title+(i.description?' — '+stripHtml(i.description).slice(0,200):''),
-          url:i.link||'',
-          time:i.pubDate?new Date(i.pubDate).toISOString():new Date().toISOString(),
-          score:0,
-          comments:0,
-        });
-      });
-    }catch(e){}
-  });
-  await Promise.allSettled(rssFetches);
-
-  // Deduplicate
-  const seen=new Set();
-  allOsintPosts=allOsintPosts.filter(p=>{
-    if(seen.has(p.id)) return false;
-    seen.add(p.id);return true;
-  });
-  allOsintPosts.sort((a,b)=>new Date(b.time)-new Date(a.time));
-
-  status.textContent=`${allOsintPosts.length} posts loaded from ${OSINT_ACCOUNTS.length+osintRSSFeeds.length} sources`;
-  renderOsint();
+    const meta=data.meta||{};
+    status.textContent=`${meta.total||0} posts loaded (${meta.reddit||0} Reddit + ${meta.rss||0} analysis feeds) · cached server-side`;
+    renderOsint();
+  }catch(e){
+    console.warn('OSINT API failed:',e);
+    status.textContent='Failed to load OSINT feeds. Try refreshing.';
+    grid.innerHTML='<div class="loading" style="grid-column:1/-1">Failed to load OSINT feeds. Click REFRESH to retry.</div>';
+  }
 }
 
 function renderOsint(){
@@ -2168,6 +2138,23 @@ function showImpactSubpage(id){
 
 // ===== FORCES & ORDER OF BATTLE =====
 function renderForcesPanel(){
+
+  // ===== QUICK STATS BANNER =====
+  const quickStatsEl=document.getElementById('forceQuickStats');
+  const quickStats=[
+    {label:'COALITION AIR SORTIES',val:'3,200+',color:'var(--blue)',sub:'Since Day 1'},
+    {label:'IRAN MISSILES FIRED',val:'300+',color:'var(--iran)',sub:'Shahab, Emad, Fateh'},
+    {label:'COALITION INTERCEPT RATE',val:'~96%',color:'var(--green)',sub:'Arrow, Patriot, SM-6'},
+    {label:'IRAN AIR DEFENSE',val:'~20%',color:'var(--red)',sub:'Remaining operational'},
+  ];
+  quickStatsEl.innerHTML=quickStats.map(s=>`
+    <div style="background:var(--surface);padding:14px 16px;text-align:center">
+      <div style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:${s.color}">${s.val}</div>
+      <div style="font-family:var(--mono);font-size:.5rem;color:var(--text2);letter-spacing:1px;margin-top:2px">${s.label}</div>
+      <div style="font-family:var(--mono);font-size:.45rem;color:var(--text3);margin-top:1px">${s.sub}</div>
+    </div>
+  `).join('');
+
   // ===== FORCE COMPARISON — Side by Side =====
   const compareEl=document.getElementById('forceCompare');
   const compareRows=[
@@ -2221,6 +2208,81 @@ function renderForcesPanel(){
       <div class="compare-total-bar" style="color:var(--iran)">
         📊 NUMERICAL + PROXY ADVANTAGE
       </div>
+    </div>
+  `;
+
+  // ===== COMMAND STRUCTURE =====
+  const cmdEl=document.getElementById('commandStructure');
+  const coalitionCmd=[
+    {rank:'Commander-in-Chief',name:'President Trump',org:'White House / NCA',note:'National Command Authority'},
+    {rank:'Secretary of Defense',name:'SecDef Pete Hegseth',org:'The Pentagon',note:'Authorized operations'},
+    {rank:'CENTCOM Commander',name:'Gen. Michael E. Kurilla',org:'US CENTCOM — Tampa / Forward',note:'Theater combatant commander'},
+    {rank:'NAVCENT / 5th Fleet',name:'Vice Adm. George Wikoff',org:'NSA Bahrain',note:'Naval operations — 3 CSGs'},
+    {rank:'AFCENT / 9th Air Force',name:'Lt. Gen. Alex Grynkewich',org:'Al Udeid Air Base, Qatar',note:'Air campaign commander'},
+    {rank:'ARCENT / 3rd Army',name:'Lt. Gen. Patrick Frank',org:'Camp Arifjan, Kuwait',note:'Ground forces coordination'},
+    {rank:'IDF Chief of Staff',name:'Lt. Gen. Herzi Halevi',org:'HaKirya, Tel Aviv',note:'Israeli military operations'},
+    {rank:'Mossad Director',name:'David Barnea',org:'Mossad HQ',note:'Covert ops & intelligence'},
+  ];
+  const iranCmd=[
+    {rank:'Supreme Leader',name:'Ayatollah Ali Khamenei',org:'Supreme Command',note:'Ultimate military authority'},
+    {rank:'IRGC Commander',name:'MG Hossein Salami',org:'IRGC Headquarters, Tehran',note:'IRGC — primary military force'},
+    {rank:'IRGC-QF Commander',name:'BG Esmail Qaani',org:'Quds Force',note:'Proxy operations abroad'},
+    {rank:'IRGC Aerospace',name:'BG Amir Ali Hajizadeh',org:'IRGC Aerospace Force',note:'Missile & drone operations'},
+    {rank:'IRGCN Commander',name:'RADM Alireza Tangsiri',org:'IRGC Navy',note:'Naval forces — Hormuz'},
+    {rank:'Artesh Commander',name:'MG Abdolrahim Mousavi',org:'Regular Armed Forces',note:'Conventional military'},
+    {rank:'IRIAF Commander',name:'BG Hamid Vahedi',org:'Air Force',note:'~40 operational aircraft'},
+    {rank:'Basij Commander',name:'BG Gholamreza Soleimani',org:'Basij Militia',note:'600K+ militia mobilized'},
+  ];
+
+  cmdEl.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)">
+      <div style="background:var(--surface);border-top:3px solid var(--blue)">
+        <div style="padding:16px 20px;background:rgba(0,56,184,0.06);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+          <span style="font-size:1.6rem">🇺🇸🇮🇱</span>
+          <div>
+            <div style="font-family:var(--mono);font-size:.85rem;font-weight:700;color:var(--blue);letter-spacing:1px">COALITION COMMAND</div>
+            <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">US Central Command + IDF · Joint Operations</div>
+          </div>
+        </div>
+        ${coalitionCmd.map((c,i)=>`
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid var(--border);${i===0?'background:rgba(88,166,255,0.04)':''}">
+            <div style="width:24px;height:24px;background:var(--blue-dim);border:1px solid rgba(88,166,255,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.45rem;color:var(--blue);font-weight:700;flex-shrink:0">${i+1}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text)">${c.name}</div>
+              <div style="font-family:var(--mono);font-size:.5rem;color:var(--blue)">${c.rank}</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">${c.org}</div>
+              <div style="font-family:var(--mono);font-size:.45rem;color:var(--text3)">${c.note}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div style="background:var(--surface);border-top:3px solid var(--iran)">
+        <div style="padding:16px 20px;background:rgba(35,158,59,0.06);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+          <span style="font-size:1.6rem">🇮🇷</span>
+          <div>
+            <div style="font-family:var(--mono);font-size:.85rem;font-weight:700;color:var(--iran);letter-spacing:1px">IRANIAN COMMAND</div>
+            <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">Supreme Leader + IRGC + Artesh · Dual Command Structure</div>
+          </div>
+        </div>
+        ${iranCmd.map((c,i)=>`
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid var(--border);${i===0?'background:rgba(35,158,59,0.04)':''}">
+            <div style="width:24px;height:24px;background:rgba(35,158,59,0.15);border:1px solid rgba(35,158,59,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.45rem;color:var(--iran);font-weight:700;flex-shrink:0">${i+1}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text)">${c.name}</div>
+              <div style="font-family:var(--mono);font-size:.5rem;color:var(--iran)">${c.rank}</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">${c.org}</div>
+              <div style="font-family:var(--mono);font-size:.45rem;color:var(--text3)">${c.note}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div style="padding:10px 20px;font-family:var(--mono);font-size:.45rem;color:var(--text3);background:var(--surface);border-top:1px solid var(--border)">
+      NOTE: Iran operates a dual command structure — IRGC reports directly to Supreme Leader, while Artesh (regular military) reports through the defense ministry. IRGC has operational primacy in this conflict.
     </div>
   `;
 
@@ -3495,6 +3557,135 @@ function renderFleetTracker(){
   }).join('');
 }
 
+// ===== DAMAGE OVERVIEW & COALITION FLEET =====
+function renderDamageOverview(){
+  const el=document.getElementById('damageOverview');
+  const categories=[
+    {cat:'Naval Fleet',destroyed:18,damaged:2,operational:0,total:21,icon:'🚢',detail:'Operation Epic Fury — IRIN declared "combat ineffective"'},
+    {cat:'Air Bases',destroyed:3,damaged:5,operational:1,total:9,icon:'✈️',detail:'Runways cratered, ~40 aircraft destroyed on ground'},
+    {cat:'Missile Sites',destroyed:1,damaged:2,operational:0,total:3,icon:'🚀',detail:'TEL launchers dispersed, fixed sites struck'},
+    {cat:'Air Defense',destroyed:2,damaged:1,operational:0,total:3,icon:'🛡️',detail:'SEAD/DEAD campaign — 80%+ degraded'},
+    {cat:'Nuclear Facilities',destroyed:2,damaged:2,operational:1,total:5,icon:'☢️',detail:'Natanz & Fordow struck by GBU-57 MOP'},
+    {cat:'Oil Infrastructure',destroyed:0,damaged:4,operational:0,total:4,icon:'🛢️',detail:'Export capacity reduced ~60%'},
+    {cat:'Power / Telecom',destroyed:1,damaged:3,operational:0,total:4,icon:'⚡',detail:'Internet at ~4%, rolling blackouts nationwide'},
+    {cat:'Transport',destroyed:0,damaged:3,operational:0,total:3,icon:'🛣️',detail:'Tehran airport closed, bridges damaged'},
+  ];
+
+  const totalDestroyed=categories.reduce((s,c)=>s+c.destroyed,0);
+  const totalDamaged=categories.reduce((s,c)=>s+c.damaged,0);
+  const totalSites=categories.reduce((s,c)=>s+c.total,0);
+
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border)">
+      <div style="background:var(--surface);padding:16px;text-align:center">
+        <div style="font-family:var(--mono);font-size:2rem;font-weight:700;color:var(--red)">${totalDestroyed}</div>
+        <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);letter-spacing:1px">DESTROYED</div>
+      </div>
+      <div style="background:var(--surface);padding:16px;text-align:center">
+        <div style="font-family:var(--mono);font-size:2rem;font-weight:700;color:var(--orange)">${totalDamaged}</div>
+        <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);letter-spacing:1px">DAMAGED</div>
+      </div>
+      <div style="background:var(--surface);padding:16px;text-align:center">
+        <div style="font-family:var(--mono);font-size:2rem;font-weight:700;color:var(--text2)">${totalSites}</div>
+        <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);letter-spacing:1px">TOTAL TARGETS</div>
+      </div>
+      <div style="background:var(--surface);padding:16px;text-align:center">
+        <div style="font-family:var(--mono);font-size:2rem;font-weight:700;color:var(--red)">${Math.round((totalDestroyed+totalDamaged)/totalSites*100)}%</div>
+        <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);letter-spacing:1px">STRIKE RATE</div>
+      </div>
+    </div>
+    <div style="background:var(--surface);padding:16px;border-top:1px solid var(--border)">
+      ${categories.map(c=>{
+        const destroyedPct=c.destroyed/c.total*100;
+        const damagedPct=c.damaged/c.total*100;
+        const opPct=c.operational/c.total*100;
+        return `<div style="margin-bottom:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:1rem">${c.icon}</span>
+              <span style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text)">${c.cat}</span>
+            </div>
+            <span style="font-family:var(--mono);font-size:.55rem;color:var(--text3)">${c.destroyed} destroyed · ${c.damaged} damaged · ${c.operational} intact</span>
+          </div>
+          <div style="display:flex;height:10px;background:var(--border);border-radius:4px;overflow:hidden;gap:1px">
+            <div style="width:${destroyedPct}%;background:var(--red);border-radius:${damagedPct?'4px 0 0 4px':'4px'}"></div>
+            <div style="width:${damagedPct}%;background:var(--orange)"></div>
+            <div style="width:${opPct}%;background:var(--green);border-radius:0 4px 4px 0"></div>
+          </div>
+          <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);margin-top:3px">${c.detail}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)">
+      <div style="background:var(--surface);padding:12px 16px;display:flex;align-items:center;gap:6px">
+        <div style="width:12px;height:12px;background:var(--red);border-radius:2px"></div>
+        <span style="font-family:var(--mono);font-size:.55rem;color:var(--text3)">DESTROYED (75%+ damage)</span>
+      </div>
+      <div style="background:var(--surface);padding:12px 16px;display:flex;align-items:center;gap:6px">
+        <div style="width:12px;height:12px;background:var(--orange);border-radius:2px"></div>
+        <span style="font-family:var(--mono);font-size:.55rem;color:var(--text3)">DAMAGED (30-74%)</span>
+      </div>
+      <div style="background:var(--surface);padding:12px 16px;display:flex;align-items:center;gap:6px">
+        <div style="width:12px;height:12px;background:var(--green);border-radius:2px"></div>
+        <span style="font-family:var(--mono);font-size:.55rem;color:var(--text3)">OPERATIONAL / NOT TARGETED</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderCoalitionFleet(){
+  const el=document.getElementById('coalitionFleet');
+  const csgs=[
+    {name:'USS Gerald R. Ford (CVN-78)',type:'Carrier Strike Group',flag:'🇺🇸',location:'Persian Gulf',status:'operational',
+      composition:['CVN-78 Gerald R. Ford','CG-56 San Jacinto (Ticonderoga)','DDG-105 Dewey','DDG-110 William P. Lawrence','DDG-114 Ralph Johnson','SSN attached (classified)'],
+      airWing:'CVW-8: VFA-87, VFA-213, VFA-31, VFA-103 (F/A-18E/F)',note:'Lead CSG — arrived Mar 15'},
+    {name:'USS Dwight D. Eisenhower (CVN-69)',type:'Carrier Strike Group',flag:'🇺🇸',location:'Arabian Sea',status:'operational',
+      composition:['CVN-69 Dwight D. Eisenhower','CG-68 Anzio (Ticonderoga)','DDG-99 Farragut','DDG-101 Gridley','DDG-113 John Finn'],
+      airWing:'CVW-3: VFA-32, VFA-105, VFA-131, VFA-136 (F/A-18E/F)',note:'On station since Feb — Red Sea ops'},
+    {name:'USS Harry S. Truman (CVN-75)',type:'Carrier Strike Group',flag:'🇺🇸',location:'Eastern Mediterranean',status:'operational',
+      composition:['CVN-75 Harry S. Truman','CG-64 Gettysburg (Ticonderoga)','DDG-80 Roosevelt','DDG-100 Kidd','DDG-104 Sterett'],
+      airWing:'CVW-1: VFA-11, VFA-211, VFA-81, VFA-143 (F/A-18E/F)',note:'E. Med — strike + air defense'},
+    {name:'SSGN Contingent',type:'Guided Missile Submarines',flag:'🇺🇸',location:'Classified — Persian Gulf area',status:'operational',
+      composition:['SSGN-726 Ohio (est.)','SSGN-727 Michigan (est.)','SSN-766 Charlotte (confirmed — sank IRIS Dena)','SSN unknown (1-2 additional)'],
+      airWing:'N/A',note:'154 Tomahawk TLAM per SSGN · 500+ total TLAM capacity'},
+    {name:'HMS Queen Elizabeth (R08)',type:'Carrier Group',flag:'🇬🇧',location:'Eastern Mediterranean',status:'operational',
+      composition:['R08 Queen Elizabeth','D37 Duncan (Type 45)','F236 Montrose (Type 23)','S121 Astute-class (est.)'],
+      airWing:'617 Sqn "Dambusters" — F-35B Lightning II',note:'ISR + defensive CAP only — no offensive strikes'},
+  ];
+
+  el.innerHTML=`
+    <div style="display:flex;gap:16px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.55rem;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:6px;height:6px;border-radius:50%;background:var(--green)"></div> ${csgs.length} TASK GROUPS DEPLOYED</div>
+      <div style="color:var(--text3)">3 US CSGs · 4+ SSN/SSGN · 1 UK CSG · 18+ Surface Combatants</div>
+      <div style="margin-left:auto;color:var(--blue)">TOTAL TOMAHAWK CAPACITY: 1,000+</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:1px;background:var(--border)">
+    ${csgs.map(g=>`
+      <div style="background:var(--surface);padding:16px;border-left:3px solid var(--blue)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <span style="font-size:1.4rem">${g.flag}</span>
+          <div style="flex:1">
+            <div style="font-family:var(--mono);font-size:.75rem;font-weight:700;color:var(--text)">${g.name}</div>
+            <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);letter-spacing:.5px">${g.type}</div>
+          </div>
+          <div style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:var(--green-dim);border-radius:3px;font-family:var(--mono);font-size:.5rem;color:var(--green);font-weight:600"><span class="force-status active"></span>OPERATIONAL</div>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:10px;padding:8px 0;border-top:1px solid var(--border)">
+          <div>
+            <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);margin-bottom:2px">LOCATION</div>
+            <div style="font-family:var(--mono);font-size:.6rem;color:var(--text)">📍 ${g.location}</div>
+          </div>
+        </div>
+        <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);letter-spacing:.5px;margin-bottom:4px">COMPOSITION</div>
+        ${g.composition.map(s=>`<div style="font-family:var(--mono);font-size:.55rem;color:var(--text2);padding:3px 0;border-bottom:1px solid var(--border)">• ${s}</div>`).join('')}
+        ${g.airWing!=='N/A'?`<div style="margin-top:8px"><div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);letter-spacing:.5px;margin-bottom:2px">AIR WING</div><div style="font-family:var(--mono);font-size:.55rem;color:var(--blue)">${g.airWing}</div></div>`:''}
+        <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">${g.note}</div>
+      </div>
+    `).join('')}
+    </div>
+  `;
+}
+
 // ===== INFRASTRUCTURE TARGETS TRACKER =====
 function renderInfraTracker(){
   const targets=[
@@ -3566,6 +3757,8 @@ fetchNews();
 renderImpactDashboard();
 renderForcesPanel();
 renderFleetTracker();
+renderDamageOverview();
+renderCoalitionFleet();
 renderInfraTracker();
 renderStreamNav();
 
@@ -3629,8 +3822,8 @@ document.addEventListener('keydown',e=>{
   // R = refresh current feed
   if(e.key==='r'||e.key==='R'){
     e.preventDefault();
-    if(currentPanel==='videos') fetchVideos();
-    else if(currentPanel==='osint') fetchOsint();
+    if(currentPanel==='videos') fetchVideos(true);
+    else if(currentPanel==='osint') fetchOsint(true);
     else fetchNews(true);
   }
   // N = night ops toggle
@@ -3642,10 +3835,10 @@ document.addEventListener('keydown',e=>{
   }
 });
 
-// Auto-refresh news every 3 minutes, videos/OSINT every 5 minutes
-setInterval(fetchNews,300000); // Auto-refresh every 5 min (uses cache if fresh)
-setInterval(()=>{if(allVideoClips.length>0)fetchVideos()},1800000); // 30 min refresh
-setInterval(()=>{if(allOsintPosts.length>0)fetchOsint()},300000);
+// Auto-refresh: news every 5min, videos every 30min, OSINT every 20min (all CDN-cached server-side)
+setInterval(fetchNews,300000);
+setInterval(()=>{if(allVideoClips.length>0)fetchVideos()},1800000);
+setInterval(()=>{if(allOsintPosts.length>0)fetchOsint()},1200000);
 </script>
 </body>
 </html>
