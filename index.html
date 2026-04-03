@@ -2511,6 +2511,32 @@ function renderForcesPanel(){
     {name:'Shiraz Air Base (7th TFB)',role:'IRIAF — Fars Province',type:'AIR BASE',status:'damaged',damage:50,
       coord:{lat:29.54,lon:52.59},detail:'F-4E Phantom base. Multiple hangars destroyed. Runway operational after emergency repairs. Limited sortie capability.',
       stats:[{k:'Hangars',v:'Multiple destroyed'},{k:'Runway',v:'Repaired — limited ops'},{k:'F-4E Phantoms',v:'Status unknown'},{k:'Last strike',v:'Mar 9'}]},
+    {name:'Bandar Abbas Air Base',role:'IRIAF F-14 Base — Hormuz',type:'AIR BASE',status:'damaged',damage:60,
+      coord:{lat:27.22,lon:56.38},detail:'IRIAF F-14 Tomcat base adjacent to naval facilities. Runway partially repaired. Limited flight ops. 4 F-14s confirmed destroyed on ground.',
+      stats:[{k:'Runway',v:'Partially repaired'},{k:'F-14s destroyed',v:'4 confirmed'},{k:'Flight ops',v:'Limited'},{k:'Last strike',v:'Mar 14'}]},
+    {name:'Bushehr Naval Base',role:'IRIN — Southwest Naval',type:'NAVAL BASE',status:'destroyed',damage:80,
+      coord:{lat:28.91,lon:50.82},detail:'Two corvettes (Bayandor, Naghdi) destroyed at pier. Fuel storage hit with secondary explosions. Dockyard severely damaged. Adjacent to Bushehr Air Base.',
+      stats:[{k:'Corvettes destroyed',v:'2 (Bayandor, Naghdi)'},{k:'Fuel storage',v:'Hit — secondary explosions'},{k:'Dockyard',v:'Severely damaged'},{k:'Last strike',v:'Mar 12'}]},
+    // Missile Sites
+    {name:'Imam Ali Missile Base',role:'Ballistic Missile Storage — Kermanshah',type:'MISSILE BASE',status:'destroyed',damage:80,
+      coord:{lat:34.35,lon:47.16},detail:'Underground ballistic missile storage facility. Multiple GBU-57 MOP bunker-buster strikes confirmed. Launch pads destroyed. TEL vehicle staging area cratered.',
+      stats:[{k:'Underground storage',v:'Struck — MOP penetrators'},{k:'Launch pads',v:'Destroyed'},{k:'TEL staging area',v:'Cratered'},{k:'Last strike',v:'Mar 5'}]},
+    {name:'Tabriz Missile Complex',role:'Shahab-3 MRBM Garrison',type:'MISSILE BASE',status:'damaged',damage:55,
+      coord:{lat:38.10,lon:46.30},detail:'Shahab-3 launcher garrison. Surface facilities destroyed. Underground tunnel network status unclear — may retain launch capability.',
+      stats:[{k:'Surface facilities',v:'Destroyed'},{k:'Underground tunnels',v:'Status unclear'},{k:'Shahab-3 launchers',v:'Unknown survivors'},{k:'Last strike',v:'Mar 7'}]},
+    {name:'Khorramabad Missile Site',role:'SRBM Storage — Lorestan',type:'MISSILE BASE',status:'damaged',damage:60,
+      coord:{lat:33.49,lon:48.35},detail:'Zolfaghar and Fateh-110 SRBM storage facility. Launch rails destroyed. TEL vehicles dispersed to civilian areas before strike.',
+      stats:[{k:'Launch rails',v:'Destroyed'},{k:'TEL vehicles',v:'Dispersed pre-strike'},{k:'Missile type',v:'Zolfaghar / Fateh-110'},{k:'Last strike',v:'Mar 6'}]},
+    // Air Defense Sites
+    {name:'Tehran IADS Hub',role:'Integrated Air Defense — Capital',type:'AIR DEFENSE',status:'damaged',damage:70,
+      coord:{lat:35.72,lon:51.42},detail:'S-300PMU2 and Bavar-373 batteries defending Tehran. 3 of 5 S-300 launchers destroyed by HARM and JASSM strikes. Partial radar coverage remains.',
+      stats:[{k:'S-300 launchers',v:'3 of 5 destroyed'},{k:'Bavar-373',v:'Engagement radar damaged'},{k:'Radar coverage',v:'Partial — degraded'},{k:'Last strike',v:'Mar 3'}]},
+    {name:'Isfahan S-300 Battery',role:'Air Defense — Central Iran',type:'AIR DEFENSE',status:'destroyed',damage:95,
+      coord:{lat:32.65,lon:51.70},detail:'Destroyed by SEAD/DEAD campaign in opening hours. HARM anti-radiation missiles followed by JASSM-ER. No radar emissions detected since Mar 3.',
+      stats:[{k:'S-300 system',v:'Completely destroyed'},{k:'Radar emissions',v:'None detected'},{k:'Destroyed by',v:'HARM + JASSM-ER'},{k:'Last strike',v:'Mar 3'}]},
+    {name:'Bushehr Bavar-373',role:'Indigenous Long-Range SAM',type:'AIR DEFENSE',status:'destroyed',damage:90,
+      coord:{lat:28.98,lon:50.80},detail:'Iran\'s indigenous long-range SAM system (comparable to S-300). Engagement radar destroyed by Israeli F-35I strike. System non-functional.',
+      stats:[{k:'Engagement radar',v:'Destroyed'},{k:'Destroyed by',v:'F-35I strike'},{k:'System status',v:'Non-functional'},{k:'Last strike',v:'Mar 4'}]},
   ];
 
   // Summary counts
