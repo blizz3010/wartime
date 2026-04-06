@@ -896,6 +896,9 @@
 <!-- SKIP NAV -->
 <a class="skip-nav" href="#panel-overview">Skip to content</a>
 
+<!-- DEFCON STRIPE -->
+<div id="defconStripe" style="height:3px;background:var(--red);width:100%;transition:background .5s ease"></div>
+
 <!-- THREAT BAR -->
 <div class="threat-bar"></div>
 
@@ -4485,6 +4488,17 @@ function updateDashboardIndicators(scores){
   }
   if(defconSub) defconSub.textContent=scores.defconSub||'';
 
+  // Dynamic DEFCON stripe + pill
+  const DEFCON_COLORS={1:'#ff0000',2:'#ff4444',3:'#ff8800',4:'#ffcc00',5:'#44ff44'};
+  const stripe=document.getElementById('defconStripe');
+  if(stripe) stripe.style.background=DEFCON_COLORS[scores.defcon]||'var(--red)';
+  const pill=document.querySelector('.threat-pill');
+  if(pill){
+    pill.textContent='DEFCON '+scores.defcon;
+    pill.style.background=DEFCON_COLORS[scores.defcon]||'var(--red)';
+    pill.style.color=scores.defcon>=4?'#000':'#fff';
+  }
+
   // Strait of Hormuz
   const hormuzEl=document.getElementById('tickHormuzVal');
   const hormuzSub=document.getElementById('tickHormuzSub');
@@ -6020,6 +6034,35 @@ initBlastTargets();
 // Update threat clock periodically
 setInterval(updateThreatClock,5000);
 setTimeout(updateThreatClock,2000);
+
+// ===== SESSION PERSISTENCE =====
+function savePrefs(){
+  try{
+    localStorage.setItem('wartime_prefs',JSON.stringify({
+      theater:currentTheater.id,
+      sound:alertSoundEnabled,
+      nightVision:nightVisionOn,
+      crt:document.body.classList.contains('crt-mode'),
+      compact:compactNewsView,
+    }));
+  }catch(e){}
+}
+function loadPrefs(){
+  try{
+    const raw=localStorage.getItem('wartime_prefs');
+    if(!raw) return;
+    const p=JSON.parse(raw);
+    if(p.sound){alertSoundEnabled=true;const btn=document.getElementById('toggleSound');if(btn){btn.classList.add('active');btn.innerHTML='&#128264; ALERTS ON'}}
+    if(p.nightVision){nightVisionOn=true;document.body.classList.add('nightvision')}
+    if(p.crt) document.body.classList.add('crt-mode');
+    if(p.compact) compactNewsView=true;
+  }catch(e){}
+}
+loadPrefs();
+// Save prefs periodically
+setInterval(savePrefs,30000);
+// Also save on visibility change (tab close/switch)
+document.addEventListener('visibilitychange',()=>{if(document.hidden)savePrefs()});
 
 // Auto-refresh: news every 5min, videos every 30min, OSINT every 20min (all CDN-cached server-side)
 setInterval(fetchNews,300000);
