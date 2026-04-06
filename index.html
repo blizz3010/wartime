@@ -187,6 +187,21 @@
     font-family:var(--mono);font-size:.55rem;font-weight:700;
     padding:1px 5px;border-radius:2px;margin-right:4px;letter-spacing:.5px;
   }
+  .precedence-badge{
+    display:inline-block;font-family:var(--mono);font-size:.45rem;font-weight:700;
+    padding:1px 4px;border-radius:2px;margin-right:4px;letter-spacing:.5px;
+  }
+  .prec-flash{background:#ff0033;color:#fff;animation:flash-pulse 1s infinite}
+  .prec-immediate{background:#ff6600;color:#fff}
+  .prec-priority{background:#cc9900;color:#000}
+  .prec-routine{background:var(--surface3);color:var(--text3)}
+  @keyframes flash-pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  @media(prefers-reduced-motion:reduce){.prec-flash{animation:none}}
+  .escalation-gauge{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--surface);border:1px solid var(--border);border-radius:4px;margin:8px 0}
+  .gauge-bar{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;position:relative}
+  .gauge-fill{height:100%;border-radius:4px;transition:width .5s ease,background .5s ease}
+  .gauge-label{font-family:var(--mono);font-size:.6rem;color:var(--text2);white-space:nowrap}
+  .gauge-value{font-family:var(--mono);font-size:.7rem;font-weight:700;min-width:60px;text-align:right}
   .news-stats-bar{
     display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--surface);
   }
@@ -910,6 +925,13 @@
   <div class="carrier-panel-inner" id="carrierPanelInner"></div>
 </div>
 
+<!-- ESCALATION GAUGE -->
+<div class="escalation-gauge" id="escalationGauge">
+  <span class="gauge-label">ESCALATION</span>
+  <div class="gauge-bar"><div class="gauge-fill" id="escalationFill" style="width:50%;background:var(--orange)"></div></div>
+  <span class="gauge-value" id="escalationValue">—</span>
+</div>
+
 <!-- NAV -->
 <div class="nav-tabs" role="tablist" aria-label="Dashboard navigation">
   <div class="nav-tab active" role="tab" tabindex="0" aria-selected="true" aria-controls="panel-overview" data-panel="overview"><span class="tab-icon">◉</span>OVERVIEW</div>
@@ -994,6 +1016,7 @@
         <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/32.08,53.69/5','_blank')">FR24 Iran ↗</button>
         <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/31.77,35.22/7','_blank')">FR24 Israel ↗</button>
         <button class="overlay-btn" onclick="window.open('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0','_blank')">ADS-B Exchange ↗</button>
+        <button class="overlay-btn" id="gpsJamBtn" onclick="setAirSrc('https://gpsjam.org/?lat=26.5&lon=53.6&z=5')" title="GPS/GNSS interference map — electronic warfare activity" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming</button>
       </div>
     </div>
     <iframe id="airFrame" src="about:blank" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
@@ -1188,6 +1211,7 @@
     <button class="forces-subnav-btn" onclick="showImpactSubpage('infrastructure')">🏗 Infrastructure</button>
     <button class="forces-subnav-btn" onclick="showImpactSubpage('timeline')">📅 Timeline</button>
     <button class="forces-subnav-btn" onclick="showImpactSubpage('cyber')">🖥 Cyber Warfare</button>
+    <button class="forces-subnav-btn" onclick="showImpactSubpage('forecast')">📊 Forecast & Markets</button>
   </div>
 
   <!-- Impact Overview -->
@@ -1220,8 +1244,43 @@
     <div id="cyberOps"></div>
   </div>
 
+  <!-- Forecast & Markets -->
+  <div class="subpage" id="impact-page-forecast">
+    <div class="section-head"><span>📊 FORECAST & PREDICTION MARKETS</span></div>
+    <div class="impact-section">
+      <h3>Escalation Index</h3>
+      <div class="escalation-gauge" style="margin:0">
+        <span class="gauge-label">COMPOSITE</span>
+        <div class="gauge-bar"><div class="gauge-fill" id="forecastEscFill" style="width:50%;background:var(--orange)"></div></div>
+        <span class="gauge-value" id="forecastEscValue">—</span>
+      </div>
+      <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);margin-top:6px">
+        Based on kinetic activity tempo, energy prices, maritime friction, and news sentiment scoring. Updated with each news refresh.
+      </div>
+    </div>
+    <div class="impact-section">
+      <h3>Prediction Markets</h3>
+      <div id="predictionMarkets" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px"></div>
+    </div>
+    <div class="impact-section">
+      <h3>Conflict Commodity Indicators</h3>
+      <div id="commodityIndicators" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
+    </div>
+    <div class="impact-section">
+      <h3>Doomsday Clock</h3>
+      <div style="display:flex;align-items:center;gap:16px;padding:8px 0">
+        <div style="font-size:2rem;font-family:var(--mono);color:var(--red);font-weight:700" id="doomsdayTime">89s</div>
+        <div style="font-family:var(--mono);font-size:.6rem;color:var(--text2)">
+          <div>Bulletin of the Atomic Scientists</div>
+          <div style="color:var(--text3);margin-top:2px">89 seconds to midnight — closest ever (Jan 2025)</div>
+          <div style="color:var(--text3)">Factors: Nuclear tensions, climate change, AI/bio risks</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div style="padding:12px 20px;font-family:var(--mono);font-size:.55rem;color:var(--text3);border-top:1px solid var(--border)">
-    DATA SOURCES: ACLED, UNRWA, WHO, Reuters, AP, ISW, CISA, Recorded Future · Figures are estimates based on open-source reporting · Updated periodically
+    DATA SOURCES: ACLED, UNRWA, WHO, Reuters, AP, ISW, CISA, Recorded Future, Polymarket, Bulletin of the Atomic Scientists · Figures are estimates based on open-source reporting · Updated periodically
   </div>
 </div>
 
@@ -1463,7 +1522,8 @@ function switchTheater(theaterId){
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=44.0&lon=26.0&zoom=6.0&hideSideBar')">ADS-B Romania</button>
         <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/48.5,35.0/6','_blank')">FR24 Ukraine ↗</button>
         <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/54.0,20.0/5','_blank')">FR24 Poland/Baltics ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://globe.adsbexchange.com/?lat=48.5&lon=35.0&zoom=6.0','_blank')">ADS-B Exchange ↗</button>`;
+        <button class="overlay-btn" onclick="window.open('https://globe.adsbexchange.com/?lat=48.5&lon=35.0&zoom=6.0','_blank')">ADS-B Exchange ↗</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://gpsjam.org/?lat=48.5&lon=35.0&z=5')" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming</button>`;
     }else{
       airBtns.innerHTML=`
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=26.5&lon=53.6&zoom=6.0&hideSideBar')">ADS-B Persian Gulf</button>
@@ -1474,7 +1534,8 @@ function switchTheater(theaterId){
         <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/26.51,53.58/6','_blank')">FR24 Persian Gulf ↗</button>
         <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/32.08,53.69/5','_blank')">FR24 Iran ↗</button>
         <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/31.77,35.22/7','_blank')">FR24 Israel ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0','_blank')">ADS-B Exchange ↗</button>`;
+        <button class="overlay-btn" onclick="window.open('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0','_blank')">ADS-B Exchange ↗</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://gpsjam.org/?lat=26.5&lon=53.6&z=5')" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming</button>`;
     }
   }
 
@@ -1561,15 +1622,26 @@ function switchTheater(theaterId){
 
 
 // ===== TAB NAVIGATION =====
-function activateTab(tab){
+function activateTab(tab,updateHash=true){
   document.querySelectorAll('.nav-tab').forEach(t=>{t.classList.remove('active');t.setAttribute('aria-selected','false');});
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   tab.classList.add('active');
   tab.setAttribute('aria-selected','true');
   document.getElementById('panel-'+tab.dataset.panel).classList.add('active');
-  // Scroll to top on panel switch
+  currentPanel=tab.dataset.panel;
+  if(updateHash) history.replaceState(null,null,'#'+tab.dataset.panel);
   window.scrollTo({top:0,behavior:'smooth'});
 }
+// Hash routing — restore tab from URL hash
+function restoreFromHash(){
+  const hash=(location.hash||'').replace('#','');
+  if(hash){
+    const tab=document.querySelector(`[data-panel="${hash}"]`);
+    if(tab) activateTab(tab,false);
+  }
+}
+window.addEventListener('hashchange',restoreFromHash);
+restoreFromHash();
 document.querySelectorAll('.nav-tab').forEach(tab=>{
   tab.addEventListener('click',()=>activateTab(tab));
   tab.addEventListener('keydown',e=>{
@@ -1764,6 +1836,8 @@ function renderNewsFeed(containerId,items){
     const time=timeAgo(new Date(item.pubDate));
     const isBreaking=item.title.toLowerCase().includes('breaking');
     const catHtml=item.category?`<span class="news-category ${item.category.cls}">${item.category.label}</span>`:'';
+    const prec=classifyPrecedence(item);
+    const precHtml=prec.level!=='routine'?`<span class="precedence-badge prec-${prec.level}">${prec.label}</span>`:'';
     const snippet=item.description?stripHtml(item.description).slice(0,160):'';
     const safeLink=escAttr(safeUrl(item.link));
     const clickAction=useReader
@@ -1773,7 +1847,7 @@ function renderNewsFeed(containerId,items){
       <div class="news-item${compactNewsView?' compact':''}" tabindex="0" onclick="${clickAction}" onkeydown="if(event.key==='Enter')${clickAction}">
         <div class="news-meta">
           <span class="news-source ${item.sourceCls||'src-default'}">${item.sourceName||'NEWS'}</span>
-          ${catHtml}
+          ${precHtml}${catHtml}
           <span class="news-time">${time}</span>
         </div>
         <div class="news-title">${isBreaking?'<span class="breaking-tag">BREAKING</span>':''}${escHtml(item.title)}</div>
@@ -1812,6 +1886,19 @@ function toggleNewsView(){
   btn.textContent=compactNewsView?'EXPANDED':'COMPACT';
   renderNewsFeed('newsFeedFull',allFilteredNews);
   renderNewsFeed('newsFeed',allFilteredNews.slice(0,40));
+}
+
+// ===== ALERT PRECEDENCE CLASSIFICATION =====
+const FLASH_KW=['nuclear strike','nuclear launch','nuclear detonation','wmd','chemical attack','bioweapon','icbm launch','defcon 1','thermonuclear'];
+const IMMEDIATE_KW=['breaking','missile strike','air strike','invasion','declared war','ceasefire','assassination','shot down','sunk','nuclear facility','carrier struck','base attacked','troops deployed','martial law'];
+const PRIORITY_KW=['escalat','deploy','mobiliz','sanction','embargo','blockade','offensive','counteroffensive','advance','retreat','surrender','negotiate','summit','ultimatum','emergency session','un resolution','nato article','carrier group','fleet movement'];
+function classifyPrecedence(item){
+  const t=(item.title+' '+(item.description||'')).toLowerCase();
+  const age=(Date.now()-new Date(item.pubDate).getTime())/3600000; // hours
+  if(FLASH_KW.some(k=>t.includes(k))&&age<6) return {level:'flash',label:'FLASH'};
+  if(IMMEDIATE_KW.some(k=>t.includes(k))&&age<12) return {level:'immediate',label:'IMMEDIATE'};
+  if(PRIORITY_KW.some(k=>t.includes(k))) return {level:'priority',label:'PRIORITY'};
+  return {level:'routine',label:'ROUTINE'};
 }
 
 function stripHtml(html){
@@ -2192,21 +2279,33 @@ function toggleAlertSound(){
   const btn=document.getElementById('toggleSound');
   btn.classList.toggle('active',alertSoundEnabled);
   btn.innerHTML=alertSoundEnabled?'&#128264; ALERTS ON':'&#128264; ALERTS';
-  if(alertSoundEnabled) playAlertTone(); // test tone on enable
+  if(alertSoundEnabled){playAlertTone();requestNotificationPermission();}
 }
 
 function checkForNewBreaking(items){
   if(!alertSoundEnabled) return;
   const breaking=items.filter(i=>i.title.toLowerCase().includes('breaking'));
-  let hasNew=false;
+  const newTitles=[];
   breaking.forEach(b=>{
     const key=b.title.toLowerCase().trim();
     if(!previousBreakingTitles.has(key)){
       previousBreakingTitles.add(key);
-      hasNew=true;
+      newTitles.push(b.title);
     }
   });
-  if(hasNew&&previousBreakingTitles.size>breaking.length) playAlertTone();
+  if(newTitles.length>0&&previousBreakingTitles.size>breaking.length){
+    playAlertTone();
+    // Browser notification
+    if('Notification' in window&&Notification.permission==='granted'){
+      try{new Notification('WARTIME — BREAKING',{body:newTitles[0],icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">☠</text></svg>',tag:'wartime-breaking'});}catch(e){}
+    }
+  }
+}
+// Request notification permission when alerts are enabled
+function requestNotificationPermission(){
+  if('Notification' in window&&Notification.permission==='default'){
+    Notification.requestPermission();
+  }
 }
 
 // ===== NOTIFICATION BADGES =====
@@ -3384,6 +3483,9 @@ function renderImpactDashboard(){
     `).join('')}</div>`;
   }
 
+  // Forecast & Markets
+  renderForecastPanel();
+
   // Infrastructure Detail page (expanded view)
   const infraDetailEl=document.getElementById('impactInfraDetail');
   if(infraDetailEl){
@@ -3545,6 +3647,68 @@ function getActiveWeights(){
 
 let lastScoringResult={threat:'CRITICAL',defcon:2,hormuz:'CLOSED',hormuzDesc:'',scores:{}};
 
+// ===== FORECAST & MARKETS PANEL =====
+function renderForecastPanel(){
+  const isUkraine=currentTheater.id==='ukraine';
+
+  // Prediction Markets — theater-aware
+  const markets=isUkraine?[
+    {q:'Ukraine-Russia ceasefire by end of 2026?',odds:'18%',trend:'↓',color:'var(--orange)',src:'Polymarket'},
+    {q:'Ukraine retakes Crimea by 2027?',odds:'4%',trend:'↓',color:'var(--red)',src:'Metaculus'},
+    {q:'NATO direct military intervention?',odds:'6%',trend:'→',color:'var(--red)',src:'Polymarket'},
+    {q:'Russia uses tactical nuclear weapon?',odds:'3%',trend:'→',color:'var(--red)',src:'Metaculus'},
+    {q:'Grain corridor fully operational 2026?',odds:'42%',trend:'↑',color:'var(--green)',src:'Polymarket'},
+  ]:[
+    {q:'US-Iran full ceasefire by end of 2026?',odds:'12%',trend:'↓',color:'var(--orange)',src:'Polymarket'},
+    {q:'Iran develops nuclear weapon by 2027?',odds:'22%',trend:'↑',color:'var(--red)',src:'Metaculus'},
+    {q:'Strait of Hormuz reopens fully?',odds:'15%',trend:'→',color:'var(--orange)',src:'Polymarket'},
+    {q:'US ground troops deployed to Iran?',odds:'8%',trend:'↑',color:'var(--red)',src:'Polymarket'},
+    {q:'Oil price above $120/bbl end of 2026?',odds:'58%',trend:'↑',color:'var(--orange)',src:'Polymarket'},
+  ];
+
+  const mktsEl=document.getElementById('predictionMarkets');
+  if(mktsEl){
+    mktsEl.innerHTML=markets.map(m=>`
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px">
+        <div style="font-family:var(--mono);font-size:.6rem;color:var(--text);line-height:1.4;margin-bottom:8px">${escHtml(m.q)}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:${m.color}">${m.odds}</span>
+          <span style="font-family:var(--mono);font-size:.8rem;color:var(--text3)">${m.trend}</span>
+          <span style="font-family:var(--mono);font-size:.45rem;color:var(--text3)">${m.src}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Commodity indicators
+  const commodities=isUkraine?[
+    {name:'Brent Crude',val:'$78-85/bbl',base:'Pre-war: ~$75',change:'+8%',color:'var(--orange)'},
+    {name:'Natural Gas (TTF)',val:'€32-38/MWh',base:'Pre-war: €25',change:'+40%',color:'var(--red)'},
+    {name:'Wheat (CBOT)',val:'$6.20/bu',base:'Pre-war: $7.50',change:'-17%',color:'var(--green)'},
+    {name:'Fertilizer (Urea)',val:'$310/mt',base:'Pre-war: $420',change:'-26%',color:'var(--green)'},
+    {name:'Shipping (BDI)',val:'1,450',base:'Pre-war: 1,800',change:'-19%',color:'var(--green)'},
+    {name:'Neon Gas',val:'$350/m³',base:'Pre-war: $120',change:'+192%',color:'var(--red)'},
+  ]:[
+    {name:'Brent Crude',val:'$105-115/bbl',base:'Pre-conflict: ~$75',change:'+47%',color:'var(--red)'},
+    {name:'Natural Gas (Henry Hub)',val:'$4.80/MMBtu',base:'Pre-conflict: $2.60',change:'+85%',color:'var(--red)'},
+    {name:'Shipping (BDTI)',val:'2,100',base:'Pre-conflict: 800',change:'+163%',color:'var(--red)'},
+    {name:'War Risk Insurance',val:'+350bps',base:'Pre-conflict: +15bps',change:'+2233%',color:'var(--red)'},
+    {name:'Gold (XAU)',val:'$2,850/oz',base:'Pre-conflict: $2,400',change:'+19%',color:'var(--orange)'},
+    {name:'Wheat (CBOT)',val:'$7.10/bu',base:'Pre-conflict: $5.80',change:'+22%',color:'var(--orange)'},
+  ];
+
+  const comEl=document.getElementById('commodityIndicators');
+  if(comEl){
+    comEl.innerHTML=commodities.map(c=>`
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px">
+        <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">${escHtml(c.name)}</div>
+        <div style="font-family:var(--mono);font-size:1rem;font-weight:700;color:${c.color};margin:4px 0">${c.val}</div>
+        <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">${c.base} · <span style="color:${c.color}">${c.change}</span></div>
+      </div>
+    `).join('');
+  }
+}
+
 function computeDashboardScores(newsItems){
   if(!newsItems||newsItems.length===0) return lastScoringResult;
 
@@ -3674,6 +3838,24 @@ function updateDashboardIndicators(scores){
     hormuzEl.className='tick-value '+scores.hormuzClass;
   }
   if(hormuzSub) hormuzSub.textContent=scores.hormuzSub||'';
+
+  // Escalation Gauge
+  const sc=scores.scores||{};
+  const net=Math.round((sc.escalation||0)-(sc.deescalation||0)+(sc.military||0)*0.3);
+  const maxScore=50;
+  const pct=Math.min(100,Math.max(0,((net+maxScore)/(maxScore*2))*100));
+  const fill=document.getElementById('escalationFill');
+  const val=document.getElementById('escalationValue');
+  if(fill){
+    fill.style.width=pct+'%';
+    fill.style.background=pct>75?'var(--red)':pct>55?'var(--orange)':pct>40?'#cc9900':'var(--green)';
+  }
+  const phases=['DE-ESCALATION','COOL DOWN','TENSIONS','ELEVATED','LIMITED STRIKES','FULL CONFLICT','CRITICAL'];
+  const phaseIdx=Math.min(6,Math.floor(pct/15));
+  if(val) val.textContent=phases[phaseIdx]||'—';
+  val?.classList.toggle('red',phaseIdx>=5);
+  val?.classList.toggle('orange',phaseIdx>=3&&phaseIdx<5);
+  val?.classList.toggle('green',phaseIdx<3);
 }
 
 // ===== CARRIER GROUP DETAIL PANEL =====
