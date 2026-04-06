@@ -925,8 +925,9 @@
   <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-resources" data-panel="resources"><span class="tab-icon">≡</span>RESOURCES</div>
 </div>
 
+<main id="mainContent" aria-label="Dashboard content">
 <!-- ==================== OVERVIEW PANEL ==================== -->
-<div class="panel active" id="panel-overview">
+<div class="panel active" id="panel-overview" role="tabpanel">
   <div class="split-layout">
     <div class="sidebar">
       <div class="section-head">
@@ -945,7 +946,7 @@
 </div>
 
 <!-- ==================== WAR MAP PANEL ==================== -->
-<div class="panel" id="panel-warmap">
+<div class="panel" id="panel-warmap" role="tabpanel">
   <div class="full-frame">
     <div class="section-head">
       <span id="warmapTitle">🗺 IRAN WAR MAP — LIVEUAMAP</span>
@@ -962,7 +963,7 @@
 </div>
 
 <!-- ==================== MARITIME PANEL ==================== -->
-<div class="panel" id="panel-maritime">
+<div class="panel" id="panel-maritime" role="tabpanel">
   <div class="full-frame">
     <div class="section-head">
       <span id="maritimeTitle">⚓ STRAIT OF HORMUZ — MARITIME TRAFFIC</span>
@@ -979,7 +980,7 @@
 </div>
 
 <!-- ==================== AIR TRAFFIC PANEL ==================== -->
-<div class="panel" id="panel-airtraffic">
+<div class="panel" id="panel-airtraffic" role="tabpanel">
   <div class="full-frame">
     <div class="section-head">
       <span id="airTrafficTitle">✈ AIR TRAFFIC TRACKING</span>
@@ -1000,7 +1001,7 @@
 </div>
 
 <!-- ==================== VIDEO CLIPS PANEL (Improved) ==================== -->
-<div class="panel" id="panel-videos">
+<div class="panel" id="panel-videos" role="tabpanel">
   <div class="section-head">
     <span>▶ CONFLICT VIDEO INTELLIGENCE</span>
     <div style="display:flex;gap:8px;align-items:center">
@@ -1031,7 +1032,7 @@
 </div>
 
 <!-- ==================== LIVE STREAMS PANEL ==================== -->
-<div class="panel" id="panel-livestreams">
+<div class="panel" id="panel-livestreams" role="tabpanel">
   <div style="height:calc(100vh - 96px);display:flex;flex-direction:column">
     <!-- Channel selector bar -->
     <div class="stream-nav">
@@ -1049,15 +1050,15 @@
 </div>
 
 <!-- ==================== OSINT / SOCIAL PANEL ==================== -->
-<div class="panel" id="panel-osint">
+<div class="panel" id="panel-osint" role="tabpanel">
   <div class="section-head">
     <span>◎ OSINT / SOCIAL INTELLIGENCE</span>
     <div style="display:flex;gap:8px;align-items:center">
-      <div class="vid-source-tabs">
-        <button class="vid-src-tab active" data-osint="all" onclick="filterOsint('all')">ALL</button>
-        <button class="vid-src-tab" data-osint="social" onclick="filterOsint('social')">SOCIAL</button>
-        <button class="vid-src-tab" data-osint="analysis" onclick="filterOsint('analysis')">ANALYSIS</button>
-        <button class="vid-src-tab" data-osint="osint" onclick="filterOsint('osint')">OSINT</button>
+      <div class="vid-source-tabs" role="group" aria-label="Filter OSINT posts">
+        <button class="vid-src-tab active" data-osint="all" onclick="filterOsint('all')" aria-label="Show all posts">ALL</button>
+        <button class="vid-src-tab" data-osint="social" onclick="filterOsint('social')" aria-label="Show social media posts">SOCIAL</button>
+        <button class="vid-src-tab" data-osint="analysis" onclick="filterOsint('analysis')" aria-label="Show analysis posts">ANALYSIS</button>
+        <button class="vid-src-tab" data-osint="osint" onclick="filterOsint('osint')" aria-label="Show OSINT intelligence">OSINT</button>
       </div>
       <button class="refresh-btn" onclick="fetchOsint(true)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
     </div>
@@ -1071,7 +1072,7 @@
 </div>
 
 <!-- ==================== FORCES PANEL ==================== -->
-<div class="panel" id="panel-forces">
+<div class="panel" id="panel-forces" role="tabpanel">
   <!-- Forces Sub-Navigation -->
   <div class="forces-subnav" id="forcesSubnav">
     <button class="forces-subnav-btn active" onclick="showForceSubpage('comparison')">⚔ Force Comparison</button>
@@ -1125,7 +1126,7 @@
 </div>
 
 <!-- ==================== ASSETS & DAMAGE ASSESSMENT PANEL ==================== -->
-<div class="panel" id="panel-assets">
+<div class="panel" id="panel-assets" role="tabpanel">
   <!-- Assets Sub-Navigation -->
   <div class="forces-subnav" id="assetsSubnav">
     <button class="forces-subnav-btn active" onclick="showAssetSubpage('overview')">◈ Damage Overview</button>
@@ -1181,7 +1182,7 @@
 </div>
 
 <!-- ==================== IMPACT / STATISTICS PANEL ==================== -->
-<div class="panel" id="panel-impact">
+<div class="panel" id="panel-impact" role="tabpanel">
   <div class="forces-subnav" id="impactSubnav">
     <button class="forces-subnav-btn active" onclick="showImpactSubpage('overview')">◈ Overview</button>
     <button class="forces-subnav-btn" onclick="showImpactSubpage('infrastructure')">🏗 Infrastructure</button>
@@ -1225,7 +1226,7 @@
 </div>
 
 <!-- ==================== RESOURCES PANEL ==================== -->
-<div class="panel" id="panel-resources">
+<div class="panel" id="panel-resources" role="tabpanel">
   <div class="section-head"><span>≡ BOOKMARKS & RESOURCES</span></div>
   <div class="links-grid" id="resourcesGrid"></div>
 </div>
@@ -1264,11 +1265,13 @@
   </div>
 </div>
 
+</main>
+
 <!-- FOOTER -->
-<div class="site-footer" id="siteFooter">
+<footer class="site-footer" id="siteFooter">
   <span>WARTIME DASHBOARD — Open-source conflict intelligence aggregator</span>
   <span>Data from public sources · Not affiliated with any government · <kbd style="background:var(--surface3);border:1px solid var(--border2);border-radius:2px;padding:0 4px;font-size:.5rem">?</kbd> Keyboard shortcuts</span>
-</div>
+</footer>
 
 <script>
 // ===== THEATER CONFIGURATION =====
