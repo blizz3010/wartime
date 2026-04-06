@@ -1138,7 +1138,7 @@
 
   <!-- Coalition Fleet -->
   <div class="subpage" id="assets-page-coalition">
-    <div class="force-section-head">⚓ COALITION NAVAL ASSETS — DEPLOYED IN THEATER</div>
+    <div class="force-section-head" id="assetsCoalitionTitle">⚓ COALITION NAVAL ASSETS — DEPLOYED IN THEATER</div>
     <div id="coalitionFleet"></div>
   </div>
 
@@ -1462,6 +1462,8 @@ function switchTheater(theaterId){
   if(ft) ft.textContent=theaterId==='ukraine'?'🚢 BLACK SEA NAVAL STATUS — RUSSIAN FLEET':'🚢 IRANIAN NAVAL FLEET — OPERATION EPIC FURY';
   const bt=document.getElementById('assetsBaseTitle');
   if(bt) bt.textContent=theaterId==='ukraine'?'🏗 MILITARY BASE STATUS — UKRAINE':'🏗 MILITARY BASE STATUS — IRAN';
+  const ct=document.getElementById('assetsCoalitionTitle');
+  if(ct) ct.textContent=theaterId==='ukraine'?'⚓ NATO & ALLIED SUPPORT — SECURITY ASSISTANCE':'⚓ COALITION NAVAL ASSETS — DEPLOYED IN THEATER';
 
   // Update assets subnav labels
   const subnavBtns=document.querySelectorAll('#assetsSubnav .forces-subnav-btn');
@@ -1473,9 +1475,11 @@ function switchTheater(theaterId){
   // Re-render assets for the active theater
   if(theaterId==='ukraine'){
     renderUkraineDamageOverview();renderUkraineFleet();renderUkraineInfra();
+    renderUkraineBases();renderUkraineNukes();
   }else{
     renderDamageOverview();renderFleetTracker();renderInfraTracker();
   }
+  renderCoalitionFleet();
 
   // Invalidate OSINT/video/news caches so stale data from other theater is cleared
   if(typeof allVideoClips!=='undefined'){allVideoClips=[];videoLastFetch=0;}
@@ -1530,8 +1534,8 @@ function setAirSrc(url){document.getElementById('airFrame').src=url}
 // ===== NEWS FEED (Redesigned) =====
 const TOTAL_FEEDS=10; // Number of RSS feeds aggregated server-side
 
-// Category classification for news items
-const NEWS_CATEGORIES={
+// Category classification for news items (theater-aware)
+const NEWS_CATEGORIES_IRAN={
   strikes:{label:'STRIKES',cls:'cat-strikes',keywords:['strike','bomb','attack','airstrike','missile','intercept','shot down','explosion','blast','shelling','raid']},
   military:{label:'MILITARY',cls:'cat-military',keywords:['military','troops','deploy','army','navy','irgc','pentagon','aircraft carrier','fighter jet','drone','forces','battalion','regiment','base']},
   diplomacy:{label:'DIPLOMACY',cls:'cat-diplomacy',keywords:['diplomacy','negotiate','ceasefire','summit','UN','united nations','sanction','treaty','talks','resolution','ambassador','envoy']},
@@ -1540,10 +1544,21 @@ const NEWS_CATEGORIES={
   humanitarian:{label:'HUMANITARIAN',cls:'cat-humanitarian',keywords:['civilian','refugee','humanitarian','aid','casualt','dead','killed','wounded','hospital','evacuate','displaced']},
   oil:{label:'OIL/ENERGY',cls:'cat-oil',keywords:['oil','crude','brent','opec','pipeline','refinery','energy','barrel','petroleum']},
 };
+const NEWS_CATEGORIES_UKRAINE={
+  strikes:{label:'STRIKES',cls:'cat-strikes',keywords:['strike','bomb','attack','airstrike','missile','intercept','shot down','explosion','blast','shelling','raid','shahed','kalibr','kinzhal','iskander']},
+  military:{label:'MILITARY',cls:'cat-military',keywords:['military','troops','deploy','army','navy','pentagon','fighter jet','drone','forces','battalion','regiment','base','nato','himars','patriot','leopard','abrams','brigade','frontline','offensive','counteroffensive']},
+  diplomacy:{label:'DIPLOMACY',cls:'cat-diplomacy',keywords:['diplomacy','negotiate','ceasefire','summit','UN','united nations','sanction','treaty','talks','resolution','ambassador','envoy','peace formula','peace summit','minsk']},
+  maritime:{label:'MARITIME',cls:'cat-maritime',keywords:['black sea','odesa','vessel','ship','grain corridor','blockade','naval','maritime','port','bosphorus','snake island','sea of azov']},
+  nuclear:{label:'NUCLEAR',cls:'cat-nuclear',keywords:['nuclear','zaporizhzhia','IAEA','nuclear plant','radiation','chernobyl','atomic']},
+  humanitarian:{label:'HUMANITARIAN',cls:'cat-humanitarian',keywords:['civilian','refugee','humanitarian','aid','casualt','dead','killed','wounded','hospital','evacuate','displaced','bucha','mariupol']},
+  energy:{label:'ENERGY',cls:'cat-oil',keywords:['energy','power grid','electricity','gas','pipeline','nord stream','blackout','infrastructure','heating']},
+};
+function getNewsCategories(){return currentTheater.id==='ukraine'?NEWS_CATEGORIES_UKRAINE:NEWS_CATEGORIES_IRAN;}
 
 function categorizeArticle(title,desc){
   const text=(title+' '+(desc||'')).toLowerCase();
-  for(const[key,cat] of Object.entries(NEWS_CATEGORIES)){
+  const cats=getNewsCategories();
+  for(const[key,cat] of Object.entries(cats)){
     if(cat.keywords.some(k=>text.includes(k))) return {key,label:cat.label,cls:cat.cls};
   }
   return null;
@@ -3599,7 +3614,7 @@ function updateDashboardIndicators(scores){
 }
 
 // ===== CARRIER GROUP DETAIL PANEL =====
-const CARRIER_GROUPS=[
+const CARRIER_GROUPS_IRAN=[
   {
     name:'USS Gerald R. Ford (CVN-78)',hull:'CVN-78 · Gerald R. Ford-class',
     status:'DEPLOYED — Persian Gulf',statusColor:'var(--blue)',
@@ -3647,6 +3662,50 @@ const CARRIER_GROUPS=[
     ]
   },
 ];
+const CARRIER_GROUPS_UKRAINE=[
+  {
+    name:'NATO eFP Battlegroups',hull:'8 Multinational Battlegroups',
+    status:'DEPLOYED — Eastern Flank',statusColor:'var(--blue)',
+    img:'',link:'',
+    items:[
+      {label:'Estonia BG',val:'UK-led · ~1,200 troops'},
+      {label:'Latvia BG',val:'Canada-led · ~1,500 troops'},
+      {label:'Lithuania BG',val:'Germany-led · ~1,600 troops'},
+      {label:'Poland BG',val:'US-led · ~5,000 troops'},
+      {label:'Total NATO Troops',val:'~40,000 on high readiness'},
+      {label:'Location',val:'Baltic States, Poland, Romania'},
+      {label:'Mission',val:'Deterrence & defense'},
+    ]
+  },
+  {
+    name:'F-16 Coalition for Ukraine',hull:'Multi-nation Fighter Transfer',
+    status:'ACTIVE — Training & Delivery',statusColor:'var(--green)',
+    img:'',link:'',
+    items:[
+      {label:'Denmark',val:'19 F-16AM/BM pledged'},
+      {label:'Netherlands',val:'24 F-16AM/BM pledged'},
+      {label:'Norway',val:'~6 F-16 pledged'},
+      {label:'Training Sites',val:'Denmark, Romania, US'},
+      {label:'Status',val:'First deliveries completed 2024'},
+      {label:'Mission',val:'Air defense & ground attack'},
+    ]
+  },
+  {
+    name:'US Military Aid Package',hull:'Presidential Drawdown Authority',
+    status:'$50B+ COMMITTED',statusColor:'var(--blue)',
+    img:'',link:'',
+    items:[
+      {label:'HIMARS Systems',val:'40+ launchers'},
+      {label:'Patriot Systems',val:'2+ batteries'},
+      {label:'M1A1 Abrams',val:'31 delivered'},
+      {label:'Bradley IFVs',val:'300+ delivered'},
+      {label:'155mm Rounds',val:'3M+ shells'},
+      {label:'ATACMS',val:'Delivered (range 300km)'},
+      {label:'Mission',val:'Long-term security assistance'},
+    ]
+  },
+];
+function getActiveCarrierGroups(){return currentTheater.id==='ukraine'?CARRIER_GROUPS_UKRAINE:CARRIER_GROUPS_IRAN;}
 
 let carrierPanelOpen=false;
 function toggleCarrierPanel(){
@@ -3664,7 +3723,7 @@ function toggleCarrierPanel(){
 
 function renderCarrierPanel(){
   const inner=document.getElementById('carrierPanelInner');
-  inner.innerHTML=CARRIER_GROUPS.map(csg=>`
+  inner.innerHTML=getActiveCarrierGroups().map(csg=>`
     <div class="carrier-card">
       <img src="${csg.img}" alt="${csg.name}" class="carrier-card-img" loading="lazy" onerror="this.style.display='none'">
       <div class="carrier-card-name">${csg.name}</div>
@@ -3692,9 +3751,10 @@ function toggleTickerDetail(type){
   }
   activeTickerDetail=type;
   const s=lastScoringResult.scores||{};
+  const isUkraine=currentTheater.id==='ukraine';
   const details={
     hormuz:{
-      title:'⚓ STRAIT OF HORMUZ — STATUS DETAIL',
+      title:isUkraine?'⚓ BLACK SEA — STATUS DETAIL':'⚓ STRAIT OF HORMUZ — STATUS DETAIL',
       html:`
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:12px">
           <div>
@@ -3717,15 +3777,38 @@ function toggleTickerDetail(type){
           <div>
             <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">ℹ️ CONTEXT</div>
             <div style="font-family:var(--mono);font-size:.6rem;color:var(--text2);line-height:1.6">
-              The Strait of Hormuz handles ~21% of global oil transit (~17M bbl/day). Iran closed the strait on Feb 28. Status is auto-calculated from news mentions of shipping activity, naval escorts, blockade reports, and transit signals.
+              ${isUkraine
+                ?'The Black Sea is critical for Ukrainian grain exports (~50M tonnes/year). Russia imposed a naval blockade in Feb 2022. The grain corridor deal collapsed in Jul 2023. Ukraine has since established an alternative route hugging the western coast. Status is auto-calculated from news mentions of shipping, port activity, and blockade reports.'
+                :'The Strait of Hormuz handles ~21% of global oil transit (~17M bbl/day). Iran closed the strait on Feb 28. Status is auto-calculated from news mentions of shipping activity, naval escorts, blockade reports, and transit signals.'}
             </div>
           </div>
         </div>
       `
     },
     oil:{
-      title:'🛢️ BRENT CRUDE — MARKET IMPACT',
-      html:`
+      title:isUkraine?'⛽ ENERGY — MARKET IMPACT':'🛢️ BRENT CRUDE — MARKET IMPACT',
+      html:isUkraine?`
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px">
+          <div>
+            <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">📊 ENERGY PRICE IMPACT</div>
+            <div class="carrier-card-item"><span class="carrier-card-label">EU Gas (Pre-war)</span><span class="carrier-card-val">~€80/MWh</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">EU Gas Peak (Aug 2022)</span><span class="carrier-card-val" style="color:var(--red)">€340/MWh (+325%)</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Brent Crude Peak</span><span class="carrier-card-val" style="color:var(--red)">$130/bbl (Mar 2022)</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Nord Stream 1 & 2</span><span class="carrier-card-val" style="color:var(--red)">Destroyed (Sep 2022)</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Russian Gas to EU</span><span class="carrier-card-val" style="color:var(--orange)">-80% from pre-war</span></div>
+          </div>
+          <div>
+            <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">⚠️ KEY FACTORS</div>
+            <div style="font-family:var(--mono);font-size:.6rem;color:var(--text2);line-height:1.6">
+              • EU pivoted to LNG imports (US, Qatar, Norway)<br>
+              • Russian oil price cap at $60/bbl by G7<br>
+              • Russian gas transit via Ukraine ended Jan 2025<br>
+              • EU gas storage regulations (90% by Nov)<br>
+              • Ukrainian energy infrastructure under systematic attack
+            </div>
+          </div>
+        </div>
+      `:`
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px">
           <div>
             <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">📊 OIL PRICE TIMELINE</div>
@@ -3746,7 +3829,7 @@ function toggleTickerDetail(type){
             </div>
           </div>
         </div>
-      `
+      `,
     },
     threat:{
       title:'⚠️ THREAT LEVEL — SCORING BREAKDOWN',
@@ -3800,7 +3883,34 @@ function toggleTickerDetail(type){
     },
     markets:{
       title:'📈 GLOBAL MARKETS — CONFLICT IMPACT',
-      html:`
+      html:isUkraine?`
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:12px">
+          <div>
+            <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">📉 EQUITIES</div>
+            <div class="carrier-card-item"><span class="carrier-card-label">MOEX (Russia)</span><span class="carrier-card-val" style="color:var(--red)">-50% (2022 crash)</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">European Indices</span><span class="carrier-card-val" style="color:var(--red)">-10 to -15% (2022)</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">S&P 500</span><span class="carrier-card-val" style="color:var(--orange)">Volatile</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Defense Stocks (EU)</span><span class="carrier-card-val" style="color:var(--green)">+200-400% since 2022</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Grain Futures</span><span class="carrier-card-val" style="color:var(--orange)">Elevated</span></div>
+          </div>
+          <div>
+            <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">⛽ ENERGY</div>
+            <div class="carrier-card-item"><span class="carrier-card-label">EU Natural Gas</span><span class="carrier-card-val" style="color:var(--orange)">Normalized (from +325%)</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Brent Crude</span><span class="carrier-card-val" style="color:var(--orange)">~$75-85/bbl</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Wheat</span><span class="carrier-card-val" style="color:var(--orange)">Elevated (Black Sea)</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Gold</span><span class="carrier-card-val" style="color:var(--green)">$3,100+ (safe haven)</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Fertilizer</span><span class="carrier-card-val" style="color:var(--red)">+80% (2022 peak)</span></div>
+          </div>
+          <div>
+            <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">💱 CURRENCIES</div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Russian Ruble</span><span class="carrier-card-val" style="color:var(--red)">Collapsed then recovered</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Ukrainian Hryvnia</span><span class="carrier-card-val" style="color:var(--red)">-25% (pegged)</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">EUR/USD</span><span class="carrier-card-val" style="color:var(--orange)">Weakened in 2022</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Russian SWIFT access</span><span class="carrier-card-val" style="color:var(--red)">Blocked (sanctions)</span></div>
+            <div class="carrier-card-item"><span class="carrier-card-label">Frozen RU Assets</span><span class="carrier-card-val" style="color:var(--orange)">$300B+</span></div>
+          </div>
+        </div>
+      `:`
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:12px">
           <div>
             <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">📉 EQUITIES</div>
@@ -3827,7 +3937,7 @@ function toggleTickerDetail(type){
             <div class="carrier-card-item"><span class="carrier-card-label">Oil Majors</span><span class="carrier-card-val" style="color:var(--green)">+15-25%</span></div>
           </div>
         </div>
-      `
+      `,
     },
   };
 
@@ -3997,6 +4107,58 @@ function renderUkraineInfra(){
       <div class="fleet-card-body">${i.detail}</div>
     </div>
   `).join('');
+}
+
+function renderUkraineBases(){
+  const el=document.getElementById('baseStatus');
+  const mapEl=document.getElementById('baseMapContainer');
+  if(!el) return;
+  const bases=[
+    {name:'Azovstal / Mariupol',type:'Strategic Industrial',lat:47.1,lon:37.6,status:'destroyed',detail:'Destroyed during siege. Symbol of Ukrainian resistance. Under Russian occupation.'},
+    {name:'Chornobaivka Airfield',type:'Air Base',lat:46.68,lon:32.62,status:'damaged',detail:'Site of repeated Ukrainian strikes on Russian forces. Hit 20+ times in first months of war.'},
+    {name:'Saky Air Base (Crimea)',type:'Air Base',lat:45.09,lon:33.58,status:'damaged',detail:'Struck Aug 2022 — 9+ Russian aircraft destroyed on the ground. Deep behind enemy lines.'},
+    {name:'Sevastopol Naval Base',type:'Naval Base',lat:44.62,lon:33.52,status:'damaged',detail:'Multiple successful Ukrainian strikes. Black Sea Fleet HQ hit Sep & Oct 2023.'},
+    {name:'Belbek Air Base (Crimea)',type:'Air Base',lat:44.69,lon:33.57,status:'damaged',detail:'Struck by ATACMS 2024 — S-400 systems destroyed along with MiG-31 aircraft.'},
+    {name:'Ozerne Air Base',type:'Air Base',lat:50.15,lon:26.8,status:'operational',detail:'Ukrainian Air Force base. Operational for F-16 integration.'},
+    {name:'Starokostiantyniv AB',type:'Air Base',lat:49.4,lon:27.2,status:'operational',detail:'Key Ukrainian Air Force base for western-supplied aircraft.'},
+    {name:'Zaporizhzhia Nuclear PP',type:'Nuclear Facility',lat:47.51,lon:34.58,status:'occupied',detail:'Largest nuclear plant in Europe. Under Russian occupation since Mar 2022.'},
+  ];
+  if(mapEl) mapEl.innerHTML='';
+  el.innerHTML=bases.map(b=>`
+    <div style="display:flex;gap:16px;padding:16px 20px;border-bottom:1px solid var(--border)">
+      <div style="min-width:180px">
+        <div style="font-family:var(--mono);font-size:.75rem;font-weight:700;color:var(--text)">${b.name}</div>
+        <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);margin-top:2px">${b.type} · ${b.lat.toFixed(1)}°N, ${b.lon.toFixed(1)}°E</div>
+      </div>
+      <div style="flex:1;font-family:var(--mono);font-size:.6rem;color:var(--text2);line-height:1.5">${b.detail}</div>
+      <div style="min-width:80px;text-align:right">
+        <span style="display:inline-block;padding:3px 8px;border-radius:3px;font-family:var(--mono);font-size:.5rem;font-weight:600;background:${b.status==='destroyed'?'var(--red)':b.status==='damaged'?'var(--orange)':b.status==='occupied'?'var(--red)':'var(--green)'};color:var(--bg)">${b.status.toUpperCase()}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderUkraineNukes(){
+  const el=document.getElementById('nukeStatus');
+  if(!el) return;
+  const facilities=[
+    {name:'Zaporizhzhia NPP',type:'Nuclear Power Plant (6 reactors)',status:'OCCUPIED',detail:'Under Russian military control since Mar 4, 2022. All reactors in cold shutdown. IAEA inspectors present. Repeated shelling incidents. External power cut multiple times.',color:'var(--red)'},
+    {name:'Chernobyl Exclusion Zone',type:'Decommissioned NPP / Waste Storage',status:'RETURNED',detail:'Seized by Russia Feb 24-Mar 31 2022. Russian troops dug trenches in radioactive soil. Returned to Ukrainian control. Monitoring restored.',color:'var(--green)'},
+    {name:'Rivne NPP',type:'Nuclear Power Plant (4 reactors)',status:'OPERATIONAL',detail:'Operating normally under Ukrainian control. ~300km from frontline. Enhanced security.',color:'var(--green)'},
+    {name:'South Ukraine NPP',type:'Nuclear Power Plant (3 reactors)',status:'OPERATIONAL',detail:'Operating normally. Located in Mykolaiv region — was near frontline in 2022.',color:'var(--green)'},
+    {name:'Khmelnytskyi NPP',type:'Nuclear Power Plant (2 reactors)',status:'OPERATIONAL',detail:'Operating normally. Western Ukraine — far from frontline. Expansion planned with Westinghouse.',color:'var(--green)'},
+    {name:'Russian Nuclear Threats',type:'Strategic Deterrence',status:'ELEVATED RISK',detail:'Russia has made repeated nuclear threats since 2022. 6,200 warheads in arsenal. Tactical nuclear weapons moved to Belarus. NATO nuclear sharing exercises ongoing.',color:'var(--orange)'},
+  ];
+  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1px;background:var(--border)">${facilities.map(f=>`
+    <div style="background:var(--surface);padding:16px 20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-family:var(--mono);font-size:.75rem;font-weight:700;color:var(--text)">☢ ${f.name}</div>
+        <span style="padding:3px 8px;border-radius:3px;font-family:var(--mono);font-size:.5rem;font-weight:600;background:${f.color};color:var(--bg)">${f.status}</span>
+      </div>
+      <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);margin-bottom:6px">${f.type}</div>
+      <div style="font-family:var(--mono);font-size:.6rem;color:var(--text2);line-height:1.5">${f.detail}</div>
+    </div>
+  `).join('')}</div>`;
 }
 
 // ===== IRANIAN NAVAL FLEET TRACKER — OPERATION EPIC FURY =====
@@ -4249,7 +4411,24 @@ function renderDamageOverview(){
 
 function renderCoalitionFleet(){
   const el=document.getElementById('coalitionFleet');
-  const csgs=[
+  const isUkraine=currentTheater.id==='ukraine';
+  const csgs=isUkraine?[
+    {name:'NATO Enhanced Forward Presence',type:'Multinational Battlegroups',flag:'🏳️',location:'Baltic States & Poland',status:'operational',
+      composition:['Estonia BG (UK-led)','Latvia BG (Canada-led)','Lithuania BG (Germany-led)','Poland BG (US-led)','Slovakia BG (Czech-led)','Hungary BG (Italy-led)','Bulgaria BG (Italy-led)','Romania BG (France-led)'],
+      airWing:'N/A',note:'8 multinational battlegroups on NATO eastern flank'},
+    {name:'SNMG1 — Standing NATO Maritime Group',type:'Naval Task Group',flag:'🏳️',location:'Baltic Sea',status:'operational',
+      composition:['Rotating flagship (varies)','4-6 frigates/destroyers','Mine countermeasures vessels','Submarine contingent'],
+      airWing:'MPA patrols — P-8A Poseidon / P-3 Orion',note:'Baltic Sea patrol & deterrence'},
+    {name:'US 101st Airborne Division',type:'Rapid Deployment Force',flag:'🇺🇸',location:'Romania',status:'operational',
+      composition:['~4,700 soldiers','AH-64 Apache helicopters','UH-60 Black Hawks','M777 howitzers'],
+      airWing:'Aviation brigade organic assets',note:'Deployed to Romania as deterrent — not in Ukraine'},
+    {name:'Ramstein Contact Group',type:'Security Assistance',flag:'🇺🇸',location:'Global (50+ nations)',status:'operational',
+      composition:['Patriot systems (US, DE, NL)','HIMARS (US)','Storm Shadow/SCALP (UK/FR)','Leopard 2 (DE, PL, etc.)','F-16 coalition (DK, NL, NO)','NASAMS (NO, US)','Gepard (DE)','IRIS-T (DE)'],
+      airWing:'F-16 training coalition — Denmark, Netherlands, Norway',note:'$100B+ in total committed military aid'},
+    {name:'UK Maritime Task Group',type:'Support & Deterrence',flag:'🇬🇧',location:'North Sea / Norwegian Sea',status:'operational',
+      composition:['Type 45 destroyer','Type 23 frigates','Astute-class SSN','RFA support vessels'],
+      airWing:'P-8A Poseidon MPA — RAF',note:'Northern flank patrol + Russian sub tracking'},
+  ]:[
     {name:'USS Gerald R. Ford (CVN-78)',type:'Carrier Strike Group',flag:'🇺🇸',location:'Persian Gulf',status:'operational',
       composition:['CVN-78 Gerald R. Ford','CG-56 San Jacinto (Ticonderoga)','DDG-105 Dewey','DDG-110 William P. Lawrence','DDG-114 Ralph Johnson','SSN attached (classified)'],
       airWing:'CVW-8: VFA-87, VFA-213, VFA-31, VFA-103 (F/A-18E/F)',note:'Lead CSG — arrived Mar 15'},
@@ -4269,9 +4448,9 @@ function renderCoalitionFleet(){
 
   el.innerHTML=`
     <div style="display:flex;gap:16px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.55rem;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;gap:4px"><div style="width:6px;height:6px;border-radius:50%;background:var(--green)"></div> ${csgs.length} TASK GROUPS DEPLOYED</div>
-      <div style="color:var(--text3)">3 US CSGs · 4+ SSN/SSGN · 1 UK CSG · 18+ Surface Combatants</div>
-      <div style="margin-left:auto;color:var(--blue)">TOTAL TOMAHAWK CAPACITY: 1,000+</div>
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:6px;height:6px;border-radius:50%;background:var(--green)"></div> ${csgs.length} TASK GROUPS${isUkraine?' / AID PACKAGES':' DEPLOYED'}</div>
+      <div style="color:var(--text3)">${isUkraine?'8 NATO BGs · 50+ Nations Contributing · F-16 Coalition Active':'3 US CSGs · 4+ SSN/SSGN · 1 UK CSG · 18+ Surface Combatants'}</div>
+      <div style="margin-left:auto;color:var(--blue)">${isUkraine?'TOTAL AID COMMITTED: $100B+':'TOTAL TOMAHAWK CAPACITY: 1,000+'}</div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:1px;background:var(--border)">
     ${csgs.map(g=>`
