@@ -509,6 +509,7 @@
     animation:badge-pop .3s ease;
   }
   @keyframes badge-pop{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+  @media(prefers-reduced-motion:reduce){.tab-badge{animation:none}.tick-pulse,.tick-critical{animation:none}}
 
   /* HEADER TOGGLE BUTTONS */
   .header-toggles{display:flex;gap:4px;margin-left:8px}
@@ -572,7 +573,7 @@
     font-family:var(--mono);font-size:.75rem;font-weight:600;
     transition:top .2s;
   }
-  .skip-nav:focus{top:0}
+  .skip-nav:focus{top:0;outline:2px solid var(--red);outline-offset:2px}
 
   /* PANEL TRANSITIONS */
   .panel{display:none;padding:0;animation:fadeIn .25s ease}
@@ -630,7 +631,7 @@
   }
   @media(max-width:768px){
     .ticker{flex-wrap:nowrap;overflow-x:auto}
-    .tick{min-width:130px;padding:8px 12px}
+    .tick{min-width:130px;padding:12px 14px;min-height:44px}
     .tick-value{font-size:.85rem}
     .tick-label{font-size:.5rem}
     .header-right{display:none}
@@ -645,7 +646,7 @@
     .nav-tab{padding:8px 12px;font-size:.7rem}
     .section-head{padding:8px 12px;font-size:.6rem;flex-wrap:wrap;gap:6px}
     .section-head > div{flex-wrap:wrap}
-    .overlay-btn{font-size:.55rem;padding:4px 8px}
+    .overlay-btn{font-size:.55rem;padding:8px 12px;min-height:44px}
     .clips-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
     .osint-grid{grid-template-columns:1fr}
     .impact-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
@@ -881,12 +882,12 @@
 <!-- TICKER -->
 <div class="ticker">
   <div class="tick"><div class="tick-label">Conflict</div><div class="tick-value red"><span class="tick-flags"><span class="flag">&#127482;&#127480;</span><span class="flag">&#127470;&#127473;</span> vs <span class="flag">&#127470;&#127479;</span></span></div></div>
-  <div class="tick" style="cursor:pointer" id="tickHormuz" onclick="toggleTickerDetail('hormuz')"><div class="tick-label"><span class="tick-icon">&#9875;</span> Strait of Hormuz</div><div class="tick-value orange tick-pulse" id="tickHormuzVal">CLOSED</div><div class="tick-sub" id="tickHormuzSub"></div></div>
-  <div class="tick" style="cursor:pointer" onclick="toggleTickerDetail('oil')"><div class="tick-label"><span class="tick-icon">&#128738;</span> Brent Crude</div><div class="tick-value orange" id="tickOil">~$105-115/bbl</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)">PRE-CONFLICT: ~$75</div></div>
-  <div class="tick" style="cursor:pointer" onclick="toggleTickerDetail('threat')"><div class="tick-label"><span class="tick-icon">&#9888;&#65039;</span> Threat Level</div><div class="tick-value red tick-critical" id="tickThreat">CRITICAL</div><div class="tick-sub" id="tickThreatSub"></div></div>
-  <div class="tick" id="tickCarrierWrap" style="cursor:pointer" onclick="toggleCarrierPanel()"><div class="tick-label"><span class="tick-icon">&#9992;</span> Carrier Groups</div><div class="tick-value blue" id="tickCarrier">3 DEPLOYED</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)">CLICK FOR DETAILS</div></div>
-  <div class="tick" style="cursor:pointer" onclick="toggleTickerDetail('defcon')"><div class="tick-label"><span class="tick-icon">&#127915;</span> DEFCON</div><div class="tick-value red tick-critical" id="tickDefcon">LEVEL 2</div><div class="tick-sub" id="tickDefconSub"></div></div>
-  <div class="tick" style="cursor:pointer" onclick="toggleTickerDetail('markets')"><div class="tick-label"><span class="tick-icon">&#128200;</span> Markets</div><div class="tick-value orange" id="tickMarkets">VOLATILE</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)" id="tickMarketsSub">CLICK FOR DETAILS</div></div>
+  <div class="tick" role="button" tabindex="0" id="tickHormuz" onclick="toggleTickerDetail('hormuz')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTickerDetail('hormuz')}"><div class="tick-label"><span class="tick-icon">&#9875;</span> Strait of Hormuz</div><div class="tick-value orange tick-pulse" id="tickHormuzVal">CLOSED</div><div class="tick-sub" id="tickHormuzSub"></div></div>
+  <div class="tick" role="button" tabindex="0" onclick="toggleTickerDetail('oil')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTickerDetail('oil')}"><div class="tick-label"><span class="tick-icon">&#128738;</span> Brent Crude</div><div class="tick-value orange" id="tickOil">~$105-115/bbl</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)">PRE-CONFLICT: ~$75</div></div>
+  <div class="tick" role="button" tabindex="0" onclick="toggleTickerDetail('threat')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTickerDetail('threat')}"><div class="tick-label"><span class="tick-icon">&#9888;&#65039;</span> Threat Level</div><div class="tick-value red tick-critical" id="tickThreat">CRITICAL</div><div class="tick-sub" id="tickThreatSub"></div></div>
+  <div class="tick" role="button" tabindex="0" id="tickCarrierWrap" onclick="toggleCarrierPanel()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleCarrierPanel()}"><div class="tick-label"><span class="tick-icon">&#9992;</span> Carrier Groups</div><div class="tick-value blue" id="tickCarrier">3 DEPLOYED</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)">CLICK FOR DETAILS</div></div>
+  <div class="tick" role="button" tabindex="0" onclick="toggleTickerDetail('defcon')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTickerDetail('defcon')}"><div class="tick-label"><span class="tick-icon">&#127915;</span> DEFCON</div><div class="tick-value red tick-critical" id="tickDefcon">LEVEL 2</div><div class="tick-sub" id="tickDefconSub"></div></div>
+  <div class="tick" role="button" tabindex="0" onclick="toggleTickerDetail('markets')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTickerDetail('markets')}"><div class="tick-label"><span class="tick-icon">&#128200;</span> Markets</div><div class="tick-value orange" id="tickMarkets">VOLATILE</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)" id="tickMarketsSub">CLICK FOR DETAILS</div></div>
 </div>
 <script>
 // Early theater patch — fixes flash of Iran content when Ukraine is saved
@@ -911,17 +912,17 @@
 
 <!-- NAV -->
 <div class="nav-tabs" role="tablist" aria-label="Dashboard navigation">
-  <div class="nav-tab active" role="tab" tabindex="0" data-panel="overview"><span class="tab-icon">◉</span>OVERVIEW</div>
-  <div class="nav-tab" role="tab" tabindex="0" data-panel="warmap"><span class="tab-icon">⊕</span>WAR MAP</div>
-  <div class="nav-tab" role="tab" tabindex="0" data-panel="maritime"><span class="tab-icon">⚓</span>MARITIME</div>
-  <div class="nav-tab" role="tab" tabindex="0" data-panel="airtraffic"><span class="tab-icon">✈</span>AIR TRAFFIC</div>
-  <div class="nav-tab" role="tab" tabindex="0" data-panel="videos"><span class="tab-icon">▶</span>VIDEO CLIPS</div>
-  <div class="nav-tab" role="tab" tabindex="0" data-panel="livestreams"><span class="tab-icon">◉</span>LIVE STREAMS</div>
-  <div class="nav-tab" role="tab" tabindex="0" data-panel="osint"><span class="tab-icon">◎</span>OSINT / SOCIAL</div>
-  <div class="nav-tab" role="tab" tabindex="0" data-panel="forces"><span class="tab-icon">⚔</span>FORCES</div>
-  <div class="nav-tab" role="tab" tabindex="0" data-panel="assets"><span class="tab-icon">🎯</span>ASSETS</div>
-  <div class="nav-tab" role="tab" tabindex="0" data-panel="impact"><span class="tab-icon">◈</span>IMPACT</div>
-  <div class="nav-tab" role="tab" tabindex="0" data-panel="resources"><span class="tab-icon">≡</span>RESOURCES</div>
+  <div class="nav-tab active" role="tab" tabindex="0" aria-selected="true" aria-controls="panel-overview" data-panel="overview"><span class="tab-icon">◉</span>OVERVIEW</div>
+  <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-warmap" data-panel="warmap"><span class="tab-icon">⊕</span>WAR MAP</div>
+  <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-maritime" data-panel="maritime"><span class="tab-icon">⚓</span>MARITIME</div>
+  <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-airtraffic" data-panel="airtraffic"><span class="tab-icon">✈</span>AIR TRAFFIC</div>
+  <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-videos" data-panel="videos"><span class="tab-icon">▶</span>VIDEO CLIPS</div>
+  <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-livestreams" data-panel="livestreams"><span class="tab-icon">◉</span>LIVE STREAMS</div>
+  <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-osint" data-panel="osint"><span class="tab-icon">◎</span>OSINT / SOCIAL</div>
+  <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-forces" data-panel="forces"><span class="tab-icon">⚔</span>FORCES</div>
+  <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-assets" data-panel="assets"><span class="tab-icon">🎯</span>ASSETS</div>
+  <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-impact" data-panel="impact"><span class="tab-icon">◈</span>IMPACT</div>
+  <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-resources" data-panel="resources"><span class="tab-icon">≡</span>RESOURCES</div>
 </div>
 
 <!-- ==================== OVERVIEW PANEL ==================== -->
@@ -932,7 +933,7 @@
         <span>⚡ LATEST NEWS <span class="news-updated" id="newsUpdated1" style="font-weight:400;color:var(--text3);margin-left:8px"></span></span>
         <button class="refresh-btn" onclick="fetchNews(true)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
       </div>
-      <div class="news-feed" id="newsFeed">
+      <div class="news-feed" id="newsFeed" aria-live="polite" aria-label="Latest news feed">
         <div class="loading"><div class="spinner"></div>Loading news...</div>
       </div>
     </div>
@@ -1558,9 +1559,10 @@ function switchTheater(theaterId){
 
 // ===== TAB NAVIGATION =====
 function activateTab(tab){
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>{t.classList.remove('active');t.setAttribute('aria-selected','false');});
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   tab.classList.add('active');
+  tab.setAttribute('aria-selected','true');
   document.getElementById('panel-'+tab.dataset.panel).classList.add('active');
   // Scroll to top on panel switch
   window.scrollTo({top:0,behavior:'smooth'});
@@ -2145,6 +2147,7 @@ function pipGoFull(){
 // Drag PiP player
 (function(){
   const pip=document.getElementById('pipPlayer');
+  if(!pip) return;
   const ctrl=pip.querySelector('.pip-controls');
   let dragging=false,ox,oy;
   ctrl.addEventListener('mousedown',e=>{
@@ -2218,6 +2221,7 @@ function updateBadge(panel,count){
     const badge=document.createElement('span');
     badge.className='tab-badge';
     badge.textContent=count>99?'99+':count;
+    badge.setAttribute('aria-label',(count>99?'99+':count)+' new items');
     tab.appendChild(badge);
   }
 }
