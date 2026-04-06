@@ -577,6 +577,8 @@
   /* PANEL TRANSITIONS */
   .panel{display:none;padding:0;animation:fadeIn .25s ease}
   .panel.active{display:block}
+  .theater-switching .panel{opacity:0.4;transition:opacity .15s ease}
+  .theater-switching .ticker{opacity:0.4;transition:opacity .15s ease}
   @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
   /* NEWS SEARCH */
@@ -841,7 +843,7 @@
 <div class="header">
   <div class="header-left">
     <div class="logo">&#9760; WARTIME <span>/ dashboard</span></div>
-    <select id="theaterSelect" class="theater-select" onchange="switchTheater(this.value)">
+    <select id="theaterSelect" class="theater-select" onchange="switchTheaterDebounced(this.value)">
       <option value="iran">IRAN / US-ISRAEL</option>
       <option value="ukraine">UKRAINE / RUSSIA</option>
     </select>
@@ -886,6 +888,16 @@
   <div class="tick" style="cursor:pointer" onclick="toggleTickerDetail('defcon')"><div class="tick-label"><span class="tick-icon">&#127915;</span> DEFCON</div><div class="tick-value red tick-critical" id="tickDefcon">LEVEL 2</div><div class="tick-sub" id="tickDefconSub"></div></div>
   <div class="tick" style="cursor:pointer" onclick="toggleTickerDetail('markets')"><div class="tick-label"><span class="tick-icon">&#128200;</span> Markets</div><div class="tick-value orange" id="tickMarkets">VOLATILE</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)" id="tickMarketsSub">CLICK FOR DETAILS</div></div>
 </div>
+<script>
+// Early theater patch — fixes flash of Iran content when Ukraine is saved
+(function(){try{
+  var t=localStorage.getItem('wartime-theater');
+  if(t==='ukraine'){
+    var h=document.getElementById('tickHormuz');
+    if(h){var l=h.querySelector('.tick-label');if(l)l.innerHTML='<span class="tick-icon">&#9875;</span> Black Sea';}
+  }
+}catch(e){}})();
+</script>
 
 <!-- TICKER DETAIL PANEL -->
 <div class="carrier-panel" id="tickerDetailPanel">
@@ -926,7 +938,7 @@
     </div>
     <div class="main-area">
       <div class="section-head"><span>🗺 LIVE WAR MAP — LIVEUAMAP</span><span class="badge">LIVE</span></div>
-      <iframe src="https://iran.liveuamap.com/" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
+      <iframe id="overviewMapFrame" src="about:blank" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
     </div>
   </div>
 </div>
@@ -944,7 +956,7 @@
         <button class="overlay-btn" onclick="window.open('https://acleddata.com/iran-crisis-live/','_blank')">ACLED Data ↗</button>
       </div>
     </div>
-    <iframe id="warmapFrame" src="https://iran.liveuamap.com/" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
+    <iframe id="warmapFrame" src="about:blank" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
   </div>
 </div>
 
@@ -961,7 +973,7 @@
         <button class="overlay-btn" onclick="window.open('https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8','_blank')">Open MarineTraffic</button>
       </div>
     </div>
-    <iframe id="maritimeFrame" src="https://www.vesselfinder.com/aismap?lat=26.3&lon=56.7&zoom=8&width=1600&height=900&names=true" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
+    <iframe id="maritimeFrame" src="about:blank" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
   </div>
 </div>
 
@@ -982,7 +994,7 @@
         <button class="overlay-btn" onclick="window.open('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0','_blank')">ADS-B Exchange ↗</button>
       </div>
     </div>
-    <iframe id="airFrame" src="https://globe.adsb.fi/?lat=26.5&lon=53.6&zoom=6.0&hideSideBar" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
+    <iframe id="airFrame" src="about:blank" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
   </div>
 </div>
 
@@ -1347,10 +1359,16 @@ function updateClock(){
 }
 
 // ===== THEATER SWITCHING =====
+let switchTheaterTimer;
+function switchTheaterDebounced(theaterId){
+  clearTimeout(switchTheaterTimer);
+  switchTheaterTimer=setTimeout(()=>switchTheater(theaterId),150);
+}
 function switchTheater(theaterId){
   const theater=THEATERS[theaterId];
   if(!theater) return;
   currentTheater=theater;
+  document.body.classList.add('theater-switching');
 
   // Update header conflict flags
   const conflictTick=document.querySelector('.tick .tick-value .tick-flags');
@@ -1530,6 +1548,9 @@ function switchTheater(theaterId){
   if(typeof fetchOsint==='function') fetchOsint(true);
   if(typeof fetchVideos==='function') fetchVideos(true);
 
+  // Remove loading transition
+  requestAnimationFrame(()=>document.body.classList.remove('theater-switching'));
+
   // Save preference
   try{localStorage.setItem('wartime-theater',theaterId);}catch(e){}
 }
@@ -1609,7 +1630,10 @@ async function fetchAllNews(){
 
 const MAJOR_KEYWORDS=['strike','attack','bomb','missile','killed','dead','explosion','retaliation','nuclear','invasion','ceasefire','surrender','shot down','intercept','sanctions','blockade','evacuate','casualt'];
 
+let newsFetching=false;
 async function fetchNews(forceRefresh=false){
+  if(newsFetching&&!forceRefresh) return; // Skip if already in-flight (dedup auto-refresh)
+  newsFetching=true;
   const refreshBtns=document.querySelectorAll('.refresh-btn');
   refreshBtns.forEach(b=>b.classList.add('spinning'));
 
@@ -1637,6 +1661,7 @@ async function fetchNews(forceRefresh=false){
     }
   }
   refreshBtns.forEach(b=>b.classList.remove('spinning'));
+  newsFetching=false;
 }
 
 function processNewsItems(allItems,feedCount=0){
@@ -4582,6 +4607,10 @@ try{
     if(saved!=='iran') switchTheater(saved);
   }
 }catch(e){}
+
+// Set overview map iframe (visible on default tab — load immediately)
+document.getElementById('overviewMapFrame').src=currentTheater.mapUrl;
+
 updateDayCount();
 updateClock();
 setInterval(updateClock,1000);
@@ -4590,12 +4619,24 @@ fetchNews();
 // Render static sections
 renderImpactDashboard();
 renderResources();
-renderForcesPanel();
-renderFleetTracker();
-renderDamageOverview();
+if(currentTheater.id==='ukraine'){renderUkraineForces();renderUkraineDamageOverview();renderUkraineFleet();renderUkraineInfra();renderUkraineBases();renderUkraineNukes();}
+else{renderForcesPanel();renderFleetTracker();renderDamageOverview();renderInfraTracker();}
 renderCoalitionFleet();
-renderInfraTracker();
 renderStreamNav();
+
+// Lazy-load non-visible iframes when their tab is first clicked
+document.querySelector('[data-panel="warmap"]').addEventListener('click',()=>{
+  const f=document.getElementById('warmapFrame');
+  if(!f.src||f.src==='about:blank'||f.src===window.location.href) f.src=currentTheater.mapUrl;
+},{once:true});
+document.querySelector('[data-panel="maritime"]').addEventListener('click',()=>{
+  const f=document.getElementById('maritimeFrame');
+  if(!f.src||f.src==='about:blank'||f.src===window.location.href) f.src=currentTheater.maritimeUrl;
+},{once:true});
+document.querySelector('[data-panel="airtraffic"]').addEventListener('click',()=>{
+  const f=document.getElementById('airFrame');
+  if(!f.src||f.src==='about:blank'||f.src===window.location.href) f.src=currentTheater.airTrafficUrl;
+},{once:true});
 
 // Lazy-load sections on tab click
 document.querySelector('[data-panel="livestreams"]').addEventListener('click',()=>{
@@ -4634,14 +4675,25 @@ document.querySelectorAll('.nav-tab').forEach(tab=>{
 
 // ===== NEWS SEARCH =====
 let newsSearchQuery='';
+let newsSearchTimer;
 function searchNews(query){
-  newsSearchQuery=query.toLowerCase().trim();
-  renderNewsFeed('newsFeedFull',allFilteredNews);
+  clearTimeout(newsSearchTimer);
+  newsSearchTimer=setTimeout(()=>{
+    newsSearchQuery=query.toLowerCase().trim();
+    renderNewsFeed('newsFeedFull',allFilteredNews);
+  },300);
 }
 
 // ===== KEYBOARD SHORTCUTS =====
 document.addEventListener('keydown',e=>{
-  // Don't trigger shortcuts when typing in inputs
+  // Escape — close any open panels (works even in inputs)
+  if(e.key==='Escape'){
+    if(activeTickerDetail){document.getElementById('tickerDetailPanel').classList.remove('show');activeTickerDetail=null;return;}
+    if(carrierPanelOpen){toggleCarrierPanel();return;}
+    const hint=document.getElementById('kbdHint');
+    if(hint&&hint.classList.contains('show')){hint.classList.remove('show');return;}
+  }
+  // Don't trigger other shortcuts when typing in inputs
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT') return;
   if(e.ctrlKey||e.metaKey||e.altKey) return;
 
