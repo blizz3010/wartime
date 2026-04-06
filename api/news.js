@@ -2,7 +2,7 @@
 // Returns a single JSON array. Vercel CDN caches the response for 5 minutes,
 // so even 10,000 visitors only trigger one actual fetch cycle every 5 min.
 
-const RSS_FEEDS = [
+const RSS_FEEDS_IRAN = [
   { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml' },
   { name: 'BBC', url: 'https://feeds.bbci.co.uk/news/world/middle_east/rss.xml' },
   { name: 'Reuters', url: 'https://www.reutersagency.com/feed/' },
@@ -14,6 +14,54 @@ const RSS_FEEDS = [
   { name: 'FOX', url: 'https://moxie.foxnews.com/google-publisher/world.xml' },
   { name: 'NBC', url: 'https://feeds.nbcnews.com/nbcnews/public/world' },
 ];
+
+const RSS_FEEDS_UKRAINE = [
+  { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml' },
+  { name: 'BBC', url: 'https://feeds.bbci.co.uk/news/world/europe/rss.xml' },
+  { name: 'Reuters', url: 'https://www.reutersagency.com/feed/' },
+  { name: 'NPR', url: 'https://feeds.npr.org/1004/rss.xml' },
+  { name: 'CNN', url: 'https://rss.cnn.com/rss/edition_europe.rss' },
+  { name: 'Guardian', url: 'https://www.theguardian.com/world/europe-news/rss' },
+  { name: 'FOX', url: 'https://moxie.foxnews.com/google-publisher/world.xml' },
+  { name: 'NBC', url: 'https://feeds.nbcnews.com/nbcnews/public/world' },
+  { name: 'Kyiv Independent', url: 'https://kyivindependent.com/feed/' },
+  { name: 'Ukrinform', url: 'https://www.ukrinform.net/rss/block-lastnews' },
+];
+
+// Theater-specific keyword filters
+const KEYWORDS_IRAN = {
+  STRONG: ['iran','tehran','hormuz','irgc','persian gulf','hezbollah','houthi',
+    'centcom','natanz','fordow','basij','quds force','strait of hormuz',
+    'operation epic fury','khamenei','iranian','idf','iron dome','arrow-3',
+    'thaad','patriot missile','b-2 spirit','f-35','carrier strike group'],
+  MEDIUM: ['missile','airstrike','strike','bomb','drone','torpedo',
+    'warship','naval','blockade','sanctions','nuclear','enrichment','iaea',
+    'ceasefire','escalat','retaliat','deploy','military operation',
+    'ultimatum','power plant','infrastructure'],
+  WEAK: ['israel','military','attack','conflict','war','pentagon',
+    'troops','navy','oil','crude','tanker','refugee','humanitarian',
+    'diplomat','sanction','convoy','intercept','casualties','combat',
+    'fighter jet','airspace','carrier','submarine','artillery','drone',
+    'trump','netanyahu','gulf','qatar','yemen','lebanon','beirut','syria'],
+};
+
+const KEYWORDS_UKRAINE = {
+  STRONG: ['ukraine','kyiv','zelensky','zelenskyy','crimea','donbas','donetsk',
+    'luhansk','kherson','zaporizhzhia','bakhmut','avdiivka','kharkiv',
+    'ukrainian','russia invad','russian forces','wagner','black sea',
+    'azov','mariupol','dnipro','odesa','mykolaiv','nato','himars',
+    'patriot','gepard','leopard','abrams','storm shadow','atacms',
+    'kursk','belgorod','putin','kremlin','russian military'],
+  MEDIUM: ['missile','airstrike','strike','bomb','drone','artillery',
+    'frontline','offensive','counteroffensive','mobilization','conscript',
+    'ceasefire','escalat','retaliat','deploy','military operation',
+    'sanctions','nuclear','grain deal','ammunition','air defense'],
+  WEAK: ['russia','military','attack','conflict','war','pentagon',
+    'troops','nato','eu','european','refugee','humanitarian',
+    'diplomat','convoy','intercept','casualties','combat',
+    'fighter jet','airspace','submarine','tank','armor',
+    'trump','europe','baltic','poland','romania','energy','gas'],
+};
 
 // Simple XML to items parser (no dependencies needed)
 function parseRSS(xml, sourceName) {
@@ -57,10 +105,41 @@ async function fetchFeed(feed) {
   }
 }
 
+function filterByRelevance(allItems, keywords) {
+  const { STRONG, MEDIUM, WEAK } = keywords;
+  return allItems.filter(item => {
+    const title = (item.title || '').toLowerCase();
+    const desc = (item.description || '').toLowerCase();
+    const full = title + ' ' + desc;
+
+    // Strong keyword in title = instant pass
+    if (STRONG.some(k => title.includes(k))) return true;
+
+    // Medium keyword in title = pass
+    if (MEDIUM.some(k => title.includes(k))) return true;
+
+    // Medium keyword in description + any other keyword = pass
+    const mediumHits = MEDIUM.filter(k => full.includes(k)).length;
+    if (mediumHits >= 2) return true;
+
+    // Weak keywords: need 2+ distinct matches to pass
+    const weakHits = WEAK.filter(k => full.includes(k)).length;
+    if (mediumHits >= 1 && weakHits >= 1) return true;
+    if (weakHits >= 3) return true;
+
+    return false;
+  });
+}
+
 export default async function handler(req, res) {
   try {
+    // Determine theater from query param (default: iran)
+    const theater = (req.query?.theater || 'iran').toLowerCase();
+    const feeds = theater === 'ukraine' ? RSS_FEEDS_UKRAINE : RSS_FEEDS_IRAN;
+    const keywords = theater === 'ukraine' ? KEYWORDS_UKRAINE : KEYWORDS_IRAN;
+
     // Fetch all feeds in parallel
-    const results = await Promise.allSettled(RSS_FEEDS.map(fetchFeed));
+    const results = await Promise.allSettled(feeds.map(fetchFeed));
 
     let allItems = [];
     let feedCount = 0;
@@ -80,45 +159,8 @@ export default async function handler(req, res) {
       return true;
     });
 
-    // Filter for Iran/war relevance
-    // Strong keywords: one match in title = article passes
-    const STRONG = ['iran','tehran','hormuz','irgc','persian gulf','hezbollah','houthi',
-      'centcom','natanz','fordow','basij','quds force','strait of hormuz',
-      'operation epic fury','khamenei','iranian','idf','iron dome','arrow-3',
-      'thaad','patriot missile','b-2 spirit','f-35','carrier strike group'];
-    // Medium keywords: one match in title OR two matches anywhere
-    const MEDIUM = ['missile','airstrike','strike','bomb','drone','torpedo',
-      'warship','naval','blockade','sanctions','nuclear','enrichment','iaea',
-      'ceasefire','escalat','retaliat','deploy','military operation'];
-    // Weak keywords: need 2+ matches across title+description to qualify
-    const WEAK = ['israel','military','attack','conflict','war','pentagon',
-      'troops','navy','oil','crude','tanker','refugee','humanitarian',
-      'diplomat','sanction','convoy','intercept','casualties','combat',
-      'fighter jet','airspace','carrier','submarine','artillery','drone',
-      'trump','netanyahu','gulf','qatar','yemen','lebanon','beirut','syria'];
-
-    allItems = allItems.filter(item => {
-      const title = (item.title || '').toLowerCase();
-      const desc = (item.description || '').toLowerCase();
-      const full = title + ' ' + desc;
-
-      // Strong keyword in title = instant pass
-      if (STRONG.some(k => title.includes(k))) return true;
-
-      // Medium keyword in title = pass
-      if (MEDIUM.some(k => title.includes(k))) return true;
-
-      // Medium keyword in description + any other keyword = pass
-      const mediumHits = MEDIUM.filter(k => full.includes(k)).length;
-      if (mediumHits >= 2) return true;
-
-      // Weak keywords: need 2+ distinct matches to pass
-      const weakHits = WEAK.filter(k => full.includes(k)).length;
-      if (mediumHits >= 1 && weakHits >= 1) return true;
-      if (weakHits >= 3) return true;
-
-      return false;
-    });
+    // Filter for theater relevance
+    allItems = filterByRelevance(allItems, keywords);
 
     // Sort by date (newest first)
     allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
@@ -132,7 +174,8 @@ export default async function handler(req, res) {
     return res.status(200).json({
       items: allItems,
       feedCount,
-      totalFeeds: RSS_FEEDS.length,
+      totalFeeds: feeds.length,
+      theater,
       fetchedAt: new Date().toISOString(),
     });
   } catch (err) {

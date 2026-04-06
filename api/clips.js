@@ -11,28 +11,42 @@ let memoryCacheTime = 0;
 const MEMORY_CACHE_TTL = 300000; // 5 minutes
 
 module.exports = async (req, res) => {
-  // Serve from memory cache if warm and fresh
-  if (memoryCache && Date.now() - memoryCacheTime < MEMORY_CACHE_TTL) {
+  const theater = (req.query?.theater || 'iran').toLowerCase();
+  const cacheKey = theater;
+
+  // Serve from memory cache if warm and fresh (per theater)
+  if (memoryCache && memoryCache._theater === cacheKey && Date.now() - memoryCacheTime < MEMORY_CACHE_TTL) {
     res.setHeader('Cache-Control', 's-maxage=1800, stale-while-revalidate=3600');
     res.setHeader('X-Cache', 'memory-hit');
     return res.status(200).json(memoryCache);
   }
 
-  const REDDIT_FETCHES = [
-    // CombatFootage — primary source for conflict video clips
+  const REDDIT_FETCHES_IRAN = [
     { url: 'https://www.reddit.com/r/CombatFootage/hot.json?limit=50', sub: 'CombatFootage', isHot: true },
     { url: 'https://www.reddit.com/r/CombatFootage/new.json?limit=30', sub: 'CombatFootage', isNew: true },
     { url: 'https://www.reddit.com/r/CombatFootage/search.json?q=iran&sort=new&t=week&limit=25&restrict_sr=1', sub: 'CombatFootage' },
-    // combatclips — more raw footage
     { url: 'https://www.reddit.com/r/combatclips/hot.json?limit=25', sub: 'combatclips', isHot: true },
     { url: 'https://www.reddit.com/r/combatclips/new.json?limit=25', sub: 'combatclips', isNew: true },
-    // Other subs — single broad query each to minimize calls
     { url: 'https://www.reddit.com/r/worldnews/search.json?q=iran+strike+footage+video&sort=new&t=week&limit=15&restrict_sr=1', sub: 'worldnews' },
     { url: 'https://www.reddit.com/r/iran/search.json?q=strike+footage+video+attack&sort=new&t=week&limit=15&restrict_sr=1', sub: 'iran' },
     { url: 'https://www.reddit.com/r/MiddleEastNews/search.json?q=iran+war+video&sort=new&t=week&limit=10&restrict_sr=1', sub: 'MiddleEastNews' },
     { url: 'https://www.reddit.com/r/UkraineWarVideoReport/search.json?q=iran&sort=new&t=week&limit=10&restrict_sr=1', sub: 'UkraineWarVideoReport' },
     { url: 'https://www.reddit.com/r/WarFootage/hot.json?limit=20', sub: 'WarFootage', isHot: true },
   ];
+
+  const REDDIT_FETCHES_UKRAINE = [
+    { url: 'https://www.reddit.com/r/CombatFootage/hot.json?limit=50', sub: 'CombatFootage', isHot: true },
+    { url: 'https://www.reddit.com/r/CombatFootage/new.json?limit=30', sub: 'CombatFootage', isNew: true },
+    { url: 'https://www.reddit.com/r/CombatFootage/search.json?q=ukraine&sort=new&t=week&limit=25&restrict_sr=1', sub: 'CombatFootage' },
+    { url: 'https://www.reddit.com/r/UkraineWarVideoReport/hot.json?limit=50', sub: 'UkraineWarVideoReport', isHot: true },
+    { url: 'https://www.reddit.com/r/UkraineWarVideoReport/new.json?limit=30', sub: 'UkraineWarVideoReport', isNew: true },
+    { url: 'https://www.reddit.com/r/combatclips/hot.json?limit=25', sub: 'combatclips', isHot: true },
+    { url: 'https://www.reddit.com/r/worldnews/search.json?q=ukraine+war+footage+video&sort=new&t=week&limit=15&restrict_sr=1', sub: 'worldnews' },
+    { url: 'https://www.reddit.com/r/ukraine/search.json?q=strike+footage+video+attack&sort=new&t=week&limit=15&restrict_sr=1', sub: 'ukraine' },
+    { url: 'https://www.reddit.com/r/WarFootage/hot.json?limit=20', sub: 'WarFootage', isHot: true },
+  ];
+
+  const REDDIT_FETCHES = theater === 'ukraine' ? REDDIT_FETCHES_UKRAINE : REDDIT_FETCHES_IRAN;
 
   const YT_CHANNELS = [
     'UCNye-wNBqNL5ZzHSJj3l8Bg', // Al Jazeera
@@ -49,10 +63,17 @@ module.exports = async (req, res) => {
     'persian gulf', 'bandar abbas', 'centcom', 'operation', 'combat', 'attack', 'airstrike',
     'bridge', 'bombing', 'footage', 'explosion', 'intercept', 'radar', 'patriot', 'thaad',
     'f-35', 'b-2', 'tomahawk', 'ballistic', 'cruise missile', 'strait'];
+  const UKRAINE_KEYWORDS = ['ukraine', 'kyiv', 'russia', 'crimea', 'donbas', 'donetsk',
+    'kherson', 'zaporizhzhia', 'bakhmut', 'kharkiv', 'frontline', 'strike', 'missile', 'war',
+    'conflict', 'military', 'bomb', 'drone', 'artillery', 'tank', 'armor', 'himars',
+    'patriot', 'leopard', 'abrams', 'storm shadow', 'atacms', 'wagner', 'combat', 'attack',
+    'footage', 'explosion', 'intercept', 'kursk', 'belgorod', 'offensive'];
+  const ACTIVE_KEYWORDS = theater === 'ukraine' ? UKRAINE_KEYWORDS : IRAN_KEYWORDS;
+
   const BLOCKED = ['meme', 'funny', 'compilation', 'prank', 'reaction', 'minecraft',
     'fortnite', 'gta', 'call of duty', 'edit', 'parody', '#shorts challenge', 'tiktok dance'];
 
-  // Combat-focused subreddits — skip Iran keyword filter for these
+  // Combat-focused subreddits — skip keyword filter for these
   const COMBAT_SUBS = new Set(['combatfootage', 'combatclips', 'warfootage', 'ukrainewarvideoreport']);
 
   function isBlocked(title) {
@@ -119,10 +140,10 @@ module.exports = async (req, res) => {
         if (!isVideo && !(isImage && isCombatSub)) continue;
         if (isBlocked(p.title)) continue;
 
-        // Iran relevance check — skip for combat-focused subs (they're all relevant)
+        // Relevance check — skip for combat-focused subs (they're all relevant)
         if (!isCombatSub) {
           const titleLower = (p.title || '').toLowerCase();
-          if (!IRAN_KEYWORDS.some(k => titleLower.includes(k))) continue;
+          if (!ACTIVE_KEYWORDS.some(k => titleLower.includes(k))) continue;
         }
 
         // Dedupe by URL
@@ -175,9 +196,9 @@ module.exports = async (req, res) => {
         if (!videoId) continue;
         if (isBlocked(title)) continue;
 
-        // Iran relevance filter
+        // Relevance filter
         const titleLower = title.toLowerCase();
-        if (!IRAN_KEYWORDS.some(k => titleLower.includes(k))) continue;
+        if (!ACTIVE_KEYWORDS.some(k => titleLower.includes(k))) continue;
 
         // Dedupe against Reddit
         if (seenUrls.has(vidUrl.toLowerCase())) continue;
@@ -220,6 +241,7 @@ module.exports = async (req, res) => {
     };
 
     // Store in memory cache for warm serverless instances
+    response._theater = cacheKey;
     memoryCache = response;
     memoryCacheTime = Date.now();
 

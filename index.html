@@ -369,6 +369,22 @@
   }
   .tick-sub{font-family:var(--mono);font-size:.45rem;color:var(--text3);margin-top:2px;letter-spacing:.5px}
 
+  /* THEATER SELECTOR */
+  .theater-select{
+    font-family:var(--mono);font-size:.7rem;font-weight:600;
+    background:var(--surface2);color:var(--text);
+    border:1px solid var(--red);border-radius:3px;
+    padding:4px 8px;cursor:pointer;
+    outline:none;letter-spacing:.5px;
+    appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23f85149'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 6px center;
+    padding-right:22px;
+  }
+  .theater-select:hover{background:var(--surface3);border-color:var(--red)}
+  .theater-select:focus{box-shadow:0 0 0 2px rgba(248,81,73,0.3)}
+  .theater-select option{background:var(--surface);color:var(--text)}
+
   /* CARRIER DETAIL PANEL */
   .carrier-panel{
     display:none;background:var(--surface);border-bottom:1px solid var(--border);
@@ -825,6 +841,10 @@
 <div class="header">
   <div class="header-left">
     <div class="logo">&#9760; WARTIME <span>/ dashboard</span></div>
+    <select id="theaterSelect" class="theater-select" onchange="switchTheater(this.value)">
+      <option value="iran">IRAN / US-ISRAEL</option>
+      <option value="ukraine">UKRAINE / RUSSIA</option>
+    </select>
     <div class="live-pill"><span class="live-dot"></span>LIVE</div>
     <div class="threat-pill">DEFCON 2</div>
   </div>
@@ -833,14 +853,16 @@
     <span class="header-divider">|</span>
     <span class="header-stat" id="clock">--:--:-- UTC</span>
     <span class="header-divider">|</span>
-    <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127470;&#127479;</span> TEHRAN
-      <span id="tehranTime" style="color:var(--text)">--:--</span></span>
-    <span class="header-divider">|</span>
-    <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127470;&#127473;</span> TLV
-      <span id="tlvTime" style="color:var(--text)">--:--</span></span>
-    <span class="header-divider">|</span>
-    <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127482;&#127480;</span> DC
-      <span id="dcTime" style="color:var(--text)">--:--</span></span>
+    <span id="theaterClocks">
+      <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127470;&#127479;</span> TEHRAN
+        <span id="theaterClock1" style="color:var(--text)">--:--</span></span>
+      <span class="header-divider">|</span>
+      <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127470;&#127473;</span> TLV
+        <span id="theaterClock2" style="color:var(--text)">--:--</span></span>
+      <span class="header-divider">|</span>
+      <span class="header-stat"><span class="flag" style="font-size:.85rem">&#127482;&#127480;</span> DC
+        <span id="theaterClock3" style="color:var(--text)">--:--</span></span>
+    </span>
     <div class="header-toggles">
       <button class="header-toggle" id="toggleSound" onclick="toggleAlertSound()" title="Breaking news alert sound">&#128264; ALERTS</button>
       <button class="header-toggle" id="toggleNightOps" onclick="toggleNightOps()" title="Night operations theme">&#127761; NV</button>
@@ -914,7 +936,7 @@
   <div class="full-frame">
     <div class="section-head">
       <span>🗺 IRAN WAR MAP — LIVEUAMAP</span>
-      <div style="display:flex;gap:8px;">
+      <div class="map-btn-container" style="display:flex;gap:8px;">
         <button class="overlay-btn" onclick="setMapSrc('https://iran.liveuamap.com/')">Iran Map</button>
         <button class="overlay-btn" onclick="setMapSrc('https://israelpalestine.liveuamap.com/')">Israel-Palestine</button>
         <button class="overlay-btn" onclick="setMapSrc('https://liveuamap.com/')">Global View</button>
@@ -1337,6 +1359,7 @@
   <kbd>1</kbd>-<kbd>9</kbd>,<kbd>0</kbd> Switch tabs &nbsp;
   <kbd>R</kbd> Refresh &nbsp;
   <kbd>N</kbd> Night mode &nbsp;
+  <kbd>D</kbd> Debug scores &nbsp;
   <kbd>?</kbd> This help &nbsp;
   <kbd>Esc</kbd> Close modal
 </div>
@@ -1356,9 +1379,77 @@
 </div>
 
 <script>
+// ===== THEATER CONFIGURATION =====
+const THEATERS={
+  iran:{
+    id:'iran',
+    name:'Iran / US-Israel',
+    shortName:'IRAN',
+    flags:'\u{1F1FA}\u{1F1F8}\u{1F1EE}\u{1F1F1} vs \u{1F1EE}\u{1F1F7}',
+    flagsHtml:'<span class="flag">&#127482;&#127480;</span><span class="flag">&#127470;&#127473;</span> vs <span class="flag">&#127470;&#127479;</span>',
+    startDate:'2026-02-28',
+    mapUrl:'https://iran.liveuamap.com/',
+    mapButtons:[
+      {label:'Iran Map',url:'https://iran.liveuamap.com/'},
+      {label:'Israel-Palestine',url:'https://israelpalestine.liveuamap.com/'},
+    ],
+    maritimeUrl:'https://www.vesselfinder.com/?imo=0&mmsi=0&type=0&ais=1&centerx=56.27&centery=26.59&zoom=10&port=&fleet=',
+    airTrafficUrl:'https://globe.adsbexchange.com/?lat=27.000&lon=54.000&zoom=5.5',
+    clocks:[
+      {label:'\u{1F1EE}\u{1F1F7} TEHRAN',tz:'Asia/Tehran',id:'theaterClock1'},
+      {label:'\u{1F1EE}\u{1F1F1} TLV',tz:'Asia/Jerusalem',id:'theaterClock2'},
+      {label:'\u{1F1FA}\u{1F1F8} DC',tz:'America/New_York',id:'theaterClock3'},
+    ],
+    newsParam:'iran',
+    tickerConfig:{
+      conflict:{show:true},
+      hormuz:{show:true,label:'Strait of Hormuz',icon:'&#9875;'},
+      oil:{show:true,label:'Brent Crude',icon:'&#128738;',value:'~$105-115/bbl',sub:'PRE-CONFLICT: ~$75'},
+      carriers:{show:true},
+      markets:{show:true},
+    },
+    forcesPanel:'iran',
+    assetsPanel:'iran',
+    impactPanel:'iran',
+  },
+  ukraine:{
+    id:'ukraine',
+    name:'Ukraine / Russia',
+    shortName:'UKRAINE',
+    flags:'\u{1F1FA}\u{1F1E6} vs \u{1F1F7}\u{1F1FA}',
+    flagsHtml:'<span class="flag">&#127482;&#127462;</span> vs <span class="flag">&#127479;&#127482;</span>',
+    startDate:'2022-02-24',
+    mapUrl:'https://liveuamap.com/',
+    mapButtons:[
+      {label:'Ukraine Map',url:'https://liveuamap.com/'},
+      {label:'Global View',url:'https://liveuamap.com/en'},
+    ],
+    maritimeUrl:'https://www.vesselfinder.com/?imo=0&mmsi=0&type=0&ais=1&centerx=33.5&centery=44.0&zoom=7&port=&fleet=',
+    airTrafficUrl:'https://globe.adsbexchange.com/?lat=48.500&lon=35.000&zoom=5.5',
+    clocks:[
+      {label:'\u{1F1FA}\u{1F1E6} KYIV',tz:'Europe/Kyiv',id:'theaterClock1'},
+      {label:'\u{1F1F7}\u{1F1FA} MOSCOW',tz:'Europe/Moscow',id:'theaterClock2'},
+      {label:'\u{1F1FA}\u{1F1F8} DC',tz:'America/New_York',id:'theaterClock3'},
+    ],
+    newsParam:'ukraine',
+    tickerConfig:{
+      conflict:{show:true},
+      hormuz:{show:true,label:'Black Sea',icon:'&#9875;'},
+      oil:{show:true,label:'Natural Gas',icon:'&#128738;',value:'ELEVATED',sub:'EU TTF BENCHMARK'},
+      carriers:{show:false},
+      markets:{show:true},
+    },
+    forcesPanel:'ukraine',
+    assetsPanel:'ukraine',
+    impactPanel:'ukraine',
+  },
+};
+
+let currentTheater=THEATERS.iran;
+
 // ===== DAY COUNTER =====
 function updateDayCount(){
-  const start=new Date('2026-02-28T00:00:00Z');
+  const start=new Date(currentTheater.startDate+'T00:00:00Z');
   const now=new Date();
   const days=Math.floor((now-start)/(1000*60*60*24))+1;
   document.getElementById('dayCount').textContent=days;
@@ -1369,16 +1460,107 @@ function updateClock(){
   const now=new Date();
   document.getElementById('clock').textContent=
     now.toUTCString().split(' ')[4]+' UTC';
-  // Tehran (IRST = UTC+3:30)
-  const tehran=document.getElementById('tehranTime');
-  if(tehran) tehran.textContent=now.toLocaleTimeString('en-US',{timeZone:'Asia/Tehran',hour:'2-digit',minute:'2-digit',hour12:false});
-  // Tel Aviv (IST = UTC+2 / IDT = UTC+3)
-  const tlv=document.getElementById('tlvTime');
-  if(tlv) tlv.textContent=now.toLocaleTimeString('en-US',{timeZone:'Asia/Jerusalem',hour:'2-digit',minute:'2-digit',hour12:false});
-  // Washington DC (EST = UTC-5 / EDT = UTC-4)
-  const dc=document.getElementById('dcTime');
-  if(dc) dc.textContent=now.toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',hour12:false});
+  // Theater-specific clocks
+  currentTheater.clocks.forEach(c=>{
+    const el=document.getElementById(c.id);
+    if(el) el.textContent=now.toLocaleTimeString('en-US',{timeZone:c.tz,hour:'2-digit',minute:'2-digit',hour12:false});
+  });
 }
+
+// ===== THEATER SWITCHING =====
+function switchTheater(theaterId){
+  const theater=THEATERS[theaterId];
+  if(!theater) return;
+  currentTheater=theater;
+
+  // Update header conflict flags
+  const conflictTick=document.querySelector('.tick .tick-value .tick-flags');
+  if(conflictTick) conflictTick.innerHTML=theater.flagsHtml;
+
+  // Update day counter
+  updateDayCount();
+
+  // Update clocks in header
+  const clockArea=document.getElementById('theaterClocks');
+  if(clockArea){
+    clockArea.innerHTML=theater.clocks.map(c=>`
+      <span class="header-stat">${c.label}
+        <span id="${c.id}" style="color:var(--text)">--:--</span></span>
+      <span class="header-divider">|</span>
+    `).join('');
+  }
+  updateClock();
+
+  // Update war map iframes
+  const warmapPanel=document.getElementById('panel-warmap');
+  if(warmapPanel){
+    const iframe=warmapPanel.querySelector('iframe');
+    if(iframe) iframe.src=theater.mapUrl;
+    // Update map buttons
+    const btnContainer=warmapPanel.querySelector('.map-btn-container');
+    if(btnContainer){
+      btnContainer.innerHTML=theater.mapButtons.map(b=>
+        `<button class="overlay-btn" onclick="setMapSrc('${b.url}')">${b.label}</button>`
+      ).join('');
+    }
+  }
+  // Update overview map
+  const overviewMap=document.querySelector('#panel-overview .main-area iframe');
+  if(overviewMap) overviewMap.src=theater.mapUrl;
+
+  // Update maritime iframe
+  const maritimePanel=document.getElementById('panel-maritime');
+  if(maritimePanel){
+    const iframe=maritimePanel.querySelector('iframe');
+    if(iframe) iframe.src=theater.maritimeUrl;
+  }
+
+  // Update air traffic iframe
+  const airPanel=document.getElementById('panel-airtraffic');
+  if(airPanel){
+    const iframes=airPanel.querySelectorAll('iframe');
+    if(iframes[0]) iframes[0].src=theater.airTrafficUrl;
+  }
+
+  // Update ticker visibility & labels
+  const hormuzTick=document.getElementById('tickHormuz');
+  if(hormuzTick){
+    const label=hormuzTick.querySelector('.tick-label');
+    if(label) label.innerHTML=`<span class="tick-icon">${theater.tickerConfig.hormuz.icon}</span> ${theater.tickerConfig.hormuz.label}`;
+  }
+  const oilTick=document.querySelector('[onclick="toggleTickerDetail(\'oil\')"]');
+  if(oilTick){
+    const label=oilTick.querySelector('.tick-label');
+    if(label) label.innerHTML=`<span class="tick-icon">${theater.tickerConfig.oil.icon}</span> ${theater.tickerConfig.oil.label}`;
+    const val=oilTick.querySelector('.tick-value');
+    if(val) val.textContent=theater.tickerConfig.oil.value;
+    const sub=oilTick.querySelector('.tick-sub');
+    if(sub) sub.textContent=theater.tickerConfig.oil.sub;
+  }
+  // Show/hide carrier ticker
+  const carrierWrap=document.getElementById('tickCarrierWrap');
+  if(carrierWrap) carrierWrap.style.display=theater.tickerConfig.carriers.show?'':'none';
+
+  // Show/hide theater-specific Forces/Assets/Impact content
+  document.querySelectorAll('.theater-content').forEach(el=>{
+    el.style.display=el.dataset.theater===theaterId?'':'none';
+  });
+
+  // Re-render forces/assets if theater has changed
+  if(theaterId==='ukraine') renderUkraineForces();
+  else renderForcesPanel();
+
+  // Re-fetch news with theater param
+  fetchNews(true);
+
+  // Re-fetch OSINT & clips (force refresh to get theater-specific data)
+  if(typeof fetchOsint==='function') fetchOsint(true);
+  if(typeof fetchVideos==='function') fetchVideos(true);
+
+  // Save preference
+  try{localStorage.setItem('wartime-theater',theaterId);}catch(e){}
+}
+
 
 // ===== TAB NAVIGATION =====
 function activateTab(tab){
@@ -1435,7 +1617,8 @@ let compactNewsView=false;
 
 // Fetch all news from server-side aggregator (single request, CDN-cached 5 min)
 async function fetchAllNews(){
-  const res=await fetch('/api/news');
+  const theater=currentTheater?currentTheater.newsParam:'iran';
+  const res=await fetch('/api/news?theater='+theater);
   if(!res.ok) throw new Error('API returned '+res.status);
   return await res.json();
 }
@@ -1670,7 +1853,8 @@ async function fetchVideos(force){
 
   try{
     const timeRange=getTimeRange();
-    const res=await fetch(`/api/clips?t=${timeRange}`,{signal:AbortSignal.timeout(15000)});
+    const theater=currentTheater?currentTheater.newsParam:'iran';
+    const res=await fetch(`/api/clips?t=${timeRange}&theater=${theater}`,{signal:AbortSignal.timeout(15000)});
     if(!res.ok) throw new Error('API returned '+res.status);
     const data=await res.json();
 
@@ -2055,7 +2239,8 @@ async function fetchOsint(force){
   status.textContent='Fetching...';
 
   try{
-    const res=await fetch('/api/osint',{signal:AbortSignal.timeout(15000)});
+    const theater=currentTheater?currentTheater.newsParam:'iran';
+    const res=await fetch(`/api/osint?theater=${theater}`,{signal:AbortSignal.timeout(15000)});
     if(!res.ok) throw new Error('API returned '+res.status);
     const data=await res.json();
 
@@ -2833,10 +3018,196 @@ function renderForcesPanel(){
   `;
 }
 
+// ===== UKRAINE / RUSSIA FORCES =====
+function renderUkraineForces(){
+  const quickStatsEl=document.getElementById('forceQuickStats');
+  const quickStats=[
+    {label:'DAYS OF CONFLICT',val:Math.floor((new Date()-new Date('2022-02-24'))/(86400000))+'',color:'var(--orange)',sub:'Since Feb 24, 2022'},
+    {label:'RUSSIAN LOSSES (EST.)',val:'700,000+',color:'var(--red)',sub:'KIA+WIA combined est.'},
+    {label:'UKRAINIAN LOSSES (EST.)',val:'200,000+',color:'var(--blue)',sub:'KIA+WIA combined est.'},
+    {label:'TERRITORY OCCUPIED',val:'~18%',color:'var(--orange)',sub:'Of Ukraine by Russia'},
+  ];
+  quickStatsEl.innerHTML=quickStats.map(s=>`
+    <div style="background:var(--surface);padding:14px 16px;text-align:center">
+      <div style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:${s.color}">${s.val}</div>
+      <div style="font-family:var(--mono);font-size:.5rem;color:var(--text2);letter-spacing:1px;margin-top:2px">${s.label}</div>
+      <div style="font-family:var(--mono);font-size:.45rem;color:var(--text3);margin-top:1px">${s.sub}</div>
+    </div>
+  `).join('');
+
+  const compareEl=document.getElementById('forceCompare');
+  const compareRows=[
+    {icon:'\u{1F465}',label:'Total Personnel',side1:'~900,000 active',side2:'~1,150,000 active + 300K mobilized',note:'Russia partial mobilization 2022'},
+    {icon:'\u{2708}\u{FE0F}',label:'Combat Aircraft',side1:'~100 operational (MiG-29, Su-27, F-16)',side2:'~300+ (Su-34, Su-35, Su-57, Tu-95)',note:'Ukraine received F-16s from allies'},
+    {icon:'\u{1F680}',label:'Missiles Used',side1:'Storm Shadow, ATACMS, Neptune',side2:'Kalibr, Iskander, Kinzhal, Kh-101',note:'Russia 7000+ missiles launched'},
+    {icon:'\u{1F6E1}\u{FE0F}',label:'Air Defense',side1:'Patriot, NASAMS, IRIS-T, Gepard',side2:'S-300/400, Pantsir, Buk',note:'Western AD critical for Ukraine'},
+    {icon:'\u{1F6A2}',label:'Naval Power',side1:'Limited — naval drones effective',side2:'Black Sea Fleet (degraded ~30%)',note:'Moskva sunk, several ships hit'},
+    {icon:'\u{1F6E9}\u{FE0F}',label:'Drones / UAVs',side1:'Bayraktar TB2, FPV drones, naval USVs',side2:'Shahed-136 (Iranian), Lancet, Orlan',note:'FPV drones dominate frontline'},
+    {icon:'\u{1F3AF}',label:'Artillery',side1:'HIMARS, M777, PzH 2000, CAESAR',side2:'Msta, Giatsint, Grad, Smerch, TOS-1',note:'Russia outguns in volume'},
+    {icon:'\u{1F4BB}',label:'Armor',side1:'Leopard 2, Bradley, Abrams, T-72',side2:'T-72/80/90, BMP-1/2/3',note:'Russia lost 10,000+ vehicles'},
+    {icon:'\u{1F4E1}',label:'Intelligence',side1:'US/NATO ISR, Starlink, Five Eyes',side2:'GRU, SVR, limited SIGINT',note:'Western ISR advantage'},
+    {icon:'\u{1F6F0}\u{FE0F}',label:'Space / Satellite',side1:'NATO satellite access, Starlink',side2:'GLONASS, limited reconnaissance',note:'Starlink critical for Ukraine C2'},
+    {icon:'\u{2622}\u{FE0F}',label:'Nuclear',side1:'None (gave up 1994 Budapest Memo)',side2:'6,200 warheads (world\'s largest)',note:'Nuclear threats as deterrence'},
+    {icon:'\u{1F91D}',label:'Allies / Support',side1:'NATO, EU, US ($100B+ aid)',side2:'Iran (drones), North Korea (ammo/troops)',note:''},
+  ];
+
+  compareEl.innerHTML=`
+    <div class="force-compare-side coalition">
+      <div class="compare-header">
+        <h2>\u{1F1FA}\u{1F1E6} UKRAINE</h2>
+        <div class="compare-sub">Armed Forces of Ukraine + Western Support</div>
+      </div>
+      ${compareRows.map(r=>`
+        <div class="compare-stat-row">
+          <span class="compare-stat-icon">${r.icon}</span>
+          <span class="compare-stat-label">${r.label}</span>
+          <span class="compare-stat-val">${r.side1}</span>
+        </div>
+      `).join('')}
+      <div class="compare-total-bar" style="color:var(--blue)">
+        \u{1F3C6} WESTERN TECH + MORALE ADVANTAGE
+      </div>
+    </div>
+    <div class="compare-divider">
+      <div class="compare-vs">VS</div>
+      <div class="compare-center-label">FORCE COMPARISON</div>
+    </div>
+    <div class="force-compare-side iran-axis">
+      <div class="compare-header">
+        <h2>\u{1F1F7}\u{1F1FA} RUSSIA</h2>
+        <div class="compare-sub">Russian Armed Forces + Wagner/PMC + Allies</div>
+      </div>
+      ${compareRows.map(r=>`
+        <div class="compare-stat-row">
+          <span class="compare-stat-icon">${r.icon}</span>
+          <span class="compare-stat-label">${r.label}</span>
+          <span class="compare-stat-val">${r.side2}</span>
+        </div>
+      `).join('')}
+      <div class="compare-total-bar" style="color:var(--red)">
+        \u{1F4CA} NUMERICAL + NUCLEAR ADVANTAGE
+      </div>
+    </div>
+  `;
+
+  // Render other subpages with Ukraine content
+  const cmdEl=document.getElementById('commandStructure');
+  if(cmdEl){
+    const uaCmd=[
+      {rank:'President / CinC',name:'Volodymyr Zelensky',org:'Office of the President',note:'Supreme Commander'},
+      {rank:'CinC Armed Forces',name:'Gen. Oleksandr Syrskyi',org:'General Staff',note:'Overall military command'},
+      {rank:'Air Force Commander',name:'Lt. Gen. Mykola Oleshchuk',org:'Ukrainian Air Force',note:'Air defense & F-16 integration'},
+      {rank:'Navy Commander',name:'Vice Adm. Dmytro Pletenchuk',org:'Ukrainian Navy',note:'Black Sea operations'},
+      {rank:'GUR Chief',name:'Lt. Gen. Kyrylo Budanov',org:'Defense Intelligence',note:'Special operations'},
+    ];
+    const ruCmd=[
+      {rank:'President / CinC',name:'Vladimir Putin',org:'Kremlin',note:'Supreme Commander'},
+      {rank:'Defense Minister',name:'Andrei Belousov',org:'Ministry of Defense',note:'Replaced Shoigu 2024'},
+      {rank:'Chief of Gen. Staff',name:'Gen. Valery Gerasimov',org:'General Staff',note:'Theater commander'},
+      {rank:'GRU Director',name:'Adm. Igor Kostyukov',org:'GRU',note:'Military intelligence'},
+      {rank:'SVR Director',name:'Sergei Naryshkin',org:'SVR',note:'Foreign intelligence'},
+    ];
+    cmdEl.innerHTML=`
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)">
+        <div style="background:var(--surface);padding:16px 20px">
+          <div style="font-family:var(--mono);font-size:.75rem;font-weight:700;color:var(--blue);margin-bottom:12px">\u{1F1FA}\u{1F1E6} UKRAINE COMMAND</div>
+          ${uaCmd.map(c=>`
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.6rem">
+              <div><span style="color:var(--text2)">${c.rank}:</span> <span style="color:var(--text);font-weight:600">${c.name}</span></div>
+              <div style="color:var(--text3)">${c.org}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div style="background:var(--surface);padding:16px 20px">
+          <div style="font-family:var(--mono);font-size:.75rem;font-weight:700;color:var(--red);margin-bottom:12px">\u{1F1F7}\u{1F1FA} RUSSIA COMMAND</div>
+          ${ruCmd.map(c=>`
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.6rem">
+              <div><span style="color:var(--text2)">${c.rank}:</span> <span style="color:var(--text);font-weight:600">${c.name}</span></div>
+              <div style="color:var(--text3)">${c.org}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  // Update casualties section for Ukraine
+  const casualtyEl=document.getElementById('casualtyStats');
+  if(casualtyEl){
+    casualtyEl.innerHTML=`
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border)">
+        <div style="background:var(--surface);padding:20px">
+          <div style="font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--text)">\u{1F1F7}\u{1F1FA} RUSSIAN LOSSES (EST.)</div>
+          <div style="margin-top:12px;display:grid;gap:8px">
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;padding:4px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text2)">Personnel KIA</span><span style="color:var(--red);font-weight:700">~350,000+</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;padding:4px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text2)">Tanks destroyed</span><span style="color:var(--red);font-weight:700">10,000+</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;padding:4px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text2)">APV destroyed</span><span style="color:var(--red);font-weight:700">20,000+</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;padding:4px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text2)">Artillery systems</span><span style="color:var(--red);font-weight:700">12,000+</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;padding:4px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text2)">Aircraft</span><span style="color:var(--red);font-weight:700">350+</span>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--surface);padding:20px">
+          <div style="font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--text)">\u{1F1FA}\u{1F1E6} UKRAINIAN LOSSES (EST.)</div>
+          <div style="margin-top:12px;display:grid;gap:8px">
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;padding:4px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text2)">Personnel KIA</span><span style="color:var(--blue);font-weight:700">~80,000+</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;padding:4px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text2)">Tanks lost</span><span style="color:var(--blue);font-weight:700">4,000+</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;padding:4px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text2)">APV lost</span><span style="color:var(--blue);font-weight:700">8,000+</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;padding:4px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text2)">Artillery systems</span><span style="color:var(--blue);font-weight:700">3,000+</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;padding:4px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text2)">Aircraft</span><span style="color:var(--blue);font-weight:700">80+</span>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--surface);padding:20px">
+          <div style="font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--text)">HUMANITARIAN IMPACT</div>
+          <div style="margin-top:12px;display:grid;gap:8px">
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;padding:4px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text2)">Civilian KIA</span><span style="color:var(--orange);font-weight:700">12,000+</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;padding:4px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text2)">Refugees</span><span style="color:var(--orange);font-weight:700">6.5 million</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;padding:4px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text2)">IDPs</span><span style="color:var(--orange);font-weight:700">3.7 million</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;padding:4px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text2)">Cities damaged</span><span style="color:var(--orange);font-weight:700">1,000+</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;padding:4px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text2)">Infrastructure cost</span><span style="color:var(--orange);font-weight:700">$150B+</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:12px;font-family:var(--mono);font-size:.5rem;color:var(--text3);text-align:center">
+        \u{26A0}\u{FE0F} ALL FIGURES ARE ESTIMATES · Sources: UA General Staff, Mediazona, UNHCR, ISW, Oryx
+      </div>
+    `;
+  }
+}
+
 // ===== IMPACT / STATISTICS DASHBOARD =====
 function renderImpactDashboard(){
   // Estimated conflict statistics (from open-source reports)
-  const conflictDays=Math.floor((new Date()-new Date('2026-02-28T00:00:00Z'))/(1000*60*60*24))+1;
+  const conflictDays=Math.floor((new Date()-new Date(currentTheater.startDate+'T00:00:00Z'))/(1000*60*60*24))+1;
   const stats=[
     {val:conflictDays+'+',label:'Days of Conflict',color:'var(--red)',sub:'Since Feb 28, 2026'},
     {val:'115+',label:'Confirmed Strikes',color:'var(--orange)',sub:'On Iranian territory'},
@@ -2980,6 +3351,22 @@ const SCORING_WEIGHTS={
     'retaliation':20,'retaliatory':20,'escalat':18,'intensif':15,
     'major offensive':20,'ground invasion':25,'amphibious':20,
     'massive strike':20,'carpet bomb':25,'indiscriminate':20,
+    // Ultimatum / threatened action language
+    'ultimatum':30,'deadline':20,'final warning':25,'or else':20,
+    'last chance':20,'consequences':15,'all options':20,
+    'regime change':25,'decapitation strike':35,'power plant':15,
+    'infrastructure strike':20,'infrastructure attack':20,
+    'destroy':12,'obliterate':20,'annihilate':25,'wipe out':20,
+    'bomb iran':30,'strike iran':25,'attack iran':25,
+    'military action':18,'preemptive':20,'first strike':30,
+    'imminent attack':30,'imminent strike':30,'prepare for war':25,
+    'war footing':20,'combat ready':15,'strike package':20,
+    'target list':18,'battle plan':15,'operational planning':15,
+    // Threat signals
+    'warned iran':25,'threatens':18,'threaten':18,'threat':10,
+    'countdown':15,'hours to comply':25,'comply or':20,
+    'punish':15,'overwhelming force':20,'shock and awe':25,
+    'bunker buster':20,'massive ordnance':20,'moab':15,
   },
   deescalation:{
     'ceasefire':30,'peace talk':25,'negotiate':20,'de-escalat':25,
@@ -3030,25 +3417,30 @@ function computeDashboardScores(newsItems){
   function timeDecay(pubDate){
     const age=now-new Date(pubDate).getTime();
     const hours=age/(1000*60*60);
-    if(hours<=6) return 1.0;     // Last 6 hours: full weight
-    if(hours<=24) return 0.8;    // Same day: 80%
-    if(hours<=48) return 0.5;    // Yesterday: 50%
-    if(hours<=72) return 0.3;    // 2-3 days: 30%
+    if(hours<=12) return 1.0;    // Last 12 hours: full weight
+    if(hours<=24) return 0.85;   // Same day: 85%
+    if(hours<=48) return 0.6;    // Yesterday: 60%
+    if(hours<=72) return 0.35;   // 2-3 days: 35%
     return 0.15;                  // 3+ days: 15%
   }
 
-  // Score all items (use top 50 if no dates available)
-  const items=newsItems.slice(0,80);
+  // Score all items
+  const items=newsItems.slice(0,100);
 
   items.forEach(item=>{
     const text=((item.title||'')+' '+(item.description||'')).toLowerCase();
     const decay=item.pubDate?timeDecay(item.pubDate):0.5;
 
+    let articleHasEscalation=false;
     for(const[kw,score] of Object.entries(SCORING_WEIGHTS.escalation)){
-      if(text.includes(kw)) escalationScore+=score*decay;
+      if(text.includes(kw)){escalationScore+=score*decay;articleHasEscalation=true;}
     }
-    for(const[kw,score] of Object.entries(SCORING_WEIGHTS.deescalation)){
-      if(text.includes(kw)) deescalationScore+=score*decay;
+    // Context-aware: only count de-escalation if article doesn't also contain escalation
+    // Prevents "negotiate or we bomb you" from reducing the threat score
+    if(!articleHasEscalation){
+      for(const[kw,score] of Object.entries(SCORING_WEIGHTS.deescalation)){
+        if(text.includes(kw)) deescalationScore+=score*decay;
+      }
     }
     for(const[kw,score] of Object.entries(SCORING_WEIGHTS.hormuzTraffic)){
       if(text.includes(kw)){hormuzOpenScore+=score*decay;if(score>0)hormuzTrafficMentions++;}
@@ -3070,24 +3462,24 @@ function computeDashboardScores(newsItems){
   militaryScore=Math.round(militaryScore);
 
   // --- THREAT LEVEL ---
-  // Military contributes less (it's always high during a war); escalation keywords are the real signal
-  const netEscalation=escalationScore-deescalationScore+militaryScore*0.15;
+  // Military contributes moderately — during pre-strike buildup, military keywords are a real signal
+  const netEscalation=escalationScore-deescalationScore+militaryScore*0.3;
   let threat,threatClass,threatSub;
-  if(netEscalation>=200){threat='MAXIMUM';threatClass='red tick-critical';threatSub='ACTIVE NUCLEAR/WMD ESCALATION';}
-  else if(netEscalation>=60){threat='CRITICAL';threatClass='red tick-critical';threatSub='HIGH ESCALATION SIGNALS';}
-  else if(netEscalation>=30){threat='SEVERE';threatClass='red';threatSub='ELEVATED CONFLICT ACTIVITY';}
-  else if(netEscalation>=10){threat='HIGH';threatClass='orange';threatSub='SIGNIFICANT MILITARY OPS';}
+  if(netEscalation>=150){threat='MAXIMUM';threatClass='red tick-critical';threatSub='ACTIVE NUCLEAR/WMD ESCALATION';}
+  else if(netEscalation>=45){threat='CRITICAL';threatClass='red tick-critical';threatSub='HIGH ESCALATION SIGNALS';}
+  else if(netEscalation>=20){threat='SEVERE';threatClass='red';threatSub='ELEVATED CONFLICT ACTIVITY';}
+  else if(netEscalation>=8){threat='HIGH';threatClass='orange';threatSub='SIGNIFICANT MILITARY OPS';}
   else if(netEscalation>=0){threat='ELEVATED';threatClass='orange';threatSub='ONGOING TENSIONS';}
   else{threat='GUARDED';threatClass='green';threatSub='DE-ESCALATION SIGNALS';}
 
   // --- DEFCON ---
   // Separate calculation — only jumps to 1 on nuclear/WMD signals, not routine military activity
-  const defconScore=escalationScore-deescalationScore*0.5+militaryScore*0.1;
+  const defconScore=escalationScore-deescalationScore*0.5+militaryScore*0.15;
   let defcon,defconSub;
-  if(defconScore>=180){defcon=1;defconSub='MAXIMUM READINESS';}
-  else if(defconScore>=40){defcon=2;defconSub='ARMED FORCES READY';}
-  else if(defconScore>=20){defcon=3;defconSub='INCREASE READINESS';}
-  else if(defconScore>=8){defcon=4;defconSub='ABOVE NORMAL READINESS';}
+  if(defconScore>=140){defcon=1;defconSub='MAXIMUM READINESS';}
+  else if(defconScore>=35){defcon=2;defconSub='ARMED FORCES READY';}
+  else if(defconScore>=15){defcon=3;defconSub='INCREASE READINESS';}
+  else if(defconScore>=5){defcon=4;defconSub='ABOVE NORMAL READINESS';}
   else{defcon=5;defconSub='NORMAL READINESS';}
 
   // --- STRAIT OF HORMUZ ---
@@ -3748,6 +4140,16 @@ function renderInfraTracker(){
 }
 
 // ===== INIT =====
+// Restore theater from localStorage
+try{
+  const saved=localStorage.getItem('wartime-theater');
+  if(saved&&THEATERS[saved]){
+    currentTheater=THEATERS[saved];
+    const sel=document.getElementById('theaterSelect');
+    if(sel) sel.value=saved;
+    if(saved!=='iran') switchTheater(saved);
+  }
+}catch(e){}
 updateDayCount();
 updateClock();
 setInterval(updateClock,1000);
@@ -3828,6 +4230,23 @@ document.addEventListener('keydown',e=>{
   }
   // N = night ops toggle
   if(e.key==='n'||e.key==='N'){e.preventDefault();toggleNightOps()}
+  // D = debug scoring panel
+  if(e.key==='d'||e.key==='D'){
+    e.preventDefault();
+    const s=lastScoringResult;
+    const sc=s.scores||{};
+    console.log('%c[SCORING DEBUG]','color:#f85149;font-weight:bold',
+      `\nTheater: ${currentTheater.shortName}`,
+      `\nEscalation: ${sc.escalation}`,
+      `\nDe-escalation: ${sc.deescalation}`,
+      `\nMilitary: ${sc.military}`,
+      `\nNet Escalation: ${sc.escalation-(sc.deescalation||0)+(sc.military||0)*0.3}`,
+      `\nThreat: ${s.threat}`,
+      `\nDEFCON: ${s.defcon}`,
+      `\nHormuz: ${s.hormuz}`
+    );
+    alert(`SCORING DEBUG\n\nTheater: ${currentTheater.shortName}\nEscalation: ${sc.escalation} pts\nDe-escalation: ${sc.deescalation} pts\nMilitary: ${sc.military} pts\nNet: ${Math.round((sc.escalation||0)-(sc.deescalation||0)+(sc.military||0)*0.3)}\n\nThreat: ${s.threat}\nDEFCON: ${s.defcon}\nHormuz/Status: ${s.hormuz}`);
+  }
   // ? = toggle keyboard shortcut hint
   if(e.key==='?'){
     e.preventDefault();
