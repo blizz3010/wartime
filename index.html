@@ -935,7 +935,7 @@
 <div class="panel" id="panel-warmap">
   <div class="full-frame">
     <div class="section-head">
-      <span>🗺 IRAN WAR MAP — LIVEUAMAP</span>
+      <span id="warmapTitle">🗺 IRAN WAR MAP — LIVEUAMAP</span>
       <div class="map-btn-container" style="display:flex;gap:8px;">
         <button class="overlay-btn" onclick="setMapSrc('https://iran.liveuamap.com/')">Iran Map</button>
         <button class="overlay-btn" onclick="setMapSrc('https://israelpalestine.liveuamap.com/')">Israel-Palestine</button>
@@ -952,8 +952,8 @@
 <div class="panel" id="panel-maritime">
   <div class="full-frame">
     <div class="section-head">
-      <span>⚓ STRAIT OF HORMUZ — MARITIME TRAFFIC</span>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span id="maritimeTitle">⚓ STRAIT OF HORMUZ — MARITIME TRAFFIC</span>
+      <div id="maritimeButtons" style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="overlay-btn" onclick="setMaritimeSrc(26.3,56.7,8)">Hormuz Strait</button>
         <button class="overlay-btn" onclick="setMaritimeSrc(26.0,50.5,7)">Persian Gulf Wide</button>
         <button class="overlay-btn" onclick="setMaritimeSrc(14.0,43.0,6)">Red Sea / Bab el-Mandeb</button>
@@ -1125,13 +1125,13 @@
 
   <!-- Damage Overview -->
   <div class="subpage active" id="assets-page-overview">
-    <div class="force-section-head">◈ DAMAGE ASSESSMENT OVERVIEW — IRAN</div>
+    <div class="force-section-head" id="assetsDamageTitle">◈ DAMAGE ASSESSMENT OVERVIEW — IRAN</div>
     <div id="damageOverview"></div>
   </div>
 
   <!-- Iranian Naval Fleet Tracker -->
   <div class="subpage" id="assets-page-fleet">
-    <div class="force-section-head">🚢 IRANIAN NAVAL FLEET — OPERATION EPIC FURY</div>
+    <div class="force-section-head" id="assetsFleetTitle">🚢 IRANIAN NAVAL FLEET — OPERATION EPIC FURY</div>
     <div class="fleet-summary" id="fleetSummary"></div>
     <div class="fleet-grid" id="fleetTracker"></div>
   </div>
@@ -1144,7 +1144,7 @@
 
   <!-- Military Base Status -->
   <div class="subpage" id="assets-page-bases">
-    <div class="force-section-head">🏗 MILITARY BASE STATUS — IRAN</div>
+    <div class="force-section-head" id="assetsBaseTitle">🏗 MILITARY BASE STATUS — IRAN</div>
     <div id="baseMapContainer"></div>
     <div id="baseStatus"></div>
   </div>
@@ -1214,128 +1214,7 @@
 <!-- ==================== RESOURCES PANEL ==================== -->
 <div class="panel" id="panel-resources">
   <div class="section-head"><span>≡ BOOKMARKS & RESOURCES</span></div>
-  <div class="links-grid">
-    <div class="link-card">
-      <h3>🗺 Liveuamap — Iran</h3>
-      <p>Real-time conflict map with geolocated news reports, strikes, and military movements across Iran.</p>
-      <a href="https://iran.liveuamap.com/" target="_blank">iran.liveuamap.com →</a>
-    </div>
-    <div class="link-card">
-      <h3>🗺 Iran Strike Map</h3>
-      <p>Independent OSINT tracker with 115+ confirmed strikes, leader status, and verified video.</p>
-      <a href="https://iranstrikemap.com/" target="_blank">iranstrikemap.com →</a>
-    </div>
-    <div class="link-card">
-      <h3>🗺 ACLED Iran Crisis</h3>
-      <p>Armed Conflict Location & Event Data — updated daily map of all strikes and retaliations.</p>
-      <a href="https://acleddata.com/iran-crisis-live/" target="_blank">acleddata.com/iran-crisis-live →</a>
-    </div>
-    <div class="link-card">
-      <h3>🗺 ISW/CTP ArcGIS Map</h3>
-      <p>Institute for the Study of War interactive strike map companion to their daily conflict coverage.</p>
-      <a href="https://storymaps.arcgis.com/stories/089bc1a2fe684405a67d67f13bd31324" target="_blank">storymaps.arcgis.com →</a>
-    </div>
-    <div class="link-card">
-      <h3>⚓ MarineTraffic — Hormuz</h3>
-      <p>Live AIS ship positions in the Strait of Hormuz and Persian Gulf. Watch vessel movements in real time.</p>
-      <a href="https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8" target="_blank">marinetraffic.com →</a>
-    </div>
-    <div class="link-card">
-      <h3>⚓ VesselFinder</h3>
-      <p>Alternative maritime tracker. Good for cross-referencing ship positions and vessel details.</p>
-      <a href="https://www.vesselfinder.com/" target="_blank">vesselfinder.com →</a>
-    </div>
-    <div class="link-card">
-      <h3>✈ Flightradar24</h3>
-      <p>Live air traffic data. Monitor flight paths, NOTAMs, and airspace closures over the conflict zone.</p>
-      <a href="https://www.flightradar24.com/26.51,53.58/5" target="_blank">flightradar24.com →</a>
-    </div>
-    <div class="link-card">
-      <h3>✈ ADS-B Exchange</h3>
-      <p>Unfiltered flight tracking including military aircraft. No data filtering unlike commercial trackers.</p>
-      <a href="https://globe.adsbexchange.com/" target="_blank">adsbexchange.com →</a>
-    </div>
-    <div class="link-card">
-      <h3>📰 Al Jazeera Live Blog</h3>
-      <p>Minute-by-minute updates on the US-Israel war on Iran. Multiple daily live blogs with video.</p>
-      <a href="https://www.aljazeera.com/where/iran/" target="_blank">aljazeera.com/where/iran →</a>
-    </div>
-    <div class="link-card">
-      <h3>📰 CNN Live Updates</h3>
-      <p>CNN's live update page with maps, charts, and rolling coverage of the Iran conflict.</p>
-      <a href="https://www.cnn.com/world/middleeast/iran" target="_blank">cnn.com/world/middleeast/iran →</a>
-    </div>
-    <div class="link-card">
-      <h3>📰 NBC News Live Blog</h3>
-      <p>Continuously updated live blog with reporting from correspondents across the region.</p>
-      <a href="https://www.nbcnews.com/world/iran" target="_blank">nbcnews.com/world/iran →</a>
-    </div>
-    <div class="link-card">
-      <h3>📰 BBC News — Iran</h3>
-      <p>BBC's Iran coverage hub with analysis, explainers, and correspondent reports.</p>
-      <a href="https://www.bbc.com/news/topics/c4wp8v0jnx2t" target="_blank">bbc.com/news →</a>
-    </div>
-    <div class="link-card">
-      <h3>📰 NewsNow Iran</h3>
-      <p>Aggregated news feed from hundreds of sources. Great for seeing all coverage at once.</p>
-      <a href="https://www.newsnow.com/us/World/Middle+East/Iran" target="_blank">newsnow.com →</a>
-    </div>
-    <div class="link-card">
-      <h3>📰 JFeed Live</h3>
-      <p>Minute-by-minute live ticker with breaking updates from Israeli and international sources.</p>
-      <a href="https://www.jfeed.com/latest-news" target="_blank">jfeed.com/latest-news →</a>
-    </div>
-    <div class="link-card">
-      <h3>📊 Iran War Map (AI)</h3>
-      <p>AI-powered conflict monitor with tension tracker, prediction market odds, and OSINT feed.</p>
-      <a href="https://iranwarmap.com/" target="_blank">iranwarmap.com →</a>
-    </div>
-    <div class="link-card">
-      <h3>📊 Live War Maps Feed</h3>
-      <p>Real-time war updates with oil market data ticker and live event feed.</p>
-      <a href="https://livewarmaps.com/live-war-feed.html" target="_blank">livewarmaps.com →</a>
-    </div>
-    <div class="link-card">
-      <h3>🎖 ISW — Inst. for Study of War</h3>
-      <p>Daily assessments and campaign analysis from former military planners. Critical order of battle info.</p>
-      <a href="https://www.understandingwar.org/" target="_blank">understandingwar.org →</a>
-    </div>
-    <div class="link-card">
-      <h3>🎖 CENTCOM Press Releases</h3>
-      <p>Official US Central Command statements, operational updates, and strike reports.</p>
-      <a href="https://www.centcom.mil/MEDIA/PRESS-RELEASES/" target="_blank">centcom.mil →</a>
-    </div>
-    <div class="link-card">
-      <h3>🎖 Janes Defence</h3>
-      <p>Open-source military intelligence on weapons systems, force structures, and capabilities.</p>
-      <a href="https://www.janes.com/" target="_blank">janes.com →</a>
-    </div>
-    <div class="link-card">
-      <h3>☢ IAEA — Iran Reports</h3>
-      <p>International Atomic Energy Agency updates on Iranian nuclear facilities and safeguards.</p>
-      <a href="https://www.iaea.org/newscenter/focus/iran" target="_blank">iaea.org →</a>
-    </div>
-    <div class="link-card">
-      <h3>🛢 Oil Price Live</h3>
-      <p>Real-time Brent crude and WTI oil prices. Critical for tracking economic impact of Hormuz closure.</p>
-      <a href="https://oilprice.com/" target="_blank">oilprice.com →</a>
-    </div>
-    <div class="link-card">
-      <h3>🛰 Sentinel Hub (Satellite)</h3>
-      <p>Free satellite imagery browser. Monitor damage to infrastructure, fires, and military activity.</p>
-      <a href="https://apps.sentinel-hub.com/eo-browser/" target="_blank">sentinel-hub.com →</a>
-    </div>
-    <div class="link-card">
-      <h3>📡 RadioFreeEurope — Iran</h3>
-      <p>Radio Farda coverage in Farsi and English. Important for internal Iranian perspective.</p>
-      <a href="https://en.radiofarda.com/" target="_blank">radiofarda.com →</a>
-    </div>
-    <div class="link-card">
-      <h3>🌐 UNHCR — Refugee Data</h3>
-      <p>UN refugee agency data on displacement from the Iran conflict zone.</p>
-      <a href="https://data.unhcr.org/en/situations" target="_blank">data.unhcr.org →</a>
-    </div>
-  </div>
+  <div class="links-grid" id="resourcesGrid"></div>
 </div>
 
 <!-- PiP MINI PLAYER -->
@@ -1549,6 +1428,65 @@ function switchTheater(theaterId){
   // Re-render forces/assets if theater has changed
   if(theaterId==='ukraine') renderUkraineForces();
   else renderForcesPanel();
+
+  // Update war map title
+  const warmapTitle=document.getElementById('warmapTitle');
+  if(warmapTitle) warmapTitle.textContent=theaterId==='ukraine'?'🗺 UKRAINE WAR MAP — LIVEUAMAP':'🗺 IRAN WAR MAP — LIVEUAMAP';
+
+  // Update maritime title & buttons
+  const maritimeTitle=document.getElementById('maritimeTitle');
+  if(maritimeTitle) maritimeTitle.textContent=theaterId==='ukraine'?'⚓ BLACK SEA — MARITIME TRAFFIC':'⚓ STRAIT OF HORMUZ — MARITIME TRAFFIC';
+  const maritimeButtons=document.getElementById('maritimeButtons');
+  if(maritimeButtons){
+    if(theaterId==='ukraine'){
+      maritimeButtons.innerHTML=`
+        <button class="overlay-btn" onclick="setMaritimeSrc(43.5,34.0,7)">Black Sea</button>
+        <button class="overlay-btn" onclick="setMaritimeSrc(46.0,37.0,8)">Sea of Azov</button>
+        <button class="overlay-btn" onclick="setMaritimeSrc(41.0,29.0,9)">Bosphorus</button>
+        <button class="overlay-btn" onclick="setMaritimeSrc(46.5,30.7,10)">Odesa Port</button>
+        <button class="overlay-btn" onclick="window.open('https://www.marinetraffic.com/en/ais/home/centerx:34.0/centery:43.5/zoom:7','_blank')">Open MarineTraffic</button>`;
+    }else{
+      maritimeButtons.innerHTML=`
+        <button class="overlay-btn" onclick="setMaritimeSrc(26.3,56.7,8)">Hormuz Strait</button>
+        <button class="overlay-btn" onclick="setMaritimeSrc(26.0,50.5,7)">Persian Gulf Wide</button>
+        <button class="overlay-btn" onclick="setMaritimeSrc(14.0,43.0,6)">Red Sea / Bab el-Mandeb</button>
+        <button class="overlay-btn" onclick="setMaritimeSrc(33.5,34.5,7)">Eastern Med</button>
+        <button class="overlay-btn" onclick="window.open('https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8','_blank')">Open MarineTraffic</button>`;
+    }
+  }
+
+  // Update assets panel titles
+  const dt=document.getElementById('assetsDamageTitle');
+  if(dt) dt.textContent=theaterId==='ukraine'?'◈ DAMAGE ASSESSMENT OVERVIEW — UKRAINE':'◈ DAMAGE ASSESSMENT OVERVIEW — IRAN';
+  const ft=document.getElementById('assetsFleetTitle');
+  if(ft) ft.textContent=theaterId==='ukraine'?'🚢 BLACK SEA NAVAL STATUS — RUSSIAN FLEET':'🚢 IRANIAN NAVAL FLEET — OPERATION EPIC FURY';
+  const bt=document.getElementById('assetsBaseTitle');
+  if(bt) bt.textContent=theaterId==='ukraine'?'🏗 MILITARY BASE STATUS — UKRAINE':'🏗 MILITARY BASE STATUS — IRAN';
+
+  // Update assets subnav labels
+  const subnavBtns=document.querySelectorAll('#assetsSubnav .forces-subnav-btn');
+  if(subnavBtns.length>=3){
+    subnavBtns[1].textContent=theaterId==='ukraine'?'🚢 Black Sea Fleet':'🚢 Naval Fleet';
+    subnavBtns[2].textContent=theaterId==='ukraine'?'⚓ NATO Support':'⚓ Coalition Fleet';
+  }
+
+  // Re-render assets for the active theater
+  if(theaterId==='ukraine'){
+    renderUkraineDamageOverview();renderUkraineFleet();renderUkraineInfra();
+  }else{
+    renderDamageOverview();renderFleetTracker();renderInfraTracker();
+  }
+
+  // Invalidate OSINT/video/news caches so stale data from other theater is cleared
+  if(typeof allVideoClips!=='undefined'){allVideoClips=[];videoLastFetch=0;}
+  if(typeof allOsintPosts!=='undefined'){allOsintPosts=[];osintLastFetch=0;}
+
+  // Re-render resources & impact for the new theater
+  renderResources();
+  renderImpactDashboard();
+
+  // Re-render livestreams with theater-specific channels
+  if(typeof renderStreamNav==='function') renderStreamNav();
 
   // Re-fetch news with theater param
   fetchNews(true);
@@ -1989,7 +1927,7 @@ function safeUrl(url){
 function openLink(url){window.open(url,'_blank','noopener,noreferrer')}
 
 // ===== LIVE STREAM CAROUSEL =====
-const STREAMS=[
+const STREAMS_IRAN=[
   {name:'Al Jazeera',channel:'UCNye-wNBqNL5ZzHSJj3l8Bg',liveUrl:'https://www.youtube.com/@AlJazeeraEnglish/live'},
   {name:'Sky News',channel:'UCoMdktPbSTixAyNGwb-UYkQ',liveUrl:'https://www.youtube.com/@skynews/live'},
   {name:'France 24',channel:'UCQfwfsi5VrQ8yKZ-UWmAEFg',liveUrl:'https://www.youtube.com/@FRANCE24English/live'},
@@ -2001,12 +1939,26 @@ const STREAMS=[
   {name:'CNN',channel:'UCupvZG-5ko_eiXAupbDfxWw',liveUrl:'https://www.youtube.com/@cnn/live'},
   {name:'FOX News',channel:'UCXIJgqnII2ZOINSWNOGFThA',liveUrl:'https://www.youtube.com/@FoxNews/live'},
 ];
+const STREAMS_UKRAINE=[
+  {name:'Al Jazeera',channel:'UCNye-wNBqNL5ZzHSJj3l8Bg',liveUrl:'https://www.youtube.com/@AlJazeeraEnglish/live'},
+  {name:'Sky News',channel:'UCoMdktPbSTixAyNGwb-UYkQ',liveUrl:'https://www.youtube.com/@skynews/live'},
+  {name:'France 24',channel:'UCQfwfsi5VrQ8yKZ-UWmAEFg',liveUrl:'https://www.youtube.com/@FRANCE24English/live'},
+  {name:'DW News',channel:'UCknLrEdhRCp1aegoMqRaCZg',liveUrl:'https://www.youtube.com/@DWNews/live'},
+  {name:'CNN',channel:'UCupvZG-5ko_eiXAupbDfxWw',liveUrl:'https://www.youtube.com/@cnn/live'},
+  {name:'NBC News',channel:'UCeY0bbntWzzVIaj2z3QigXg',liveUrl:'https://www.youtube.com/@NBCNews/live'},
+  {name:'United24',channel:'UCwNq2vsLBG_GI_ERyMA7l9A',liveUrl:'https://www.youtube.com/@United24media/live'},
+  {name:'Kyiv Independent',channel:'UCTr4cb_wgm0VoJLncBSY2RA',liveUrl:'https://www.youtube.com/@KyivIndependent/live'},
+  {name:'UATV English',channel:'UCW8ii1Y86Ixqf3oV0YuBOKA',liveUrl:'https://www.youtube.com/@UATVEnglish/live'},
+  {name:'FOX News',channel:'UCXIJgqnII2ZOINSWNOGFThA',liveUrl:'https://www.youtube.com/@FoxNews/live'},
+];
+function getActiveStreams(){return currentTheater.id==='ukraine'?STREAMS_UKRAINE:STREAMS_IRAN;}
 let currentStream=0;
 // Cache resolved live stream video IDs
 const liveStreamCache={};
 
 function renderStreamNav(){
   const c=document.getElementById('streamChannels');
+  const STREAMS=getActiveStreams();
   c.innerHTML=STREAMS.map((s,i)=>`
     <div class="stream-ch${i===currentStream?' active':''}" onclick="selectStream(${i})">
       <span class="live-dot-sm"></span>${s.name}
@@ -2016,6 +1968,7 @@ function renderStreamNav(){
 
 async function selectStream(idx){
   currentStream=idx;
+  const STREAMS=getActiveStreams();
   const s=STREAMS[idx];
   renderStreamNav();
   document.querySelectorAll('.stream-ch')[idx]?.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
@@ -2058,6 +2011,7 @@ async function selectStream(idx){
 }
 
 function switchStream(dir){
+  const STREAMS=getActiveStreams();
   let next=currentStream+dir;
   if(next<0) next=STREAMS.length-1;
   if(next>=STREAMS.length) next=0;
@@ -2065,7 +2019,7 @@ function switchStream(dir){
 }
 
 function refreshCurrentStream(){
-  // Clear cache for current channel and re-fetch
+  const STREAMS=getActiveStreams();
   const s=STREAMS[currentStream];
   delete liveStreamCache[s.channel];
   selectStream(currentStream);
@@ -2077,6 +2031,7 @@ let pipStreamIdx=0;
 
 function showPip(){
   const pip=document.getElementById('pipPlayer');
+  const STREAMS=getActiveStreams();
   const s=STREAMS[pipStreamIdx];
   const cachedId=liveStreamCache[s.channel];
   const cached=liveStreamCache[s.channel];
@@ -2101,6 +2056,7 @@ function togglePipSize(){
 }
 
 function pipPrevNext(dir){
+  const STREAMS=getActiveStreams();
   pipStreamIdx+=dir;
   if(pipStreamIdx<0) pipStreamIdx=STREAMS.length-1;
   if(pipStreamIdx>=STREAMS.length) pipStreamIdx=0;
@@ -3206,9 +3162,18 @@ function renderUkraineForces(){
 
 // ===== IMPACT / STATISTICS DASHBOARD =====
 function renderImpactDashboard(){
-  // Estimated conflict statistics (from open-source reports)
   const conflictDays=Math.floor((new Date()-new Date(currentTheater.startDate+'T00:00:00Z'))/(1000*60*60*24))+1;
-  const stats=[
+  const isUkraine=currentTheater.id==='ukraine';
+  const stats=isUkraine?[
+    {val:conflictDays+'+',label:'Days of Conflict',color:'var(--red)',sub:'Since Feb 24, 2022'},
+    {val:'600K+',label:'Est. Casualties (Both)',color:'var(--red)',sub:'Military killed & wounded'},
+    {val:'12,000+',label:'Civilian Deaths',color:'var(--orange)',sub:'UN OHCHR verified minimum'},
+    {val:'6.3M+',label:'Refugees Abroad',color:'var(--blue)',sub:'UNHCR registered refugees'},
+    {val:'5.9M+',label:'Internally Displaced',color:'var(--blue)',sub:'Within Ukraine borders'},
+    {val:'$150B+',label:'Infrastructure Damage',color:'var(--orange)',sub:'World Bank estimate'},
+    {val:'~50%',label:'Energy Grid Capacity',color:'var(--orange)',sub:'After systematic strikes'},
+    {val:'40+',label:'Countries Providing Aid',color:'var(--green)',sub:'Military & humanitarian'},
+  ]:[
     {val:conflictDays+'+',label:'Days of Conflict',color:'var(--red)',sub:'Since Feb 28, 2026'},
     {val:'115+',label:'Confirmed Strikes',color:'var(--orange)',sub:'On Iranian territory'},
     {val:'CLOSED',label:'Strait of Hormuz',color:'var(--red)',sub:'Oil transit blocked'},
@@ -3229,7 +3194,16 @@ function renderImpactDashboard(){
   `).join('');
 
   // Infrastructure bars
-  const bars=[
+  const bars=isUkraine?[
+    {label:'Energy Grid',pct:50,color:'var(--orange)'},
+    {label:'Rail Network',pct:70,color:'var(--green)'},
+    {label:'Internet',pct:75,color:'var(--green)'},
+    {label:'Ports (Black Sea)',pct:35,color:'var(--orange)'},
+    {label:'Bridges & Roads',pct:55,color:'var(--orange)'},
+    {label:'Water Supply',pct:60,color:'var(--orange)'},
+    {label:'Hospitals',pct:65,color:'var(--green)'},
+    {label:'Grain Export Capacity',pct:45,color:'var(--orange)'},
+  ]:[
     {label:'Power Grid',pct:25,color:'var(--red)'},
     {label:'Internet',pct:4,color:'var(--red)'},
     {label:'Airports',pct:15,color:'var(--red)'},
@@ -3252,7 +3226,19 @@ function renderImpactDashboard(){
   `).join('')+'<div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);margin-top:8px">Estimated operational capacity remaining</div>';
 
   // Key events timeline
-  const events=[
+  const events=isUkraine?[
+    {date:'2024+',text:'Ongoing: Systematic Russian strikes on Ukrainian energy infrastructure; 50%+ grid capacity lost'},
+    {date:'Aug 2024',text:'Ukraine launches Kursk incursion into Russian territory; largest cross-border operation since 2022'},
+    {date:'Jun 2023',text:'Kakhovka Dam destroyed — massive flooding, ecological disaster, war crime allegations'},
+    {date:'Jun 2023',text:'Ukraine launches long-awaited counteroffensive in Zaporizhzhia and Donetsk regions'},
+    {date:'Nov 2022',text:'Kherson liberated — only regional capital recaptured; Russia retreats across Dnipro'},
+    {date:'Oct 2022',text:'Kerch Bridge explosion; Russia responds with massive missile barrage on civilian infrastructure'},
+    {date:'Sep 2022',text:'Ukraine Kharkiv counteroffensive recaptures 6,000+ km²; Russian forces collapse in northeast'},
+    {date:'Apr 2022',text:'Moskva flagship sunk by Neptune missiles; largest warship loss since Falklands War'},
+    {date:'Apr 2022',text:'Bucha massacre revealed; evidence of systematic war crimes triggers global outrage'},
+    {date:'Mar 2022',text:'Siege of Mariupol begins; Azovstal steelworks becomes symbol of resistance'},
+    {date:'Feb 24',text:'Russia launches full-scale invasion of Ukraine from north, east, and south'},
+  ]:[
     {date:'Mar 22',text:'Continued strikes on IRGC positions; Strait of Hormuz remains closed; 3rd carrier group arrives'},
     {date:'Mar 21',text:'USCYBERCOM confirms offensive cyber operations against IRGC C2 networks'},
     {date:'Mar 20',text:'UN emergency session; China & Russia veto ceasefire; Iran fires Shahab-3 salvo at Al Dhafra'},
@@ -3284,7 +3270,16 @@ function renderImpactDashboard(){
   `).join('')}</div>`;
 
   // Cyber operations
-  const cyberOps=[
+  const cyberOps=isUkraine?[
+    {date:'2024+',actor:'🇷🇺 Sandworm',target:'Ukrainian Energy Grid',detail:'Continued cyber attacks on power infrastructure coordinated with physical missile strikes'},
+    {date:'2023',actor:'🇺🇦 IT Army',target:'Russian State Media',detail:'DDoS and defacement campaigns against RT, TASS, and Russian government websites'},
+    {date:'Dec 2023',actor:'🇺🇦 GUR',target:'Russian Tax Service (FNS)',detail:'Major hack destroying databases and wiping thousands of servers across Russia'},
+    {date:'Jun 2023',actor:'🇷🇺 APT28/Fancy Bear',target:'Ukrainian Govt Networks',detail:'Continued espionage campaigns targeting military communications and logistics systems'},
+    {date:'Jan 2023',actor:'🇷🇺 Sandworm',target:'Ukrainian Power Grid',detail:'Third major attack on energy infrastructure; coordinated with kinetic strikes'},
+    {date:'Apr 2022',actor:'🇷🇺 Sandworm',target:'Ukrainian Power Substations',detail:'Industroyer2 malware deployed against high-voltage substations; partially mitigated'},
+    {date:'Feb 2022',actor:'🇷🇺 GRU',target:'Viasat KA-SAT',detail:'Wiper malware attack on satellite internet; disrupted Ukrainian military communications'},
+    {date:'Jan 2022',actor:'🇷🇺 GRU',target:'Ukrainian Government Sites',detail:'WhisperGate wiper malware disguised as ransomware deployed weeks before invasion'},
+  ]:[
     {date:'Mar 21',actor:'🇺🇸 USCYBERCOM',target:'IRGC C2 Networks',detail:'Offensive cyber ops disrupting command & control communications across IRGC network'},
     {date:'Mar 18',actor:'🇺🇸 / 🇮🇱 Joint',target:'Iranian Telecom Infrastructure',detail:'Coordinated attack bringing Iran internet to ~4% normal capacity; mobile networks disabled'},
     {date:'Mar 15',actor:'🇮🇷 APT33/Elfin',target:'US CENTCOM Contractors',detail:'Spear-phishing campaign targeting defense contractors; largely mitigated by CISA'},
@@ -3341,8 +3336,7 @@ function renderImpactDashboard(){
 
 // ===== NEWS-BASED SCORING ENGINE =====
 // Analyzes fetched news to auto-update Threat Level, DEFCON, and Strait of Hormuz
-const SCORING_WEIGHTS={
-  // Threat Level keywords (higher = more escalatory)
+const SCORING_WEIGHTS_IRAN={
   escalation:{
     'nuclear strike':50,'nuclear weapon':45,'nuclear attack':45,'tactical nuke':50,
     'world war':40,'wmd':40,'chemical weapon':35,'biological weapon':35,
@@ -3351,7 +3345,6 @@ const SCORING_WEIGHTS={
     'retaliation':20,'retaliatory':20,'escalat':18,'intensif':15,
     'major offensive':20,'ground invasion':25,'amphibious':20,
     'massive strike':20,'carpet bomb':25,'indiscriminate':20,
-    // Ultimatum / threatened action language
     'ultimatum':30,'deadline':20,'final warning':25,'or else':20,
     'last chance':20,'consequences':15,'all options':20,
     'regime change':25,'decapitation strike':35,'power plant':15,
@@ -3362,7 +3355,6 @@ const SCORING_WEIGHTS={
     'imminent attack':30,'imminent strike':30,'prepare for war':25,
     'war footing':20,'combat ready':15,'strike package':20,
     'target list':18,'battle plan':15,'operational planning':15,
-    // Threat signals
     'warned iran':25,'threatens':18,'threaten':18,'threat':10,
     'countdown':15,'hours to comply':25,'comply or':20,
     'punish':15,'overwhelming force':20,'shock and awe':25,
@@ -3374,28 +3366,25 @@ const SCORING_WEIGHTS={
     'withdrawal':20,'retreat':15,'surrender':30,'armistice':30,
     'truce':25,'peace deal':30,'accord':20,'resolution passed':20,
   },
-  hormuzTraffic:{
+  seaOpen:{
     'hormuz open':40,'strait reopen':40,'shipping resumes':35,'transit resumes':35,
     'vessels transit':25,'ships passing':25,'tanker through':20,'convoy escort':20,
     'limited transit':15,'naval escort':15,'merchant vessel':10,'commercial shipping':10,
   },
-  hormuzClosed:{
-    // Direct closure signals
+  seaClosed:{
     'hormuz closed':25,'blockade hormuz':20,'strait blocked':20,'mines hormuz':18,
     'shipping halt':15,'no transit':12,'strait shut':18,'naval mine':12,
     'hormuz block':20,'tanker seized':12,'vessel seized':12,'embargo':8,
-    // Contextual — only small weight since they appear in many articles
     'blockade':5,'strait of hormuz':4,'shipping disruption':10,'maritime threat':8,
     'oil transit':3,
   },
+  seaMentionKeys:['hormuz','strait'],
   military:{
-    // Specific high-value signals
     'carrier deploy':8,'strike group':8,'b-2':6,'stealth bomber':6,
     'tomahawk':6,'cruise missile':8,'ballistic missile':10,'icbm':15,
     'aircraft carrier':6,'submarine':6,'special forces':6,
     'airstrike':6,'bombing':6,'sortie':4,'interception':6,
     'shot down':8,'drone strike':6,'missile launch':8,'air defense':4,
-    // Common terms — low weight (appear in most articles during conflict)
     'military':1,'strike':2,'attack':2,'conflict':1,
     'irgc':3,'pentagon':2,'centcom':3,'navy':2,'troops':2,
     'missile':3,'drone':2,'fighter jet':4,'airspace':2,
@@ -3403,11 +3392,85 @@ const SCORING_WEIGHTS={
   },
 };
 
+const SCORING_WEIGHTS_UKRAINE={
+  escalation:{
+    'nuclear strike':50,'nuclear weapon':45,'nuclear attack':45,'tactical nuke':50,
+    'world war':40,'wmd':40,'chemical weapon':35,'biological weapon':35,
+    'full-scale invasion':35,'total war':35,'declaration of war':30,
+    'martial law':25,'mass mobilization':25,'general mobilization':25,
+    'retaliation':20,'retaliatory':20,'escalat':18,'intensif':15,
+    'major offensive':20,'ground invasion':25,'amphibious':20,
+    'massive strike':20,'carpet bomb':25,'indiscriminate':20,
+    'ultimatum':30,'deadline':20,'final warning':25,'or else':20,
+    'last chance':20,'consequences':15,'all options':20,
+    'military action':18,'preemptive':20,'first strike':30,
+    'imminent attack':30,'imminent strike':30,'prepare for war':25,
+    'war footing':20,'combat ready':15,'strike package':20,
+    'target list':18,'battle plan':15,'operational planning':15,
+    'threatens':18,'threaten':18,'threat':10,'countdown':15,
+    'punish':15,'overwhelming force':20,
+    'bomb ukraine':30,'strike ukraine':25,'attack ukraine':25,'bomb kyiv':30,
+    'strike kyiv':25,'attack kyiv':25,'missile kyiv':20,
+    'crimea bridge':20,'zaporizhzhia nuclear':30,'nuclear plant':25,
+    'kherson dam':20,'kakhovka dam':20,'dam breach':25,
+    'russian offensive':20,'frontline collapse':25,'frontline breach':20,
+    'kursk incursion':18,'belgorod attack':15,'dnipro strike':15,
+    'mobilization':15,'conscription':12,
+    'wagner mutiny':25,'mutiny':20,'coup':30,
+    'crimea attack':18,'sevastopol strike':18,'kerch bridge':20,
+    'hypersonic':15,'kinzhal':15,'iskander':12,'kalibr':12,
+    'energy infrastructure':18,'power grid':15,'blackout':15,
+    'genocide':30,'war crimes':20,'bucha':25,'mariupol':15,
+  },
+  deescalation:{
+    'ceasefire':30,'peace talk':25,'negotiate':20,'de-escalat':25,
+    'diplomatic':15,'humanitarian corridor':20,'stand down':25,
+    'withdrawal':20,'retreat':15,'surrender':30,'armistice':30,
+    'truce':25,'peace deal':30,'accord':20,'resolution passed':20,
+    'grain deal':20,'prisoner exchange':15,'peace summit':25,'peace formula':20,
+    'minsk':15,'istanbul talks':20,'peace conference':25,
+    'prisoner swap':15,'humanitarian pause':20,
+  },
+  seaOpen:{
+    'black sea open':40,'grain corridor':35,'odesa port':25,'shipping resumes':35,
+    'grain export':25,'merchant vessel':10,'commercial shipping':10,
+    'transit resumes':35,'convoy escort':20,'port reopened':30,
+    'bosphorus transit':15,'danube route':15,
+  },
+  seaClosed:{
+    'black sea blockade':25,'grain deal collapse':20,'port attack':15,
+    'odesa strike':15,'black sea mine':18,'shipping halt':15,
+    'naval mine':12,'port closed':20,'export blocked':15,
+    'snake island':8,'maritime threat':8,'shipping disruption':10,
+  },
+  seaMentionKeys:['black sea','odesa','grain','bosphorus'],
+  military:{
+    'himars':6,'patriot':6,'gepard':4,'leopard':6,'abrams':6,
+    'storm shadow':8,'atacms':8,'scalp':6,'nasams':4,'iris-t':4,
+    'cruise missile':8,'ballistic missile':10,'icbm':15,
+    'artillery':4,'howitzer':4,'mlrs':6,'grad':4,'smerch':4,
+    'drone strike':6,'shahed':6,'lancet':6,'bayraktar':6,
+    'airstrike':6,'bombing':6,'sortie':4,'interception':6,
+    'shot down':8,'missile launch':8,'air defense':4,
+    'su-34':4,'su-35':4,'mig-29':4,'f-16':6,
+    'military':1,'strike':2,'attack':2,'conflict':1,
+    'pentagon':2,'nato':3,'troops':2,
+    'missile':3,'drone':2,'fighter jet':4,'airspace':2,
+    'tank':2,'armor':2,'deploy':2,'combat':2,'operation':1,
+    'frontline':3,'counteroffensive':6,'offensive':4,
+  },
+};
+
+function getActiveWeights(){
+  return currentTheater.id==='ukraine'?SCORING_WEIGHTS_UKRAINE:SCORING_WEIGHTS_IRAN;
+}
+
 let lastScoringResult={threat:'CRITICAL',defcon:2,hormuz:'CLOSED',hormuzDesc:'',scores:{}};
 
 function computeDashboardScores(newsItems){
   if(!newsItems||newsItems.length===0) return lastScoringResult;
 
+  const weights=getActiveWeights();
   let escalationScore=0,deescalationScore=0,hormuzOpenScore=0,hormuzClosedScore=0,militaryScore=0;
   let hormuzMentions=0,hormuzTrafficMentions=0;
 
@@ -3417,14 +3480,13 @@ function computeDashboardScores(newsItems){
   function timeDecay(pubDate){
     const age=now-new Date(pubDate).getTime();
     const hours=age/(1000*60*60);
-    if(hours<=12) return 1.0;    // Last 12 hours: full weight
-    if(hours<=24) return 0.85;   // Same day: 85%
-    if(hours<=48) return 0.6;    // Yesterday: 60%
-    if(hours<=72) return 0.35;   // 2-3 days: 35%
-    return 0.15;                  // 3+ days: 15%
+    if(hours<=12) return 1.0;
+    if(hours<=24) return 0.85;
+    if(hours<=48) return 0.6;
+    if(hours<=72) return 0.35;
+    return 0.15;
   }
 
-  // Score all items
   const items=newsItems.slice(0,100);
 
   items.forEach(item=>{
@@ -3432,26 +3494,24 @@ function computeDashboardScores(newsItems){
     const decay=item.pubDate?timeDecay(item.pubDate):0.5;
 
     let articleHasEscalation=false;
-    for(const[kw,score] of Object.entries(SCORING_WEIGHTS.escalation)){
+    for(const[kw,score] of Object.entries(weights.escalation)){
       if(text.includes(kw)){escalationScore+=score*decay;articleHasEscalation=true;}
     }
-    // Context-aware: only count de-escalation if article doesn't also contain escalation
-    // Prevents "negotiate or we bomb you" from reducing the threat score
     if(!articleHasEscalation){
-      for(const[kw,score] of Object.entries(SCORING_WEIGHTS.deescalation)){
+      for(const[kw,score] of Object.entries(weights.deescalation)){
         if(text.includes(kw)) deescalationScore+=score*decay;
       }
     }
-    for(const[kw,score] of Object.entries(SCORING_WEIGHTS.hormuzTraffic)){
+    for(const[kw,score] of Object.entries(weights.seaOpen)){
       if(text.includes(kw)){hormuzOpenScore+=score*decay;if(score>0)hormuzTrafficMentions++;}
     }
-    for(const[kw,score] of Object.entries(SCORING_WEIGHTS.hormuzClosed)){
+    for(const[kw,score] of Object.entries(weights.seaClosed)){
       if(text.includes(kw)) hormuzClosedScore+=score*decay;
     }
-    for(const[kw,score] of Object.entries(SCORING_WEIGHTS.military)){
+    for(const[kw,score] of Object.entries(weights.military)){
       if(text.includes(kw)) militaryScore+=score*decay;
     }
-    if(text.includes('hormuz')||text.includes('strait')) hormuzMentions++;
+    if(weights.seaMentionKeys.some(k=>text.includes(k))) hormuzMentions++;
   });
 
   // Round scores for cleaner display
@@ -3775,6 +3835,168 @@ function toggleTickerDetail(type){
   if(!d){panel.classList.remove('show');activeTickerDetail=null;return;}
   inner.innerHTML=`<div style="font-family:var(--mono);font-size:.75rem;font-weight:700;color:var(--text);letter-spacing:1px">${d.title}</div>${d.html}`;
   panel.classList.add('show');
+}
+
+// ===== THEATER-SPECIFIC RESOURCES =====
+function renderResources(){
+  const grid=document.getElementById('resourcesGrid');
+  if(!grid) return;
+  const isUkraine=currentTheater.id==='ukraine';
+  const cards=isUkraine?[
+    {icon:'🗺',title:'Liveuamap — Ukraine',desc:'Real-time conflict map with geolocated events, strikes, and frontline changes across Ukraine.',url:'https://liveuamap.com/',label:'liveuamap.com'},
+    {icon:'🗺',title:'DeepState Map',desc:'Ukrainian OSINT map with detailed frontline positions updated multiple times daily.',url:'https://deepstatemap.live/en',label:'deepstatemap.live'},
+    {icon:'🎖',title:'ISW Daily Assessments',desc:'Institute for the Study of War daily campaign assessments with detailed maps and analysis.',url:'https://www.understandingwar.org/',label:'understandingwar.org'},
+    {icon:'📊',title:'Oryx Equipment Losses',desc:'Visually confirmed military equipment losses for both Russia and Ukraine with photo evidence.',url:'https://www.oryxspioenkop.com/2022/02/attack-on-europe-documenting-equipment.html',label:'oryxspioenkop.com'},
+    {icon:'⚓',title:'MarineTraffic — Black Sea',desc:'Live AIS ship positions in the Black Sea. Track grain corridor vessels and naval movements.',url:'https://www.marinetraffic.com/en/ais/home/centerx:34.0/centery:43.5/zoom:7',label:'marinetraffic.com'},
+    {icon:'✈',title:'Flightradar24 — Ukraine',desc:'Live air traffic over Ukraine and surrounding airspace. Monitor NOTAMs and closures.',url:'https://www.flightradar24.com/48.5,35.0/6',label:'flightradar24.com'},
+    {icon:'✈',title:'ADS-B Exchange',desc:'Unfiltered flight tracking including military aircraft. No data filtering unlike commercial trackers.',url:'https://globe.adsbexchange.com/',label:'adsbexchange.com'},
+    {icon:'📰',title:'Kyiv Independent',desc:'Ukraine\'s leading English-language news outlet with frontline reporting and analysis.',url:'https://kyivindependent.com/',label:'kyivindependent.com'},
+    {icon:'📰',title:'Ukrainska Pravda',desc:'Major Ukrainian news source with English translations of key reporting.',url:'https://www.pravda.com.ua/eng/',label:'pravda.com.ua'},
+    {icon:'📰',title:'Al Jazeera — Ukraine',desc:'Comprehensive international coverage with live blogs and video updates.',url:'https://www.aljazeera.com/tag/ukraine-russia-crisis/',label:'aljazeera.com'},
+    {icon:'📰',title:'BBC — Ukraine',desc:'BBC coverage hub with analysis, explainers, and correspondent reports.',url:'https://www.bbc.com/news/world-60525350',label:'bbc.com'},
+    {icon:'📰',title:'CNN — Ukraine',desc:'Rolling live updates with maps, charts, and video from the conflict zone.',url:'https://www.cnn.com/world/europe/ukraine',label:'cnn.com'},
+    {icon:'🔥',title:'NASA FIRMS — Fire Map',desc:'Near-real-time fire detection from satellite. Track active bombardment and infrastructure fires.',url:'https://firms.modaps.eosdis.nasa.gov/map/',label:'firms.modaps.eosdis.nasa.gov'},
+    {icon:'🛰',title:'Sentinel Hub (Satellite)',desc:'Free satellite imagery browser. Monitor damage, fires, and military activity.',url:'https://apps.sentinel-hub.com/eo-browser/',label:'sentinel-hub.com'},
+    {icon:'☢',title:'IAEA — Zaporizhzhia Updates',desc:'IAEA updates on Zaporizhzhia Nuclear Power Plant safety and inspection reports.',url:'https://www.iaea.org/newscenter/pressreleases',label:'iaea.org'},
+    {icon:'🌐',title:'UNHCR — Refugee Data',desc:'UN refugee agency data on Ukrainian displacement — 6.3M+ refugees across Europe.',url:'https://data.unhcr.org/en/situations/ukraine',label:'data.unhcr.org'},
+    {icon:'🎖',title:'UK MoD Intelligence Updates',desc:'Daily intelligence updates from UK Ministry of Defence on the conflict in Ukraine.',url:'https://twitter.com/DefenceHQ',label:'@DefenceHQ'},
+    {icon:'📊',title:'Mediazona Casualties',desc:'Independent verified Russian military casualty tracker using obituaries and court records.',url:'https://en.zona.media/article/2022/05/11/casualties_eng',label:'zona.media'},
+  ]:[
+    {icon:'🗺',title:'Liveuamap — Iran',desc:'Real-time conflict map with geolocated news reports, strikes, and military movements across Iran.',url:'https://iran.liveuamap.com/',label:'iran.liveuamap.com'},
+    {icon:'🗺',title:'Iran Strike Map',desc:'Independent OSINT tracker with 115+ confirmed strikes, leader status, and verified video.',url:'https://iranstrikemap.com/',label:'iranstrikemap.com'},
+    {icon:'🗺',title:'ACLED Iran Crisis',desc:'Armed Conflict Location & Event Data — updated daily map of all strikes and retaliations.',url:'https://acleddata.com/iran-crisis-live/',label:'acleddata.com'},
+    {icon:'🗺',title:'ISW/CTP ArcGIS Map',desc:'Institute for the Study of War interactive strike map companion to their daily conflict coverage.',url:'https://storymaps.arcgis.com/stories/089bc1a2fe684405a67d67f13bd31324',label:'storymaps.arcgis.com'},
+    {icon:'⚓',title:'MarineTraffic — Hormuz',desc:'Live AIS ship positions in the Strait of Hormuz and Persian Gulf.',url:'https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8',label:'marinetraffic.com'},
+    {icon:'⚓',title:'VesselFinder',desc:'Alternative maritime tracker. Good for cross-referencing ship positions and vessel details.',url:'https://www.vesselfinder.com/',label:'vesselfinder.com'},
+    {icon:'✈',title:'Flightradar24',desc:'Live air traffic data. Monitor flight paths, NOTAMs, and airspace closures over the conflict zone.',url:'https://www.flightradar24.com/26.51,53.58/5',label:'flightradar24.com'},
+    {icon:'✈',title:'ADS-B Exchange',desc:'Unfiltered flight tracking including military aircraft. No data filtering.',url:'https://globe.adsbexchange.com/',label:'adsbexchange.com'},
+    {icon:'📰',title:'Al Jazeera Live Blog',desc:'Minute-by-minute updates on the US-Israel war on Iran.',url:'https://www.aljazeera.com/where/iran/',label:'aljazeera.com'},
+    {icon:'📰',title:'CNN Live Updates',desc:'CNN live update page with maps, charts, and rolling coverage.',url:'https://www.cnn.com/world/middleeast/iran',label:'cnn.com'},
+    {icon:'📰',title:'NBC News Live Blog',desc:'Continuously updated live blog with correspondents across the region.',url:'https://www.nbcnews.com/world/iran',label:'nbcnews.com'},
+    {icon:'📰',title:'BBC News — Iran',desc:'BBC Iran coverage hub with analysis, explainers, and reports.',url:'https://www.bbc.com/news/topics/c4wp8v0jnx2t',label:'bbc.com'},
+    {icon:'📰',title:'NewsNow Iran',desc:'Aggregated news feed from hundreds of sources.',url:'https://www.newsnow.com/us/World/Middle+East/Iran',label:'newsnow.com'},
+    {icon:'📰',title:'JFeed Live',desc:'Minute-by-minute live ticker with breaking updates from Israeli and international sources.',url:'https://www.jfeed.com/latest-news',label:'jfeed.com'},
+    {icon:'📊',title:'Iran War Map (AI)',desc:'AI-powered conflict monitor with tension tracker, prediction market odds, and OSINT feed.',url:'https://iranwarmap.com/',label:'iranwarmap.com'},
+    {icon:'📊',title:'Live War Maps Feed',desc:'Real-time war updates with oil market data ticker and live event feed.',url:'https://livewarmaps.com/live-war-feed.html',label:'livewarmaps.com'},
+    {icon:'🎖',title:'ISW — Inst. for Study of War',desc:'Daily assessments and campaign analysis from former military planners.',url:'https://www.understandingwar.org/',label:'understandingwar.org'},
+    {icon:'🎖',title:'CENTCOM Press Releases',desc:'Official US Central Command statements and strike reports.',url:'https://www.centcom.mil/MEDIA/PRESS-RELEASES/',label:'centcom.mil'},
+    {icon:'🎖',title:'Janes Defence',desc:'Open-source military intelligence on weapons systems and capabilities.',url:'https://www.janes.com/',label:'janes.com'},
+    {icon:'☢',title:'IAEA — Iran Reports',desc:'IAEA updates on Iranian nuclear facilities and safeguards.',url:'https://www.iaea.org/newscenter/focus/iran',label:'iaea.org'},
+    {icon:'🛢',title:'Oil Price Live',desc:'Real-time Brent crude and WTI oil prices.',url:'https://oilprice.com/',label:'oilprice.com'},
+    {icon:'🛰',title:'Sentinel Hub (Satellite)',desc:'Free satellite imagery browser for monitoring damage and fires.',url:'https://apps.sentinel-hub.com/eo-browser/',label:'sentinel-hub.com'},
+    {icon:'📡',title:'RadioFreeEurope — Iran',desc:'Radio Farda coverage in Farsi and English.',url:'https://en.radiofarda.com/',label:'radiofarda.com'},
+    {icon:'🌐',title:'UNHCR — Refugee Data',desc:'UN refugee agency data on displacement from the conflict zone.',url:'https://data.unhcr.org/en/situations',label:'data.unhcr.org'},
+  ];
+  grid.innerHTML=cards.map(c=>`
+    <div class="link-card">
+      <h3>${c.icon} ${c.title}</h3>
+      <p>${c.desc}</p>
+      <a href="${c.url}" target="_blank">${c.label} →</a>
+    </div>
+  `).join('');
+}
+
+// ===== UKRAINE ASSET RENDER FUNCTIONS =====
+function renderUkraineDamageOverview(){
+  const el=document.getElementById('damageOverview');
+  if(!el) return;
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1px;background:var(--border)">
+      ${[
+        {label:'Russian Tanks',val:'3,800+',status:'DESTROYED',color:'var(--red)'},
+        {label:'Russian APVs',val:'7,600+',status:'DESTROYED',color:'var(--red)'},
+        {label:'Russian Artillery',val:'2,400+',status:'DESTROYED',color:'var(--red)'},
+        {label:'Russian Aircraft',val:'370+',status:'DESTROYED',color:'var(--orange)'},
+        {label:'Russian Helicopters',val:'330+',status:'DESTROYED',color:'var(--orange)'},
+        {label:'Russian UAVs',val:'18,000+',status:'DESTROYED',color:'var(--red)'},
+        {label:'Russian Naval Vessels',val:'28+',status:'DESTROYED/DAMAGED',color:'var(--orange)'},
+        {label:'Russian Cruise Missiles',val:'2,500+',status:'INTERCEPTED',color:'var(--green)'},
+        {label:'Russian Personnel',val:'700K+',status:'EST. CASUALTIES',color:'var(--red)'},
+      ].map(d=>`
+        <div style="padding:16px 20px;background:var(--bg)">
+          <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);margin-bottom:6px">${d.label}</div>
+          <div style="font-family:var(--mono);font-size:1.3rem;font-weight:800;color:${d.color}">${d.val}</div>
+          <div style="font-family:var(--mono);font-size:.5rem;color:${d.color};margin-top:4px">${d.status}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="padding:12px 20px;font-family:var(--mono);font-size:.5rem;color:var(--text3)">
+      Sources: Ukrainian General Staff, Oryx OSINT (visually confirmed subset) · Numbers are Ukrainian claims unless otherwise noted
+    </div>`;
+}
+
+function renderUkraineFleet(){
+  const el=document.getElementById('fleetTracker');
+  const summary=document.getElementById('fleetSummary');
+  if(!el) return;
+  const ships=[
+    {name:'Moskva (Slava-class)',type:'Guided Missile Cruiser',status:'SUNK',detail:'Sunk Apr 14, 2022 by Ukrainian Neptune missiles. Flagship of Black Sea Fleet.',color:'var(--red)'},
+    {name:'Saratov (Alligator-class)',type:'Landing Ship',status:'DESTROYED',detail:'Destroyed at Berdyansk port, Mar 24, 2022.',color:'var(--red)'},
+    {name:'Novocherkassk (Ropucha-class)',type:'Landing Ship',status:'DESTROYED',detail:'Destroyed in Feodosia, Crimea by Storm Shadow missile, Dec 26, 2023.',color:'var(--red)'},
+    {name:'Caesar Kunikov (Ropucha-class)',type:'Landing Ship',status:'SUNK',detail:'Sunk by Magura V5 naval drone, Feb 14, 2024.',color:'var(--red)'},
+    {name:'Sergei Kotov (Bykov-class)',type:'Patrol Ship',status:'SUNK',detail:'Sunk by Magura V5 naval drones near Crimea, Mar 5, 2024.',color:'var(--red)'},
+    {name:'Cyclone (Karakurt-class)',type:'Missile Corvette',status:'DAMAGED',detail:'Hit by naval drone at Sevastopol, Nov 2023.',color:'var(--orange)'},
+    {name:'Askold (Karakurt-class)',type:'Missile Corvette',status:'DAMAGED',detail:'Hit during construction at Kerch shipyard by Storm Shadow, Nov 2023.',color:'var(--orange)'},
+    {name:'Minsk (Ropucha-class)',type:'Landing Ship',status:'DAMAGED',detail:'Severely damaged in Sevastopol drydock attack, Sep 13, 2023.',color:'var(--orange)'},
+    {name:'Rostov-on-Don (Kilo-class)',type:'Submarine',status:'DAMAGED',detail:'Severely damaged in Sevastopol drydock attack, Sep 13, 2023.',color:'var(--orange)'},
+    {name:'Admiral Grigorovich (Frigate)',type:'Guided Missile Frigate',status:'RELOCATED',detail:'Moved to Novorossiysk after Sevastopol became too dangerous.',color:'var(--blue)'},
+  ];
+  if(summary) summary.innerHTML=`
+    <div style="display:flex;gap:24px;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid var(--border)">
+      <span style="font-family:var(--mono);font-size:.65rem;color:var(--text)">RUSSIAN BLACK SEA FLEET</span>
+      <span style="font-family:var(--mono);font-size:.65rem;color:var(--red)">SUNK: ${ships.filter(s=>s.status==='SUNK').length}</span>
+      <span style="font-family:var(--mono);font-size:.65rem;color:var(--red)">DESTROYED: ${ships.filter(s=>s.status==='DESTROYED').length}</span>
+      <span style="font-family:var(--mono);font-size:.65rem;color:var(--orange)">DAMAGED: ${ships.filter(s=>s.status==='DAMAGED').length}</span>
+      <span style="font-family:var(--mono);font-size:.65rem;color:var(--blue)">RELOCATED: ${ships.filter(s=>s.status==='RELOCATED').length}</span>
+    </div>`;
+  el.innerHTML=ships.map(s=>`
+    <div class="fleet-card">
+      <div class="fleet-card-head">
+        <span class="fleet-ship-icon">🚢</span>
+        <div>
+          <div class="fleet-ship-name">${s.name}</div>
+          <div class="fleet-ship-type">${s.type}</div>
+        </div>
+        <span class="fleet-badge" style="background:${s.color}">${s.status}</span>
+      </div>
+      <div class="fleet-card-body">${s.detail}</div>
+    </div>
+  `).join('');
+}
+
+function renderUkraineInfra(){
+  const el=document.getElementById('infraTracker');
+  const summary=document.getElementById('infraSummary');
+  if(!el) return;
+  const infra=[
+    {name:'Kakhovka Dam',type:'Critical Infrastructure',status:'DESTROYED',detail:'Dam breached Jun 6, 2023. Catastrophic flooding, ecological disaster, loss of water supply to Crimea canal.',color:'var(--red)'},
+    {name:'Zaporizhzhia NPP',type:'Nuclear Power Plant',status:'OCCUPIED',detail:'Largest nuclear plant in Europe. Occupied by Russian forces since Mar 2022. Repeated shelling incidents.',color:'var(--orange)'},
+    {name:'Mariupol (Azovstal)',type:'Industrial Complex',status:'DESTROYED',detail:'Azovstal steelworks destroyed during siege. City 90%+ damaged. Under Russian occupation.',color:'var(--red)'},
+    {name:'Ukrainian Power Grid',type:'Energy Infrastructure',status:'DEGRADED ~50%',detail:'Systematic Russian missile/drone strikes on thermal and hydroelectric plants since Oct 2022.',color:'var(--orange)'},
+    {name:'Odesa Port Infrastructure',type:'Maritime / Trade',status:'DAMAGED',detail:'Grain storage and port facilities hit by Russian missiles. Critical for grain exports.',color:'var(--orange)'},
+    {name:'Kerch (Crimea) Bridge',type:'Strategic Bridge',status:'DAMAGED',detail:'Hit twice (Oct 2022, Jul 2023). Road span collapsed Oct 2022; repaired but limited capacity.',color:'var(--orange)'},
+    {name:'Dnipro River Crossings',type:'Bridges',status:'PARTIALLY DESTROYED',detail:'Multiple bridges destroyed in Kherson region to prevent crossings.',color:'var(--red)'},
+    {name:'Kharkiv Infrastructure',type:'City Infrastructure',status:'HEAVILY DAMAGED',detail:'Second-largest city sustained massive bombardment. Residential areas, metro, utilities hit.',color:'var(--red)'},
+  ];
+  if(summary) summary.innerHTML=`
+    <div style="display:flex;gap:24px;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid var(--border)">
+      <span style="font-family:var(--mono);font-size:.65rem;color:var(--text)">UKRAINE INFRASTRUCTURE STATUS</span>
+      <span style="font-family:var(--mono);font-size:.65rem;color:var(--red)">DESTROYED: ${infra.filter(i=>i.status.includes('DESTROYED')).length}</span>
+      <span style="font-family:var(--mono);font-size:.65rem;color:var(--orange)">DAMAGED/DEGRADED: ${infra.filter(i=>i.status.includes('DAMAGED')||i.status.includes('DEGRADED')||i.status.includes('OCCUPIED')).length}</span>
+    </div>`;
+  el.innerHTML=infra.map(i=>`
+    <div class="fleet-card">
+      <div class="fleet-card-head">
+        <span class="fleet-ship-icon">🏗</span>
+        <div>
+          <div class="fleet-ship-name">${i.name}</div>
+          <div class="fleet-ship-type">${i.type}</div>
+        </div>
+        <span class="fleet-badge" style="background:${i.color}">${i.status}</span>
+      </div>
+      <div class="fleet-card-body">${i.detail}</div>
+    </div>
+  `).join('');
 }
 
 // ===== IRANIAN NAVAL FLEET TRACKER — OPERATION EPIC FURY =====
@@ -4157,6 +4379,7 @@ setInterval(updateDayCount,60000);
 fetchNews();
 // Render static sections
 renderImpactDashboard();
+renderResources();
 renderForcesPanel();
 renderFleetTracker();
 renderDamageOverview();
