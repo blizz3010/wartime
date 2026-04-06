@@ -1162,7 +1162,7 @@
     <div class="nuke-grid" id="nukeStatus"></div>
   </div>
 
-  <div style="padding:12px 20px;font-family:var(--mono);font-size:.55rem;color:var(--text3);border-top:1px solid var(--border)">
+  <div id="assetsDataSources" style="padding:12px 20px;font-family:var(--mono);font-size:.55rem;color:var(--text3);border-top:1px solid var(--border)">
     DATA SOURCES: ISW, CENTCOM, IISS Military Balance, Janes, ACLED, Reuters, AP, OSINT · Classified asset dispositions may differ · Damage assessments based on satellite imagery and open-source reporting
   </div>
 </div>
@@ -1491,6 +1491,10 @@ function switchTheater(theaterId){
   if(bt) bt.textContent=theaterId==='ukraine'?'🏗 MILITARY BASE STATUS — UKRAINE':'🏗 MILITARY BASE STATUS — IRAN';
   const ct=document.getElementById('assetsCoalitionTitle');
   if(ct) ct.textContent=theaterId==='ukraine'?'⚓ NATO & ALLIED SUPPORT — SECURITY ASSISTANCE':'⚓ COALITION NAVAL ASSETS — DEPLOYED IN THEATER';
+  const ds=document.getElementById('assetsDataSources');
+  if(ds) ds.textContent=theaterId==='ukraine'
+    ?'DATA SOURCES: ISW, Ukrainian General Staff, Oryx OSINT, UK MoD, Mediazona, OHCHR, Reuters, AP · Figures are estimates from open-source reporting'
+    :'DATA SOURCES: ISW, CENTCOM, IISS Military Balance, Janes, ACLED, Reuters, AP, OSINT · Classified asset dispositions may differ · Damage assessments based on satellite imagery and open-source reporting';
 
   // Update assets subnav labels
   const subnavBtns=document.querySelectorAll('#assetsSubnav .forces-subnav-btn');
