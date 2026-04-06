@@ -988,6 +988,7 @@
   <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-videos" data-panel="videos"><span class="tab-icon">▶</span>VIDEO CLIPS</div>
   <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-livestreams" data-panel="livestreams"><span class="tab-icon">◉</span>LIVE STREAMS</div>
   <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-osint" data-panel="osint"><span class="tab-icon">◎</span>OSINT / SOCIAL</div>
+  <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-cybermap" data-panel="cybermap"><span class="tab-icon">🛡</span>CYBER MAP</div>
   <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-forces" data-panel="forces"><span class="tab-icon">⚔</span>FORCES</div>
   <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-assets" data-panel="assets"><span class="tab-icon">🎯</span>ASSETS</div>
   <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-impact" data-panel="impact"><span class="tab-icon">◈</span>IMPACT</div>
@@ -1139,6 +1140,26 @@
   </div>
   <div class="osint-grid" id="osintGrid">
     <div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading OSINT feeds...</div>
+  </div>
+</div>
+
+<!-- ==================== CYBER THREAT MAP PANEL ==================== -->
+<div class="panel" id="panel-cybermap" role="tabpanel">
+  <div class="full-frame">
+    <div class="section-head">
+      <span id="cyberMapTitle">🛡 LIVE CYBER THREAT MAP</span>
+      <div id="cyberMapButtons" style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="overlay-btn active" onclick="setCyberSrc('https://cybermap.kaspersky.com/','Kaspersky Cybermap')" style="background:#1a3320;border-color:#4dff88;color:#4dff88">🌐 Kaspersky</button>
+        <button class="overlay-btn" onclick="setCyberSrc('https://threatmap.checkpoint.com/','Check Point ThreatCloud')">🛡 Check Point</button>
+        <button class="overlay-btn" onclick="setCyberSrc('https://horizon.netscout.com/','NETSCOUT Cyber Threat Horizon')">📊 NETSCOUT</button>
+        <button class="overlay-btn" onclick="setCyberSrc('https://threatmap.bitdefender.com/','Bitdefender Threat Map')">🔒 Bitdefender</button>
+        <button class="overlay-btn" onclick="setCyberSrc('https://threatmap.fortiguard.com/','Fortinet FortiGuard')">⚔ Fortinet</button>
+        <button class="overlay-btn" onclick="setCyberSrc('https://www.digitalattackmap.com/','Digital Attack Map — DDoS')">💥 DDoS Map</button>
+        <button class="overlay-btn" onclick="setCyberSrc('https://radar.cloudflare.com/','Cloudflare Radar — Internet Health')">☁ Cloudflare</button>
+        <button class="overlay-btn" onclick="window.open('https://cybermap.kaspersky.com/','_blank')">Open Full View ↗</button>
+      </div>
+    </div>
+    <iframe id="cyberFrame" src="about:blank" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   </div>
 </div>
 
@@ -1815,6 +1836,16 @@ function setMaritimeSrc(lat,lon,zoom){
   document.getElementById('maritimeFrame').src=`https://www.vesselfinder.com/aismap?lat=${lat}&lon=${lon}&zoom=${zoom}&width=1600&height=900&names=true`;
 }
 function setAirSrc(url){document.getElementById('airFrame').src=url}
+function setCyberSrc(url,label){
+  document.getElementById('cyberFrame').src=url;
+  // Update active button state
+  document.querySelectorAll('#cyberMapButtons .overlay-btn').forEach(b=>{
+    b.style.background='';b.style.borderColor='';b.style.color='';
+    if(b.textContent.includes(label?.split(' ')[0]||'---')){
+      b.style.background='#1a3320';b.style.borderColor='#4dff88';b.style.color='#4dff88';
+    }
+  });
+}
 
 // ===== NEWS FEED (Redesigned) =====
 const TOTAL_FEEDS=10; // Number of RSS feeds aggregated server-side
@@ -5506,6 +5537,10 @@ document.querySelector('[data-panel="videos"]').addEventListener('click',()=>{
 document.querySelector('[data-panel="osint"]').addEventListener('click',()=>{
   if(document.getElementById('osintGrid').querySelector('.loading'))fetchOsint();
 },{once:true});
+document.querySelector('[data-panel="cybermap"]').addEventListener('click',()=>{
+  const f=document.getElementById('cyberFrame');
+  if(!f.src||f.src==='about:blank'||f.src===window.location.href) f.src='https://cybermap.kaspersky.com/';
+},{once:true});
 
 // Track active panel for badges + PiP behavior
 document.querySelectorAll('.nav-tab').forEach(tab=>{
@@ -5606,6 +5641,7 @@ const CMD_COMMANDS=[
   {icon:'▶',label:'Go to Video Clips',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="videos"]')),tags:'video clips combat footage'},
   {icon:'◉',label:'Go to Live Streams',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="livestreams"]')),tags:'live streams watch'},
   {icon:'◎',label:'Go to OSINT / Social',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="osint"]')),tags:'osint social reddit intel'},
+  {icon:'🛡',label:'Go to Cyber Map',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="cybermap"]')),tags:'cyber map threat attack kaspersky'},
   {icon:'⚔',label:'Go to Forces',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="forces"]')),tags:'forces order battle'},
   {icon:'🎯',label:'Go to Assets',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="assets"]')),tags:'assets carriers bases'},
   {icon:'◈',label:'Go to Impact',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="impact"]')),tags:'impact statistics'},
