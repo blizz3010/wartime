@@ -640,6 +640,36 @@
     color:var(--text);margin:0 2px;
   }
 
+  /* COMMAND PALETTE */
+  .cmd-palette-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:none;align-items:flex-start;justify-content:center;padding-top:20vh}
+  .cmd-palette-overlay.show{display:flex;animation:fadeIn .15s ease}
+  .cmd-palette{width:560px;max-width:90vw;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .cmd-input{width:100%;padding:16px 20px;background:transparent;border:none;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.8rem;color:var(--text);outline:none}
+  .cmd-input::placeholder{color:var(--text3)}
+  .cmd-results{max-height:360px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+  .cmd-item{display:flex;align-items:center;gap:12px;padding:10px 20px;cursor:pointer;transition:background .1s}
+  .cmd-item:hover,.cmd-item.selected{background:var(--surface2)}
+  .cmd-item-icon{font-size:1rem;width:24px;text-align:center}
+  .cmd-item-label{font-family:var(--mono);font-size:.65rem;color:var(--text);flex:1}
+  .cmd-item-hint{font-family:var(--mono);font-size:.5rem;color:var(--text3)}
+  .cmd-item-kbd{font-family:var(--mono);font-size:.5rem;background:var(--surface3);border:1px solid var(--border);border-radius:3px;padding:1px 5px;color:var(--text3)}
+
+  /* NIGHT VISION / CRT MODE */
+  body.nightvision{filter:hue-rotate(80deg) saturate(3) brightness(.8)}
+  body.nightvision *{--text:rgb(0,255,0)!important;--text2:rgb(0,200,0)!important;--text3:rgb(0,140,0)!important}
+  body.crt-mode::after{
+    content:'';position:fixed;inset:0;z-index:99999;pointer-events:none;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.03) 0px,rgba(0,0,0,.03) 1px,transparent 1px,transparent 2px);
+    animation:crtFlicker 0.1s infinite alternate;
+  }
+  @keyframes crtFlicker{0%{opacity:.97}100%{opacity:1}}
+
+  /* THREAT CLOCK */
+  .threat-clock-canvas{border-radius:50%;border:2px solid var(--border)}
+
+  /* BLAST CALC */
+  .blast-ring{border-radius:50%;position:absolute;border:2px solid;opacity:.5;pointer-events:none}
+
   /* FOOTER */
   .site-footer{
     padding:12px 24px;background:var(--surface);border-top:1px solid var(--border);
@@ -1368,9 +1398,20 @@
   <kbd>1</kbd>-<kbd>9</kbd>,<kbd>0</kbd> Switch tabs &nbsp;
   <kbd>R</kbd> Refresh &nbsp;
   <kbd>N</kbd> Night mode &nbsp;
+  <kbd>Ctrl+K</kbd> Command palette &nbsp;
+  <kbd>V</kbd> Night vision &nbsp;
+  <kbd>M</kbd> Mute alerts &nbsp;
   <kbd>D</kbd> Debug scores &nbsp;
   <kbd>?</kbd> This help &nbsp;
   <kbd>Esc</kbd> Close modal
+</div>
+
+<!-- COMMAND PALETTE -->
+<div class="cmd-palette-overlay" id="cmdPalette" onclick="if(event.target===this)closeCmdPalette()">
+  <div class="cmd-palette">
+    <input class="cmd-input" id="cmdInput" placeholder="Type a command... (panels, tools, settings)" autocomplete="off" spellcheck="false">
+    <div class="cmd-results" id="cmdResults"></div>
+  </div>
 </div>
 
 <!-- VIDEO MODAL -->
@@ -2337,24 +2378,44 @@ function pipGoFull(){
   document.addEventListener('mouseup',()=>{dragging=false;pip.style.transition='all .3s ease'});
 })();
 
-// ===== BREAKING NEWS SOUND ALERT =====
+// ===== AUDIO ALERT SYSTEM (Web Audio API — multi-tone) =====
 let alertSoundEnabled=false;
 let previousBreakingTitles=new Set();
-
-// Generate alert tone using Web Audio API
-function playAlertTone(){
+let audioCtx=null;
+function getAudioCtx(){
+  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  return audioCtx;
+}
+function playAlertTone(type){
+  if(!alertSoundEnabled&&type!=='click') return;
   try{
-    const ctx=new (window.AudioContext||window.webkitAudioContext)();
-    // Three-tone alert
-    [880,1100,880].forEach((freq,i)=>{
-      const osc=ctx.createOscillator();
-      const gain=ctx.createGain();
-      osc.connect(gain);gain.connect(ctx.destination);
-      osc.type='square';osc.frequency.value=freq;
-      gain.gain.value=0.08;
-      osc.start(ctx.currentTime+i*0.15);
-      osc.stop(ctx.currentTime+i*0.15+0.12);
-    });
+    const ctx=getAudioCtx();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    const now=ctx.currentTime;
+    switch(type){
+      case 'flash':
+        osc.type='square';osc.frequency.setValueAtTime(880,now);osc.frequency.setValueAtTime(660,now+.1);
+        osc.frequency.setValueAtTime(880,now+.2);gain.gain.setValueAtTime(.15,now);gain.gain.exponentialRampToValueAtTime(.001,now+.4);
+        osc.start(now);osc.stop(now+.4);break;
+      case 'immediate':
+        osc.type='sawtooth';osc.frequency.setValueAtTime(440,now);
+        gain.gain.setValueAtTime(.1,now);gain.gain.exponentialRampToValueAtTime(.001,now+.3);
+        osc.start(now);osc.stop(now+.3);break;
+      case 'breaking':
+        osc.type='sine';osc.frequency.setValueAtTime(523,now);osc.frequency.setValueAtTime(659,now+.15);osc.frequency.setValueAtTime(784,now+.3);
+        gain.gain.setValueAtTime(.12,now);gain.gain.exponentialRampToValueAtTime(.001,now+.5);
+        osc.start(now);osc.stop(now+.5);break;
+      case 'click':
+        osc.type='sine';osc.frequency.setValueAtTime(1200,now);
+        gain.gain.setValueAtTime(.05,now);gain.gain.exponentialRampToValueAtTime(.001,now+.05);
+        osc.start(now);osc.stop(now+.05);break;
+      default: // legacy three-tone
+        osc.type='square';osc.frequency.setValueAtTime(880,now);osc.frequency.setValueAtTime(1100,now+.15);
+        osc.frequency.setValueAtTime(880,now+.3);gain.gain.setValueAtTime(.08,now);gain.gain.exponentialRampToValueAtTime(.001,now+.45);
+        osc.start(now);osc.stop(now+.45);
+    }
   }catch(e){}
 }
 
@@ -5461,6 +5522,101 @@ document.addEventListener('keydown',e=>{
     e.preventDefault();
     document.getElementById('kbdHint').classList.toggle('show');
   }
+});
+
+// ===== COMMAND PALETTE (Ctrl+K) =====
+const CMD_COMMANDS=[
+  // Navigation
+  {icon:'◉',label:'Go to Overview',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="overview"]')),tags:'overview home main'},
+  {icon:'⊕',label:'Go to War Map',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="warmap"]')),tags:'map war liveuamap'},
+  {icon:'⚓',label:'Go to Maritime',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="maritime"]')),tags:'maritime ship vessel'},
+  {icon:'✈',label:'Go to Air Traffic',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="airtraffic"]')),tags:'air traffic flight radar'},
+  {icon:'▶',label:'Go to Video Clips',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="videos"]')),tags:'video clips combat footage'},
+  {icon:'◉',label:'Go to Live Streams',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="livestreams"]')),tags:'live streams watch'},
+  {icon:'◎',label:'Go to OSINT / Social',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="osint"]')),tags:'osint social reddit intel'},
+  {icon:'⚔',label:'Go to Forces',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="forces"]')),tags:'forces order battle'},
+  {icon:'🎯',label:'Go to Assets',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="assets"]')),tags:'assets carriers bases'},
+  {icon:'◈',label:'Go to Impact',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="impact"]')),tags:'impact statistics'},
+  {icon:'≡',label:'Go to Resources',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="resources"]')),tags:'resources links bookmarks'},
+  // Impact subpages
+  {icon:'💀',label:'Open Casualties Panel',hint:'Impact',action:()=>{activateTab(document.querySelector('[data-panel="impact"]'));setTimeout(()=>showImpactSubpage('casualties'),100)},tags:'casualties deaths humanitarian'},
+  {icon:'🚫',label:'Open Sanctions Tracker',hint:'Impact',action:()=>{activateTab(document.querySelector('[data-panel="impact"]'));setTimeout(()=>showImpactSubpage('sanctions'),100)},tags:'sanctions economic'},
+  {icon:'🔧',label:'Open Equipment Losses',hint:'Impact',action:()=>{activateTab(document.querySelector('[data-panel="impact"]'));setTimeout(()=>showImpactSubpage('equipment'),100)},tags:'equipment losses tanks aircraft'},
+  {icon:'📅',label:'Open Timeline',hint:'Impact',action:()=>{activateTab(document.querySelector('[data-panel="impact"]'));setTimeout(()=>showImpactSubpage('timeline'),100)},tags:'timeline events history'},
+  {icon:'🖥',label:'Open Cyber Warfare',hint:'Impact',action:()=>{activateTab(document.querySelector('[data-panel="impact"]'));setTimeout(()=>showImpactSubpage('cyber'),100)},tags:'cyber warfare hacking'},
+  {icon:'📊',label:'Open Forecast & Markets',hint:'Impact',action:()=>{activateTab(document.querySelector('[data-panel="impact"]'));setTimeout(()=>showImpactSubpage('forecast'),100)},tags:'forecast prediction markets commodities'},
+  {icon:'🌊',label:'Open Chokepoint Monitor',hint:'Impact',action:()=>{activateTab(document.querySelector('[data-panel="impact"]'));setTimeout(()=>showImpactSubpage('chokepoints'),100)},tags:'chokepoint maritime hormuz'},
+  {icon:'🏛',label:'Open Diplomacy Tracker',hint:'Impact',action:()=>{activateTab(document.querySelector('[data-panel="impact"]'));setTimeout(()=>showImpactSubpage('diplomacy'),100)},tags:'diplomacy diplomatic negotiations'},
+  {icon:'📋',label:'Open Daily Brief',hint:'Impact',action:()=>{activateTab(document.querySelector('[data-panel="impact"]'));setTimeout(()=>showImpactSubpage('brief'),100)},tags:'daily brief sitrep situation report'},
+  // Actions
+  {icon:'🔄',label:'Refresh News',hint:'Action',action:()=>fetchNews(true),tags:'refresh reload news update',kbd:'R'},
+  {icon:'🌓',label:'Toggle Theater: Iran ↔ Ukraine',hint:'Action',action:()=>{const t=currentTheater.id==='iran'?'ukraine':'iran';document.getElementById('theaterSelect').value=t;switchTheater(t)},tags:'theater switch iran ukraine toggle'},
+  {icon:'👁',label:'Toggle Night Vision',hint:'Visual',action:()=>toggleNightVision(),tags:'night vision green nv goggles',kbd:'V'},
+  {icon:'📺',label:'Toggle CRT Scanlines',hint:'Visual',action:()=>document.body.classList.toggle('crt-mode'),tags:'crt scanlines retro terminal'},
+  {icon:'🔇',label:'Toggle Alert Sounds',hint:'Audio',action:()=>{alertSoundEnabled=!alertSoundEnabled;playAlertTone('click')},tags:'mute sound audio alerts',kbd:'M'},
+  {icon:'📡',label:'Open GPS Jamming Map',hint:'Tool',action:()=>{activateTab(document.querySelector('[data-panel="airtraffic"]'));setTimeout(()=>{const lat=currentTheater.id==='ukraine'?'48.5':'26.5';const lon=currentTheater.id==='ukraine'?'35.0':'53.6';setAirSrc(`https://gpsjam.org/?lat=${lat}&lon=${lon}&z=5`)},100)},tags:'gps jamming interference electronic warfare'},
+  {icon:'🔔',label:'Enable Browser Notifications',hint:'Setting',action:()=>requestNotificationPermission(),tags:'notifications alerts browser push'},
+  {icon:'❓',label:'Show Keyboard Shortcuts',hint:'Help',action:()=>document.getElementById('kbdHint').classList.toggle('show'),tags:'keyboard shortcuts help keys',kbd:'?'},
+];
+
+let cmdSelectedIdx=0;
+function openCmdPalette(){
+  const overlay=document.getElementById('cmdPalette');
+  const input=document.getElementById('cmdInput');
+  overlay.classList.add('show');
+  input.value='';
+  cmdSelectedIdx=0;
+  renderCmdResults('');
+  setTimeout(()=>input.focus(),50);
+}
+function closeCmdPalette(){
+  document.getElementById('cmdPalette').classList.remove('show');
+}
+function renderCmdResults(query){
+  const q=query.toLowerCase().trim();
+  let filtered=CMD_COMMANDS;
+  if(q){
+    filtered=CMD_COMMANDS.filter(c=>{
+      const text=(c.label+' '+c.hint+' '+c.tags).toLowerCase();
+      return q.split(/\s+/).every(w=>text.includes(w));
+    });
+  }
+  if(cmdSelectedIdx>=filtered.length) cmdSelectedIdx=0;
+  const el=document.getElementById('cmdResults');
+  el.innerHTML=filtered.map((c,i)=>`
+    <div class="cmd-item${i===cmdSelectedIdx?' selected':''}" onmouseenter="cmdSelectedIdx=${i};renderCmdResults(document.getElementById('cmdInput').value)" onclick="CMD_COMMANDS.find(x=>x.label==='${c.label.replace(/'/g,"\\'")}').action();closeCmdPalette()">
+      <span class="cmd-item-icon">${c.icon}</span>
+      <span class="cmd-item-label">${c.label}</span>
+      <span class="cmd-item-hint">${c.hint}</span>
+      ${c.kbd?`<span class="cmd-item-kbd">${c.kbd}</span>`:''}
+    </div>
+  `).join('')||'<div style="padding:20px;text-align:center;font-family:var(--mono);font-size:.6rem;color:var(--text3)">No commands match your search</div>';
+  window._cmdFiltered=filtered;
+}
+document.getElementById('cmdInput').addEventListener('input',e=>renderCmdResults(e.target.value));
+document.getElementById('cmdInput').addEventListener('keydown',e=>{
+  const filtered=window._cmdFiltered||CMD_COMMANDS;
+  if(e.key==='ArrowDown'){e.preventDefault();cmdSelectedIdx=Math.min(cmdSelectedIdx+1,filtered.length-1);renderCmdResults(e.target.value)}
+  else if(e.key==='ArrowUp'){e.preventDefault();cmdSelectedIdx=Math.max(cmdSelectedIdx-1,0);renderCmdResults(e.target.value)}
+  else if(e.key==='Enter'&&filtered[cmdSelectedIdx]){e.preventDefault();filtered[cmdSelectedIdx].action();closeCmdPalette()}
+  else if(e.key==='Escape'){closeCmdPalette()}
+});
+
+// ===== NIGHT VISION MODE =====
+let nightVisionOn=false;
+function toggleNightVision(){
+  nightVisionOn=!nightVisionOn;
+  document.body.classList.toggle('nightvision',nightVisionOn);
+  if(nightVisionOn) playAlertTone('click');
+}
+
+// Add Ctrl+K and V/M to keyboard handler
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openCmdPalette();return}
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  if(e.key==='v'||e.key==='V') toggleNightVision();
+  if(e.key==='m'||e.key==='M'){alertSoundEnabled=!alertSoundEnabled;playAlertTone('click')}
 });
 
 // Auto-refresh: news every 5min, videos every 30min, OSINT every 20min (all CDN-cached server-side)
