@@ -202,6 +202,20 @@
   .gauge-fill{height:100%;border-radius:4px;transition:width .5s ease,background .5s ease}
   .gauge-label{font-family:var(--mono);font-size:.6rem;color:var(--text2);white-space:nowrap}
   .gauge-value{font-family:var(--mono);font-size:.7rem;font-weight:700;min-width:60px;text-align:right}
+  /* Sparkline mini-charts */
+  .sparkline-wrap{display:flex;align-items:flex-end;gap:1px;height:28px;margin:4px 0}
+  .spark-bar{flex:1;background:var(--green);border-radius:1px 1px 0 0;min-width:2px;transition:height .3s ease;opacity:.7}
+  .spark-bar:hover{opacity:1}
+  .spark-bar.down{background:var(--red)}
+  .spark-bar.flat{background:var(--text3)}
+  /* Timeline filters */
+  .timeline-filters{display:flex;gap:6px;padding:12px 20px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+  .timeline-filter-btn{font-family:var(--mono);font-size:.55rem;padding:3px 8px;border-radius:3px;
+    border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;text-transform:uppercase;letter-spacing:.5px}
+  .timeline-filter-btn:hover,.timeline-filter-btn.active{border-color:var(--accent);color:var(--accent);background:var(--surface)}
+  .timeline-event{display:flex;gap:16px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+  .timeline-event:hover{background:var(--surface2)}
+  .timeline-event-cat{font-family:var(--mono);font-size:.45rem;padding:1px 5px;border-radius:2px;white-space:nowrap;align-self:flex-start;margin-top:2px}
   .news-stats-bar{
     display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--surface);
   }
@@ -956,6 +970,7 @@
         <span>⚡ LATEST NEWS <span class="news-updated" id="newsUpdated1" style="font-weight:400;color:var(--text3);margin-left:8px"></span></span>
         <button class="refresh-btn" onclick="fetchNews(true)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
       </div>
+      <div id="newsCatBar" style="padding:6px 12px;background:var(--surface);border-bottom:1px solid var(--border)"></div>
       <div class="news-feed" id="newsFeed" aria-live="polite" aria-label="Latest news feed">
         <div class="loading"><div class="spinner"></div>Loading news...</div>
       </div>
@@ -1665,22 +1680,22 @@ const TOTAL_FEEDS=10; // Number of RSS feeds aggregated server-side
 
 // Category classification for news items (theater-aware)
 const NEWS_CATEGORIES_IRAN={
-  strikes:{label:'STRIKES',cls:'cat-strikes',keywords:['strike','bomb','attack','airstrike','missile','intercept','shot down','explosion','blast','shelling','raid']},
-  military:{label:'MILITARY',cls:'cat-military',keywords:['military','troops','deploy','army','navy','irgc','pentagon','aircraft carrier','fighter jet','drone','forces','battalion','regiment','base']},
-  diplomacy:{label:'DIPLOMACY',cls:'cat-diplomacy',keywords:['diplomacy','negotiate','ceasefire','summit','UN','united nations','sanction','treaty','talks','resolution','ambassador','envoy']},
-  maritime:{label:'MARITIME',cls:'cat-maritime',keywords:['hormuz','strait','vessel','ship','tanker','blockade','naval','maritime','port','gulf','carrier']},
-  nuclear:{label:'NUCLEAR',cls:'cat-nuclear',keywords:['nuclear','uranium','enrichment','centrifuge','IAEA','atomic','natanz','fordow']},
-  humanitarian:{label:'HUMANITARIAN',cls:'cat-humanitarian',keywords:['civilian','refugee','humanitarian','aid','casualt','dead','killed','wounded','hospital','evacuate','displaced']},
-  oil:{label:'OIL/ENERGY',cls:'cat-oil',keywords:['oil','crude','brent','opec','pipeline','refinery','energy','barrel','petroleum']},
+  strikes:{label:'⚔ STRIKES',cls:'cat-strikes',keywords:['strike','bomb','attack','airstrike','missile','intercept','shot down','explosion','blast','shelling','raid']},
+  military:{label:'⛨ MILITARY',cls:'cat-military',keywords:['military','troops','deploy','army','navy','irgc','pentagon','aircraft carrier','fighter jet','drone','forces','battalion','regiment','base']},
+  diplomacy:{label:'⚖ DIPLOMACY',cls:'cat-diplomacy',keywords:['diplomacy','negotiate','ceasefire','summit','UN','united nations','sanction','treaty','talks','resolution','ambassador','envoy']},
+  maritime:{label:'⚓ MARITIME',cls:'cat-maritime',keywords:['hormuz','strait','vessel','ship','tanker','blockade','naval','maritime','port','gulf','carrier']},
+  nuclear:{label:'☢ NUCLEAR',cls:'cat-nuclear',keywords:['nuclear','uranium','enrichment','centrifuge','IAEA','atomic','natanz','fordow']},
+  humanitarian:{label:'✚ HUMANITARIAN',cls:'cat-humanitarian',keywords:['civilian','refugee','humanitarian','aid','casualt','dead','killed','wounded','hospital','evacuate','displaced']},
+  oil:{label:'⛽ OIL/ENERGY',cls:'cat-oil',keywords:['oil','crude','brent','opec','pipeline','refinery','energy','barrel','petroleum']},
 };
 const NEWS_CATEGORIES_UKRAINE={
-  strikes:{label:'STRIKES',cls:'cat-strikes',keywords:['strike','bomb','attack','airstrike','missile','intercept','shot down','explosion','blast','shelling','raid','shahed','kalibr','kinzhal','iskander']},
-  military:{label:'MILITARY',cls:'cat-military',keywords:['military','troops','deploy','army','navy','pentagon','fighter jet','drone','forces','battalion','regiment','base','nato','himars','patriot','leopard','abrams','brigade','frontline','offensive','counteroffensive']},
-  diplomacy:{label:'DIPLOMACY',cls:'cat-diplomacy',keywords:['diplomacy','negotiate','ceasefire','summit','UN','united nations','sanction','treaty','talks','resolution','ambassador','envoy','peace formula','peace summit','minsk']},
-  maritime:{label:'MARITIME',cls:'cat-maritime',keywords:['black sea','odesa','vessel','ship','grain corridor','blockade','naval','maritime','port','bosphorus','snake island','sea of azov']},
-  nuclear:{label:'NUCLEAR',cls:'cat-nuclear',keywords:['nuclear','zaporizhzhia','IAEA','nuclear plant','radiation','chernobyl','atomic']},
-  humanitarian:{label:'HUMANITARIAN',cls:'cat-humanitarian',keywords:['civilian','refugee','humanitarian','aid','casualt','dead','killed','wounded','hospital','evacuate','displaced','bucha','mariupol']},
-  energy:{label:'ENERGY',cls:'cat-oil',keywords:['energy','power grid','electricity','gas','pipeline','nord stream','blackout','infrastructure','heating']},
+  strikes:{label:'⚔ STRIKES',cls:'cat-strikes',keywords:['strike','bomb','attack','airstrike','missile','intercept','shot down','explosion','blast','shelling','raid','shahed','kalibr','kinzhal','iskander']},
+  military:{label:'⛨ MILITARY',cls:'cat-military',keywords:['military','troops','deploy','army','navy','pentagon','fighter jet','drone','forces','battalion','regiment','base','nato','himars','patriot','leopard','abrams','brigade','frontline','offensive','counteroffensive']},
+  diplomacy:{label:'⚖ DIPLOMACY',cls:'cat-diplomacy',keywords:['diplomacy','negotiate','ceasefire','summit','UN','united nations','sanction','treaty','talks','resolution','ambassador','envoy','peace formula','peace summit','minsk']},
+  maritime:{label:'⚓ MARITIME',cls:'cat-maritime',keywords:['black sea','odesa','vessel','ship','grain corridor','blockade','naval','maritime','port','bosphorus','snake island','sea of azov']},
+  nuclear:{label:'☢ NUCLEAR',cls:'cat-nuclear',keywords:['nuclear','zaporizhzhia','IAEA','nuclear plant','radiation','chernobyl','atomic']},
+  humanitarian:{label:'✚ HUMANITARIAN',cls:'cat-humanitarian',keywords:['civilian','refugee','humanitarian','aid','casualt','dead','killed','wounded','hospital','evacuate','displaced','bucha','mariupol']},
+  energy:{label:'⚡ ENERGY',cls:'cat-oil',keywords:['energy','power grid','electricity','gas','pipeline','nord stream','blackout','infrastructure','heating']},
 };
 function getNewsCategories(){return currentTheater.id==='ukraine'?NEWS_CATEGORIES_UKRAINE:NEWS_CATEGORIES_IRAN;}
 
@@ -1801,6 +1816,7 @@ function processNewsItems(allItems,feedCount=0){
     }
   }
 
+  updateNewsCatBar();
   checkForNewBreaking(filtered);
 
   // Auto-update dashboard indicators based on news scoring
@@ -1878,6 +1894,32 @@ function filterNews(filter){
     t.classList.toggle('active',t.dataset.src===filter);
   });
   renderNewsFeed('newsFeedFull',allFilteredNews);
+  updateNewsCatBar();
+}
+
+function updateNewsCatBar(){
+  const bar=document.getElementById('newsCatBar');
+  if(!bar||!allFilteredNews.length) return;
+  const cats=getNewsCategories();
+  const counts={};
+  let total=allFilteredNews.length;
+  for(const item of allFilteredNews){
+    const k=item.category?item.category.key:'other';
+    counts[k]=(counts[k]||0)+1;
+  }
+  const CAT_COLORS={strikes:'var(--red)',military:'var(--orange)',diplomacy:'var(--blue)',
+    maritime:'#4db8d9',nuclear:'#d966ff',humanitarian:'var(--green)',oil:'#e6a817',energy:'#e6a817',other:'var(--text3)'};
+  bar.innerHTML=`<div style="display:flex;height:4px;border-radius:2px;overflow:hidden;margin-bottom:4px">${
+    Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([k,n])=>{
+      const pct=(n/total*100).toFixed(1);
+      return `<div style="width:${pct}%;background:${CAT_COLORS[k]||'var(--text3)'}" title="${(cats[k]?.label||k).replace(/[⚔⛨⚖⚓☢✚⛽⚡]/g,'').trim()}: ${n} (${pct}%)"></div>`;
+    }).join('')
+  }</div><div style="display:flex;gap:8px;flex-wrap:wrap">${
+    Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([k,n])=>{
+      const label=(cats[k]?.label||k).replace(/[⚔⛨⚖⚓☢✚⛽⚡]\s?/g,'');
+      return `<span style="font-family:var(--mono);font-size:.45rem;color:${CAT_COLORS[k]||'var(--text3)'};cursor:pointer" onclick="filterNews('${k}')">${label}:${n}</span>`;
+    }).join('')
+  }</div>`;
 }
 
 function toggleNewsView(){
@@ -3404,47 +3446,75 @@ function renderImpactDashboard(){
 
   // Key events timeline
   const events=isUkraine?[
-    {date:'2024+',text:'Ongoing: Systematic Russian strikes on Ukrainian energy infrastructure; 50%+ grid capacity lost'},
-    {date:'Aug 2024',text:'Ukraine launches Kursk incursion into Russian territory; largest cross-border operation since 2022'},
-    {date:'Jun 2023',text:'Kakhovka Dam destroyed — massive flooding, ecological disaster, war crime allegations'},
-    {date:'Jun 2023',text:'Ukraine launches long-awaited counteroffensive in Zaporizhzhia and Donetsk regions'},
-    {date:'Nov 2022',text:'Kherson liberated — only regional capital recaptured; Russia retreats across Dnipro'},
-    {date:'Oct 2022',text:'Kerch Bridge explosion; Russia responds with massive missile barrage on civilian infrastructure'},
-    {date:'Sep 2022',text:'Ukraine Kharkiv counteroffensive recaptures 6,000+ km²; Russian forces collapse in northeast'},
-    {date:'Apr 2022',text:'Moskva flagship sunk by Neptune missiles; largest warship loss since Falklands War'},
-    {date:'Apr 2022',text:'Bucha massacre revealed; evidence of systematic war crimes triggers global outrage'},
-    {date:'Mar 2022',text:'Siege of Mariupol begins; Azovstal steelworks becomes symbol of resistance'},
-    {date:'Feb 24',text:'Russia launches full-scale invasion of Ukraine from north, east, and south'},
+    {date:'2024+',text:'Ongoing: Systematic Russian strikes on Ukrainian energy infrastructure; 50%+ grid capacity lost',cat:'strikes'},
+    {date:'Aug 2024',text:'Ukraine launches Kursk incursion into Russian territory; largest cross-border operation since 2022',cat:'military'},
+    {date:'Jun 2023',text:'Kakhovka Dam destroyed — massive flooding, ecological disaster, war crime allegations',cat:'humanitarian'},
+    {date:'Jun 2023',text:'Ukraine launches long-awaited counteroffensive in Zaporizhzhia and Donetsk regions',cat:'military'},
+    {date:'Nov 2022',text:'Kherson liberated — only regional capital recaptured; Russia retreats across Dnipro',cat:'military'},
+    {date:'Oct 2022',text:'Kerch Bridge explosion; Russia responds with massive missile barrage on civilian infrastructure',cat:'strikes'},
+    {date:'Sep 2022',text:'Ukraine Kharkiv counteroffensive recaptures 6,000+ km²; Russian forces collapse in northeast',cat:'military'},
+    {date:'Apr 2022',text:'Moskva flagship sunk by Neptune missiles; largest warship loss since Falklands War',cat:'maritime'},
+    {date:'Apr 2022',text:'Bucha massacre revealed; evidence of systematic war crimes triggers global outrage',cat:'humanitarian'},
+    {date:'Mar 2022',text:'Siege of Mariupol begins; Azovstal steelworks becomes symbol of resistance',cat:'military'},
+    {date:'Feb 24',text:'Russia launches full-scale invasion of Ukraine from north, east, and south',cat:'military'},
   ]:[
-    {date:'Mar 22',text:'Continued strikes on IRGC positions; Strait of Hormuz remains closed; 3rd carrier group arrives'},
-    {date:'Mar 21',text:'USCYBERCOM confirms offensive cyber operations against IRGC C2 networks'},
-    {date:'Mar 20',text:'UN emergency session; China & Russia veto ceasefire; Iran fires Shahab-3 salvo at Al Dhafra'},
-    {date:'Mar 19',text:'B-2 Spirit strikes on Fordow nuclear facility with GBU-57 MOP bunker busters'},
-    {date:'Mar 18',text:'Major cyberattack disrupts Iranian communications; internet drops to ~4% capacity'},
-    {date:'Mar 17',text:'Iraqi PMF launches 30+ drones at US forces at Al Asad Air Base'},
-    {date:'Mar 16',text:'Israel intercepts ballistic missile barrage with Arrow-3; Hezbollah fires 500+ rockets'},
-    {date:'Mar 15',text:'USS Gerald Ford CSG deploys to Persian Gulf; total 3 carrier groups in theater'},
-    {date:'Mar 14',text:'Iran Kilo-class submarine sunk at Bandar Abbas; IRIN surface fleet heavily damaged'},
-    {date:'Mar 12',text:'Iran retaliatory missile barrage (300+ missiles) targeting Israeli military installations'},
-    {date:'Mar 11',text:'Houthis fire anti-ship missile at USS Eisenhower; SM-6 intercept confirmed'},
-    {date:'Mar 10',text:'Houthi forces escalate Red Sea attacks; 12+ commercial ships hit to date'},
-    {date:'Mar 8',text:'Saudi Arabia grants US access to Prince Sultan Air Base; RSAF on full alert'},
-    {date:'Mar 7',text:'Brent crude surpasses $110/barrel; OPEC emergency meeting; global markets crash'},
-    {date:'Mar 5',text:'Iran activates Basij militia; 600,000+ called to mobilize for national defense'},
-    {date:'Mar 4',text:'First confirmed strikes on Natanz nuclear facility; IAEA inspectors evacuated'},
-    {date:'Mar 3',text:'SEAD/DEAD campaign destroys 80% of Iranian integrated air defense system'},
-    {date:'Mar 2',text:'Tomahawk and JASSM-ER strikes on 200+ IRGC targets across Iran'},
-    {date:'Mar 1',text:'US and Israel commence joint military operations — Operation designation classified'},
-    {date:'Feb 28',text:'Conflict begins: coordinated strikes on IRGC targets; Iran closes Strait of Hormuz'},
+    {date:'Mar 22',text:'Continued strikes on IRGC positions; Strait of Hormuz remains closed; 3rd carrier group arrives',cat:'military'},
+    {date:'Mar 21',text:'USCYBERCOM confirms offensive cyber operations against IRGC C2 networks',cat:'cyber'},
+    {date:'Mar 20',text:'UN emergency session; China & Russia veto ceasefire; Iran fires Shahab-3 salvo at Al Dhafra',cat:'diplomacy'},
+    {date:'Mar 19',text:'B-2 Spirit strikes on Fordow nuclear facility with GBU-57 MOP bunker busters',cat:'nuclear'},
+    {date:'Mar 18',text:'Major cyberattack disrupts Iranian communications; internet drops to ~4% capacity',cat:'cyber'},
+    {date:'Mar 17',text:'Iraqi PMF launches 30+ drones at US forces at Al Asad Air Base',cat:'strikes'},
+    {date:'Mar 16',text:'Israel intercepts ballistic missile barrage with Arrow-3; Hezbollah fires 500+ rockets',cat:'strikes'},
+    {date:'Mar 15',text:'USS Gerald Ford CSG deploys to Persian Gulf; total 3 carrier groups in theater',cat:'maritime'},
+    {date:'Mar 14',text:'Iran Kilo-class submarine sunk at Bandar Abbas; IRIN surface fleet heavily damaged',cat:'maritime'},
+    {date:'Mar 12',text:'Iran retaliatory missile barrage (300+ missiles) targeting Israeli military installations',cat:'strikes'},
+    {date:'Mar 11',text:'Houthis fire anti-ship missile at USS Eisenhower; SM-6 intercept confirmed',cat:'maritime'},
+    {date:'Mar 10',text:'Houthi forces escalate Red Sea attacks; 12+ commercial ships hit to date',cat:'maritime'},
+    {date:'Mar 8',text:'Saudi Arabia grants US access to Prince Sultan Air Base; RSAF on full alert',cat:'diplomacy'},
+    {date:'Mar 7',text:'Brent crude surpasses $110/barrel; OPEC emergency meeting; global markets crash',cat:'economic'},
+    {date:'Mar 5',text:'Iran activates Basij militia; 600,000+ called to mobilize for national defense',cat:'military'},
+    {date:'Mar 4',text:'First confirmed strikes on Natanz nuclear facility; IAEA inspectors evacuated',cat:'nuclear'},
+    {date:'Mar 3',text:'SEAD/DEAD campaign destroys 80% of Iranian integrated air defense system',cat:'strikes'},
+    {date:'Mar 2',text:'Tomahawk and JASSM-ER strikes on 200+ IRGC targets across Iran',cat:'strikes'},
+    {date:'Mar 1',text:'US and Israel commence joint military operations — Operation designation classified',cat:'military'},
+    {date:'Feb 28',text:'Conflict begins: coordinated strikes on IRGC targets; Iran closes Strait of Hormuz',cat:'military'},
   ];
 
+  const TL_CAT_STYLES={
+    military:{label:'MILITARY',bg:'var(--orange-dim)',color:'var(--orange)'},
+    strikes:{label:'STRIKES',bg:'var(--red-dim)',color:'var(--red)'},
+    diplomacy:{label:'DIPLOMACY',bg:'var(--blue-dim)',color:'var(--blue)'},
+    maritime:{label:'MARITIME',bg:'#0d2233',color:'#4db8d9'},
+    nuclear:{label:'NUCLEAR',bg:'#2d0633',color:'#d966ff'},
+    humanitarian:{label:'HUMANITARIAN',bg:'var(--green-dim)',color:'var(--green)'},
+    economic:{label:'ECONOMIC',bg:'#332200',color:'#e6a817'},
+    cyber:{label:'CYBER',bg:'#0a2d1a',color:'#4dffb8'},
+  };
+  const uniqueCats=[...new Set(events.map(e=>e.cat))];
+
   const timelineEl=document.getElementById('impactTimeline');
-  timelineEl.innerHTML=`<div style="padding:16px 20px">${events.map(e=>`
-    <div style="display:flex;gap:16px;padding:12px 0;border-bottom:1px solid var(--border)">
-      <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--orange);min-width:60px;white-space:nowrap">${e.date}</div>
-      <div style="font-family:var(--mono);font-size:.65rem;color:var(--text);line-height:1.5">${e.text}</div>
-    </div>
-  `).join('')}</div>`;
+  let tlFilter='all';
+  function renderTimeline(){
+    const filtered=tlFilter==='all'?events:events.filter(e=>e.cat===tlFilter);
+    timelineEl.innerHTML=`
+      <div class="timeline-filters">
+        <button class="timeline-filter-btn${tlFilter==='all'?' active':''}" onclick="window._tlFilter('all')">ALL</button>
+        ${uniqueCats.map(c=>{const s=TL_CAT_STYLES[c]||{label:c.toUpperCase(),color:'var(--text2)',bg:'var(--surface2)'};
+          return `<button class="timeline-filter-btn${tlFilter===c?' active':''}" style="border-color:${s.color};color:${tlFilter===c?s.color:'var(--text3)'}" onclick="window._tlFilter('${c}')">${s.label}</button>`;
+        }).join('')}
+        <span style="font-family:var(--mono);font-size:.45rem;color:var(--text3);align-self:center;margin-left:auto">${filtered.length} events</span>
+      </div>
+      <div style="padding:4px 20px">${filtered.map(e=>{
+        const s=TL_CAT_STYLES[e.cat]||{label:e.cat.toUpperCase(),color:'var(--text2)',bg:'var(--surface2)'};
+        return `<div class="timeline-event">
+          <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--orange);min-width:60px;white-space:nowrap">${e.date}</div>
+          <span class="timeline-event-cat" style="background:${s.bg};color:${s.color}">${s.label}</span>
+          <div style="font-family:var(--mono);font-size:.65rem;color:var(--text);line-height:1.5;flex:1">${e.text}</div>
+        </div>`;
+      }).join('')}</div>`;
+  }
+  window._tlFilter=function(cat){tlFilter=cat;renderTimeline();};
+  renderTimeline();
 
   // Cyber operations
   const cyberOps=isUkraine?[
@@ -3697,12 +3767,39 @@ function renderForecastPanel(){
     {name:'Wheat (CBOT)',val:'$7.10/bu',base:'Pre-conflict: $5.80',change:'+22%',color:'var(--orange)'},
   ];
 
+  // Generate fake sparkline data for commodity mini-charts (simulated 14-day trend)
+  function genSparkData(changeStr){
+    const pct=parseFloat(changeStr)||0;
+    const up=pct>0;
+    const pts=[];
+    let v=50;
+    for(let i=0;i<14;i++){
+      v+=((up?1:-1)*Math.random()*3)+(Math.random()-0.5)*4;
+      v=Math.max(5,Math.min(95,v));
+      pts.push(v);
+    }
+    // Ensure last point reflects direction
+    if(up) pts[13]=Math.max(pts[13],60);
+    else pts[13]=Math.min(pts[13],40);
+    return pts;
+  }
+  function renderSparkBars(pts,color){
+    const max=Math.max(...pts);
+    return `<div class="sparkline-wrap">${pts.map((v,i)=>{
+      const h=Math.max(3,Math.round((v/max)*28));
+      const prev=i>0?pts[i-1]:v;
+      const cls=v>prev?'':'down';
+      return `<div class="spark-bar ${cls}" style="height:${h}px" title="Day ${i+1}"></div>`;
+    }).join('')}</div>`;
+  }
+
   const comEl=document.getElementById('commodityIndicators');
   if(comEl){
     comEl.innerHTML=commodities.map(c=>`
       <div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px">
         <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">${escHtml(c.name)}</div>
         <div style="font-family:var(--mono);font-size:1rem;font-weight:700;color:${c.color};margin:4px 0">${c.val}</div>
+        ${renderSparkBars(genSparkData(c.change),c.color)}
         <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">${c.base} · <span style="color:${c.color}">${c.change}</span></div>
       </div>
     `).join('');
