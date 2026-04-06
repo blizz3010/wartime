@@ -670,6 +670,25 @@
   /* BLAST CALC */
   .blast-ring{border-radius:50%;position:absolute;border:2px solid;opacity:.5;pointer-events:none}
 
+  /* WAR ROOM MODE */
+  body.warroom .header,body.warroom .nav-tabs,body.warroom .site-footer,
+  body.warroom #defconStripe,body.warroom .threat-bar,body.warroom .skip-nav,
+  body.warroom .ticker-bar,body.warroom .escalation-gauge,body.warroom #marqueeBar,
+  body.warroom #kbdHint,body.warroom #cmdPalette{display:none!important}
+  body.warroom .panel{height:100vh!important;max-height:100vh!important}
+  body.warroom .panel.active{display:block}
+  .warroom-overlay{
+    position:fixed;top:12px;right:12px;z-index:9998;display:none;
+    font-family:var(--mono);font-size:.6rem;color:var(--text3);
+    background:rgba(0,0,0,.7);border:1px solid var(--border);border-radius:6px;
+    padding:8px 14px;backdrop-filter:blur(6px);
+  }
+  body.warroom .warroom-overlay{display:flex;gap:12px;align-items:center}
+  .warroom-defcon{font-weight:700;font-size:.8rem}
+  .warroom-timer{color:var(--text3)}
+  .warroom-exit{cursor:pointer;color:var(--text2);text-decoration:underline}
+  .warroom-exit:hover{color:var(--text)}
+
   /* FOOTER */
   .site-footer{
     padding:12px 24px;background:var(--surface);border-top:1px solid var(--border);
@@ -1480,6 +1499,7 @@
   <kbd>Ctrl+K</kbd> Command palette &nbsp;
   <kbd>V</kbd> Night vision &nbsp;
   <kbd>M</kbd> Mute alerts &nbsp;
+  <kbd>F</kbd> War Room mode &nbsp;
   <kbd>D</kbd> Debug scores &nbsp;
   <kbd>?</kbd> This help &nbsp;
   <kbd>Esc</kbd> Close modal
@@ -1502,6 +1522,15 @@
 </div>
 
 </main>
+
+<!-- WAR ROOM OVERLAY -->
+<div class="warroom-overlay" id="warroomOverlay">
+  <span class="warroom-defcon" id="warroomDefcon">DEFCON 2</span>
+  <span class="warroom-timer" id="warroomTimer">00:30</span>
+  <span style="color:var(--text3)">|</span>
+  <span class="warroom-timer" id="warroomPanel">OVERVIEW</span>
+  <span class="warroom-exit" onclick="exitWarRoom()">EXIT (Esc)</span>
+</div>
 
 <!-- FOOTER -->
 <footer class="site-footer" id="siteFooter">
@@ -5664,6 +5693,7 @@ const CMD_COMMANDS=[
   {icon:'🔇',label:'Toggle Alert Sounds',hint:'Audio',action:()=>{alertSoundEnabled=!alertSoundEnabled;playAlertTone('click')},tags:'mute sound audio alerts',kbd:'M'},
   {icon:'📡',label:'Open GPS Jamming Map',hint:'Tool',action:()=>{activateTab(document.querySelector('[data-panel="airtraffic"]'));setTimeout(()=>{const lat=currentTheater.id==='ukraine'?'48.5':'26.5';const lon=currentTheater.id==='ukraine'?'35.0':'53.6';setAirSrc(`https://gpsjam.org/?lat=${lat}&lon=${lon}&z=5`)},100)},tags:'gps jamming interference electronic warfare'},
   {icon:'🔔',label:'Enable Browser Notifications',hint:'Setting',action:()=>requestNotificationPermission(),tags:'notifications alerts browser push'},
+  {icon:'🖥',label:'Enter War Room Mode',hint:'Display',action:()=>enterWarRoom(),tags:'war room kiosk fullscreen rotate auto cycle wall monitor',kbd:'F'},
   {icon:'❓',label:'Show Keyboard Shortcuts',hint:'Help',action:()=>document.getElementById('kbdHint').classList.toggle('show'),tags:'keyboard shortcuts help keys',kbd:'?'},
 ];
 
@@ -5725,7 +5755,12 @@ document.addEventListener('keydown',e=>{
   if(e.ctrlKey||e.metaKey||e.altKey) return;
   if(e.key==='v'||e.key==='V') toggleNightVision();
   if(e.key==='m'||e.key==='M'){alertSoundEnabled=!alertSoundEnabled;playAlertTone('click')}
+  if(e.key==='f'||e.key==='F'){if(!warRoomActive)enterWarRoom();else exitWarRoom()}
 });
+// Escape exits War Room
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&warRoomActive){exitWarRoom();e.stopPropagation()}
+},{capture:true});
 
 // ===== NUCLEAR BLAST RADIUS CALCULATOR =====
 const BLAST_TARGETS_IRAN=[
@@ -6070,6 +6105,55 @@ initBlastTargets();
 // Update threat clock periodically
 setInterval(updateThreatClock,5000);
 setTimeout(updateThreatClock,2000);
+
+// ===== WAR ROOM / KIOSK MODE =====
+let warRoomActive=false;
+let warRoomInterval=null;
+let warRoomCountdown=30;
+const WARROOM_PANELS=['overview','warmap','maritime','cybermap','airtraffic','impact'];
+let warRoomIdx=0;
+
+function enterWarRoom(){
+  warRoomActive=true;
+  document.body.classList.add('warroom');
+  // Try fullscreen
+  try{document.documentElement.requestFullscreen?.()}catch(e){}
+  warRoomIdx=0;
+  warRoomCountdown=30;
+  activateTab(document.querySelector(`[data-panel="${WARROOM_PANELS[0]}"]`));
+  updateWarRoomOverlay();
+  warRoomInterval=setInterval(()=>{
+    warRoomCountdown--;
+    if(warRoomCountdown<=0){
+      warRoomIdx=(warRoomIdx+1)%WARROOM_PANELS.length;
+      const panel=WARROOM_PANELS[warRoomIdx];
+      activateTab(document.querySelector(`[data-panel="${panel}"]`));
+      warRoomCountdown=30;
+    }
+    updateWarRoomOverlay();
+  },1000);
+}
+
+function exitWarRoom(){
+  warRoomActive=false;
+  document.body.classList.remove('warroom');
+  if(warRoomInterval){clearInterval(warRoomInterval);warRoomInterval=null}
+  try{if(document.fullscreenElement) document.exitFullscreen?.()}catch(e){}
+}
+
+function updateWarRoomOverlay(){
+  const defEl=document.getElementById('warroomDefcon');
+  const timerEl=document.getElementById('warroomTimer');
+  const panelEl=document.getElementById('warroomPanel');
+  if(defEl){
+    const defcon=lastScoringResult?.defcon||2;
+    const COLORS={1:'#ff0000',2:'#ff4444',3:'#ff8800',4:'#ffcc00',5:'#44ff44'};
+    defEl.textContent='DEFCON '+defcon;
+    defEl.style.color=COLORS[defcon]||'var(--red)';
+  }
+  if(timerEl) timerEl.textContent=`NEXT: ${warRoomCountdown}s`;
+  if(panelEl) panelEl.textContent=WARROOM_PANELS[warRoomIdx].toUpperCase();
+}
 
 // ===== SESSION PERSISTENCE =====
 function savePrefs(){
