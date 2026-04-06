@@ -1229,6 +1229,8 @@
     <button class="forces-subnav-btn" onclick="showImpactSubpage('sanctions')">🚫 Sanctions</button>
     <button class="forces-subnav-btn" onclick="showImpactSubpage('equipment')">🔧 Equipment Losses</button>
     <button class="forces-subnav-btn" onclick="showImpactSubpage('cyber')">🖥 Cyber Warfare</button>
+    <button class="forces-subnav-btn" onclick="showImpactSubpage('chokepoints')">🌊 Chokepoints</button>
+    <button class="forces-subnav-btn" onclick="showImpactSubpage('diplomacy')">🏛 Diplomacy</button>
     <button class="forces-subnav-btn" onclick="showImpactSubpage('forecast')">📊 Forecast & Markets</button>
     <button class="forces-subnav-btn" onclick="showImpactSubpage('brief')">📋 Daily Brief</button>
   </div>
@@ -1314,6 +1316,18 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Maritime Chokepoint Risk Monitor -->
+  <div class="subpage" id="impact-page-chokepoints">
+    <div class="section-head"><span>🌊 MARITIME CHOKEPOINT RISK MONITOR</span><span class="badge">ASSESSED</span></div>
+    <div id="chokepointPanel"></div>
+  </div>
+
+  <!-- Diplomatic Tracker -->
+  <div class="subpage" id="impact-page-diplomacy">
+    <div class="section-head"><span>🏛 DIPLOMATIC ACTIVITY TRACKER</span></div>
+    <div id="diplomacyPanel"></div>
   </div>
 
   <!-- Daily Brief -->
@@ -3587,6 +3601,8 @@ function renderImpactDashboard(){
   renderCasualtiesPanel();
   renderSanctionsPanel();
   renderEquipmentPanel();
+  renderChokepointPanel();
+  renderDiplomacyPanel();
   renderDailyBrief();
 
   // Infrastructure Detail page (expanded view)
@@ -4031,6 +4047,120 @@ function renderEquipmentPanel(){
       </div>
       <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);margin-top:16px">Sources: ${equipment.source} · Actual losses likely higher than confirmed figures</div>
     </div>`;
+}
+
+// ===== MARITIME CHOKEPOINT RISK MONITOR =====
+function renderChokepointPanel(){
+  const isUkraine=currentTheater.id==='ukraine';
+  const chokepoints=isUkraine?[
+    {name:'Turkish Straits (Bosphorus/Dardanelles)',status:'RESTRICTED',risk:'HIGH',color:'var(--orange)',
+      detail:'Montreux Convention invoked — Turkey closed straits to warships. Grain corridor traffic monitored.',
+      traffic:'Commercial: OPEN | Military: CLOSED',lat:'41.2',lon:'29.0',
+      threats:['Mine risk in western Black Sea','Russian naval patrols','Insurance premiums +500%']},
+    {name:'Kerch Strait',status:'DENIED',risk:'CRITICAL',color:'var(--red)',
+      detail:'Controlled by Russia. Kerch Bridge partially damaged. Active combat zone.',
+      traffic:'Commercial: SUSPENDED | Military: RU ONLY',lat:'45.3',lon:'36.6',
+      threats:['Active combat zone','Sea mines confirmed','Ukrainian naval drone operations']},
+    {name:'Danish Straits (Skagerrak/Kattegat)',status:'OPEN',risk:'LOW',color:'var(--green)',
+      detail:'NATO-controlled. Increased naval activity monitoring Russian Baltic Fleet movements.',
+      traffic:'Commercial: OPEN | Military: OPEN',lat:'57.7',lon:'11.0',
+      threats:['Russian submarine activity increased','Pipeline sabotage risk (Nord Stream precedent)']},
+    {name:'GIUK Gap',status:'OPEN',risk:'MODERATE',color:'var(--orange)',
+      detail:'Increased NATO ASW operations tracking Russian submarine deployments.',
+      traffic:'Commercial: OPEN | Military: OPEN',lat:'63.0',lon:'-15.0',
+      threats:['Russian SSBN patrols increased','Undersea cable vulnerability']},
+  ]:[
+    {name:'Strait of Hormuz',status:'DENIED',risk:'CRITICAL',color:'var(--red)',
+      detail:'Iran closed strait with naval mines, IRGC fast attack boats, and coastal missile batteries. US Navy conducting mine clearance.',
+      traffic:'Commercial: SUSPENDED | Military: CONTESTED',lat:'26.5',lon:'56.3',
+      threats:['Naval mines (estimate 2,000+)','IRGC ASCM batteries','Fast attack boat swarms','Submarine threat']},
+    {name:'Bab el-Mandeb',status:'HOSTILE',risk:'CRITICAL',color:'var(--red)',
+      detail:'Houthi forces attacking commercial shipping with anti-ship missiles and drones. 12+ vessels hit.',
+      traffic:'Commercial: DIVERTED | Military: CONTESTED',lat:'12.6',lon:'43.3',
+      threats:['Houthi ASCM attacks','Drone boat IEDs','Mine risk','Insurance suspended']},
+    {name:'Suez Canal',status:'DISRUPTED',risk:'HIGH',color:'var(--orange)',
+      detail:'Traffic reduced ~40% due to Houthi threat forcing ships to divert around Cape of Good Hope.',
+      traffic:'Commercial: REDUCED | Military: OPEN',lat:'30.5',lon:'32.3',
+      threats:['Revenue loss to Egypt','Transit times +10-14 days via Cape','Capacity bottleneck']},
+    {name:'Strait of Malacca',status:'ELEVATED',risk:'MODERATE',color:'var(--orange)',
+      detail:'Alternative oil routing under strain. China monitoring closely.',
+      traffic:'Commercial: OPEN | Military: OPEN',lat:'2.5',lon:'101.0',
+      threats:['Rerouted tanker congestion','Strategic vulnerability for China','Piracy uptick']},
+  ];
+
+  const el=document.getElementById('chokepointPanel');
+  if(!el) return;
+  el.innerHTML=`<div style="padding:16px 20px;display:grid;gap:16px">
+    ${chokepoints.map(c=>`
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:16px;border-left:3px solid ${c.color}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-family:var(--mono);font-size:.75rem;font-weight:700;color:var(--text)">${c.name}</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="font-family:var(--mono);font-size:.5rem;padding:2px 6px;border-radius:3px;background:${c.color};color:#000;font-weight:700">${c.status}</span>
+            <span style="font-family:var(--mono);font-size:.5rem;color:${c.color};font-weight:700">RISK: ${c.risk}</span>
+          </div>
+        </div>
+        <div style="font-family:var(--mono);font-size:.6rem;color:var(--text2);line-height:1.5;margin-bottom:8px">${c.detail}</div>
+        <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);margin-bottom:8px">${c.traffic}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${c.threats.map(t=>`<span style="font-family:var(--mono);font-size:.45rem;padding:2px 6px;border-radius:2px;background:var(--red-dim);color:var(--red)">⚠ ${t}</span>`).join('')}
+        </div>
+      </div>
+    `).join('')}
+    <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">Sources: ONI, Lloyd's List Intelligence, US Naval Institute, MarineTraffic, CENTCOM · Risk assessments based on threat indicators and shipping data</div>
+  </div>`;
+}
+
+// ===== DIPLOMATIC ACTIVITY TRACKER =====
+function renderDiplomacyPanel(){
+  const isUkraine=currentTheater.id==='ukraine';
+  const events=isUkraine?[
+    {date:'2024+',type:'SUMMIT',parties:'🇨🇭 Swiss Peace Summit',status:'Inconclusive',detail:'60+ nations attended; Russia absent. Communiqué on nuclear safety and food security. No ceasefire framework.',color:'var(--orange)'},
+    {date:'2024',type:'BILATERAL',parties:'🇺🇸🇺🇦 US-Ukraine Security',status:'Signed',detail:'10-year bilateral security agreement signed. Not a NATO Article 5 guarantee.',color:'var(--green)'},
+    {date:'2024',type:'POLICY',parties:'🇪🇺 EU Accession',status:'Opened',detail:'EU formally opened accession negotiations with Ukraine. Years-long process ahead.',color:'var(--blue)'},
+    {date:'2024',type:'AID',parties:'🇺🇸 $61B Aid Package',status:'Passed',detail:'After 6-month delay, US Congress passed major Ukraine aid package including ATACMS, air defense.',color:'var(--green)'},
+    {date:'2023',type:'PROPOSAL',parties:'🇨🇳 China Peace Plan',status:'Rejected by UA',detail:'12-point plan criticized as favoring Russia. No territorial integrity guarantee.',color:'var(--red)'},
+    {date:'2023',type:'INDICTMENT',parties:'🏛 ICC vs Putin',status:'Active',detail:'ICC issued arrest warrant for Putin over deportation of Ukrainian children. 123 signatory states obligated to arrest.',color:'var(--orange)'},
+    {date:'2022',type:'NEGOTIATION',parties:'🇹🇷 Istanbul Talks',status:'Failed',detail:'Early peace talks collapsed after Bucha revelations. Russia withdrew in bad faith.',color:'var(--red)'},
+    {date:'2022',type:'EXPANSION',parties:'🇫🇮🇸🇪 NATO Expansion',status:'Completed',detail:'Finland (2023) and Sweden (2024) joined NATO. Alliance expanded to 32 members.',color:'var(--green)'},
+  ]:[
+    {date:'Mar 22',type:'UNSC',parties:'🇺🇳 Security Council',status:'Vetoed',detail:'Ceasefire resolution vetoed by Russia and China. US calls for "maximum pressure" continuation.',color:'var(--red)'},
+    {date:'Mar 20',type:'MEDIATION',parties:'🇶🇦 Qatar Mediation',status:'Offered',detail:'Qatar offers to mediate between US and Iran. US sets preconditions: nuclear disarmament, Hormuz reopening.',color:'var(--orange)'},
+    {date:'Mar 18',type:'COALITION',parties:'🇺🇸🇬🇧🇮🇱 War Council',status:'Active',detail:'Trilateral coordination on target lists, operational deconfliction, and escalation management.',color:'var(--blue)'},
+    {date:'Mar 16',type:'SUMMIT',parties:'🇸🇦🇦🇪 GCC Emergency',status:'Convened',detail:'Gulf states demand protection guarantees. UAE activates THAAD batteries. Saudi opens bases.',color:'var(--orange)'},
+    {date:'Mar 14',type:'STATEMENT',parties:'🇨🇳 China Response',status:'Warning',detail:'China demands "immediate cessation of hostilities." Positions naval assets in Indian Ocean.',color:'var(--red)'},
+    {date:'Mar 10',type:'ULTIMATUM',parties:'🇺🇸 US Demands',status:'Rejected',detail:'US 72-hour ultimatum to reopen Hormuz rejected by Iran. IRGC chief: "The strait is our sovereign domain."',color:'var(--red)'},
+    {date:'Mar 5',type:'IAEA',parties:'🇺🇳 IAEA Emergency',status:'Session',detail:'Emergency board meeting on Natanz/Fordow strikes. Director condemns attacks on nuclear facilities.',color:'var(--orange)'},
+    {date:'Pre-war',type:'JCPOA',parties:'🇪🇺 Nuclear Talks',status:'Collapsed',detail:'JCPOA revival talks permanently collapsed. Iran enriching at 60%+ (weapons-grade threshold).',color:'var(--red)'},
+  ];
+
+  const TYPE_COLORS={SUMMIT:'var(--blue)',BILATERAL:'var(--green)',POLICY:'var(--blue)',AID:'var(--green)',
+    PROPOSAL:'var(--orange)',INDICTMENT:'var(--red)',NEGOTIATION:'var(--orange)',EXPANSION:'var(--green)',
+    UNSC:'var(--red)',MEDIATION:'var(--orange)',COALITION:'var(--blue)',STATEMENT:'var(--orange)',
+    ULTIMATUM:'var(--red)',IAEA:'var(--orange)',JCPOA:'var(--orange)'};
+  const STATUS_COLORS={Signed:'var(--green)',Passed:'var(--green)',Completed:'var(--green)',Opened:'var(--blue)',
+    Active:'var(--blue)',Convened:'var(--blue)',Offered:'var(--orange)',Session:'var(--orange)',
+    Inconclusive:'var(--orange)',Warning:'var(--red)',Rejected:'var(--red)',Failed:'var(--red)',
+    Vetoed:'var(--red)','Rejected by UA':'var(--red)'};
+
+  const el=document.getElementById('diplomacyPanel');
+  if(!el) return;
+  el.innerHTML=`<div style="padding:16px 20px">
+    ${events.map(e=>`
+      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">
+        <div style="font-family:var(--mono);font-size:.65rem;font-weight:700;color:var(--orange);min-width:55px;white-space:nowrap">${e.date}</div>
+        <span style="font-family:var(--mono);font-size:.45rem;padding:2px 6px;border-radius:2px;background:var(--surface2);color:${TYPE_COLORS[e.type]||'var(--text2)'};align-self:flex-start;white-space:nowrap;font-weight:700">${e.type}</span>
+        <div style="flex:1">
+          <div style="font-family:var(--mono);font-size:.65rem;font-weight:700;color:var(--text);margin-bottom:4px">
+            ${e.parties}
+            <span style="margin-left:8px;font-size:.45rem;padding:1px 5px;border-radius:2px;background:var(--surface2);color:${STATUS_COLORS[e.status]||'var(--text3)'};font-weight:700">${e.status}</span>
+          </div>
+          <div style="font-family:var(--mono);font-size:.55rem;color:var(--text2);line-height:1.5">${e.detail}</div>
+        </div>
+      </div>
+    `).join('')}
+    <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);margin-top:12px">Sources: UN, Reuters, AP, White House, Kremlin, EU External Action · Status reflects latest known position</div>
+  </div>`;
 }
 
 // ===== DAILY SITUATION BRIEF =====
