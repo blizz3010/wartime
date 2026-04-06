@@ -1203,6 +1203,8 @@
     <button class="forces-subnav-btn" onclick="showAssetSubpage('bases')">🏗 Military Bases</button>
     <button class="forces-subnav-btn" onclick="showAssetSubpage('infra')">🏗 Infrastructure</button>
     <button class="forces-subnav-btn" onclick="showAssetSubpage('nukes')">☢ Nuclear</button>
+    <button class="forces-subnav-btn" onclick="showAssetSubpage('blastcalc')">💥 Blast Calculator</button>
+    <button class="forces-subnav-btn" onclick="showAssetSubpage('threatnet')">🕸 Threat Network</button>
   </div>
 
   <!-- Damage Overview -->
@@ -1244,6 +1246,51 @@
     <div class="nuke-grid" id="nukeStatus"></div>
   </div>
 
+  <!-- Blast Radius Calculator -->
+  <div class="subpage" id="assets-page-blastcalc">
+    <div class="force-section-head">💥 NUCLEAR / CONVENTIONAL BLAST RADIUS CALCULATOR</div>
+    <div style="padding:16px 20px">
+      <div style="display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;align-items:flex-end">
+        <div>
+          <label style="font-family:var(--mono);font-size:.5rem;color:var(--text3);display:block;margin-bottom:4px">YIELD (kilotons TNT)</label>
+          <select id="blastYield" onchange="renderBlastCalc()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:.65rem;padding:6px 8px;border-radius:4px">
+            <option value="0.5">0.5 kt (MOAB equivalent)</option>
+            <option value="1">1 kt (tactical)</option>
+            <option value="10">10 kt (Hiroshima-class)</option>
+            <option value="20" selected>20 kt (Nagasaki-class)</option>
+            <option value="50">50 kt (tactical warhead)</option>
+            <option value="100">100 kt (strategic)</option>
+            <option value="250">250 kt (W87 warhead)</option>
+            <option value="500">500 kt (large strategic)</option>
+            <option value="1000">1,000 kt (1 megaton)</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-family:var(--mono);font-size:.5rem;color:var(--text3);display:block;margin-bottom:4px">TARGET</label>
+          <select id="blastTarget" onchange="renderBlastCalc()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:.65rem;padding:6px 8px;border-radius:4px">
+          </select>
+        </div>
+        <div>
+          <label style="font-family:var(--mono);font-size:.5rem;color:var(--text3);display:block;margin-bottom:4px">DETONATION</label>
+          <select id="blastType" onchange="renderBlastCalc()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:.65rem;padding:6px 8px;border-radius:4px">
+            <option value="air">Airburst</option>
+            <option value="ground">Ground burst</option>
+          </select>
+        </div>
+      </div>
+      <div id="blastResults"></div>
+    </div>
+  </div>
+
+  <!-- Threat Network Graph -->
+  <div class="subpage" id="assets-page-threatnet">
+    <div class="force-section-head">🕸 THREAT NETWORK — ENTITY RELATIONSHIP GRAPH</div>
+    <div style="padding:8px 20px;display:flex;gap:8px;border-bottom:1px solid var(--border)">
+      <span style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">Click and drag nodes · Scroll to zoom · Hover for details</span>
+    </div>
+    <canvas id="threatNetCanvas" style="width:100%;height:calc(100vh - 200px);background:var(--bg)"></canvas>
+  </div>
+
   <div id="assetsDataSources" style="padding:12px 20px;font-family:var(--mono);font-size:.55rem;color:var(--text3);border-top:1px solid var(--border)">
     DATA SOURCES: ISW, CENTCOM, IISS Military Balance, Janes, ACLED, Reuters, AP, OSINT · Classified asset dispositions may differ · Damage assessments based on satellite imagery and open-source reporting
   </div>
@@ -1268,6 +1315,14 @@
   <!-- Impact Overview -->
   <div class="subpage active" id="impact-page-overview">
     <div class="section-head"><span>◈ CONFLICT IMPACT DASHBOARD</span><span class="badge">ESTIMATED</span></div>
+    <div style="display:flex;align-items:center;gap:16px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border)">
+      <canvas id="threatClockCanvas" width="120" height="120" class="threat-clock-canvas"></canvas>
+      <div>
+        <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text)">THREAT CLOCK</div>
+        <div id="threatClockLabel" style="font-family:var(--mono);font-size:.55rem;color:var(--text3);margin-top:4px">Calculating...</div>
+        <div style="font-family:var(--mono);font-size:.45rem;color:var(--text3);margin-top:2px">Based on escalation scoring, news tempo, and conflict indicators</div>
+      </div>
+    </div>
     <div class="impact-grid" id="impactStats"></div>
     <div style="background:var(--surface);border-top:1px solid var(--border)">
       <div class="impact-section">
@@ -2587,6 +2642,9 @@ function showAssetSubpage(id){
   const btn=document.querySelector(`#assetsSubnav .forces-subnav-btn[onclick*="'${id}'"]`);
   if(btn) btn.classList.add('active');
   document.getElementById('panel-assets').scrollTo({top:0,behavior:'smooth'});
+  // Lazy-render expensive panels
+  if(id==='blastcalc'){initBlastTargets();renderBlastCalc()}
+  if(id==='threatnet') setTimeout(renderThreatNetwork,100);
 }
 
 function showImpactSubpage(id){
@@ -5618,6 +5676,350 @@ document.addEventListener('keydown',e=>{
   if(e.key==='v'||e.key==='V') toggleNightVision();
   if(e.key==='m'||e.key==='M'){alertSoundEnabled=!alertSoundEnabled;playAlertTone('click')}
 });
+
+// ===== NUCLEAR BLAST RADIUS CALCULATOR =====
+const BLAST_TARGETS_IRAN=[
+  {name:'Tehran (capital)',pop:'9.5M',lat:35.69,lon:51.39},
+  {name:'Natanz (nuclear)',pop:'Staff',lat:33.72,lon:51.72},
+  {name:'Fordow (nuclear)',pop:'Staff',lat:34.88,lon:51.58},
+  {name:'Isfahan (nuclear)',pop:'2.2M',lat:32.65,lon:51.68},
+  {name:'Bushehr (reactor)',pop:'270K',lat:28.83,lon:50.83},
+  {name:'Bandar Abbas (naval)',pop:'530K',lat:27.19,lon:56.28},
+  {name:'Kharg Island (oil)',pop:'Staff',lat:29.23,lon:50.32},
+];
+const BLAST_TARGETS_UKRAINE=[
+  {name:'Kyiv (capital)',pop:'3.0M',lat:50.45,lon:30.52},
+  {name:'Zaporizhzhia NPP',pop:'Staff',lat:47.51,lon:34.58},
+  {name:'Kharkiv',pop:'1.4M',lat:49.99,lon:36.23},
+  {name:'Odesa (port)',pop:'1.0M',lat:46.47,lon:30.74},
+  {name:'Sevastopol (naval)',pop:'510K',lat:44.60,lon:33.53},
+  {name:'Dnipro',pop:'980K',lat:48.46,lon:35.04},
+  {name:'Crimean Bridge',pop:'N/A',lat:45.30,lon:36.57},
+];
+
+function initBlastTargets(){
+  const sel=document.getElementById('blastTarget');
+  if(!sel) return;
+  const targets=currentTheater.id==='ukraine'?BLAST_TARGETS_UKRAINE:BLAST_TARGETS_IRAN;
+  sel.innerHTML=targets.map((t,i)=>`<option value="${i}">${t.name} (pop: ${t.pop})</option>`).join('');
+}
+function renderBlastCalc(){
+  const yieldKt=parseFloat(document.getElementById('blastYield').value);
+  const targetIdx=parseInt(document.getElementById('blastTarget').value)||0;
+  const burstType=document.getElementById('blastType').value;
+  const targets=currentTheater.id==='ukraine'?BLAST_TARGETS_UKRAINE:BLAST_TARGETS_IRAN;
+  const target=targets[targetIdx];
+
+  // Simplified Glasstone & Dolan scaling formulas (radius in km)
+  const s=Math.pow(yieldKt,1/3); // cube root scaling
+  const fireball=0.066*s; // fireball radius
+  const psi20=0.11*s*(burstType==='air'?1.2:1); // 20 psi (heavy damage)
+  const psi5=0.33*s*(burstType==='air'?1.3:1);  // 5 psi (moderate damage)
+  const psi1=1.0*s*(burstType==='air'?1.4:1);   // 1 psi (light damage/windows)
+  const thermal3=0.87*Math.pow(yieldKt,0.41);    // 3rd degree burns
+  const radiation500=1.15*Math.pow(yieldKt,0.19); // 500 rem (lethal)
+  const fallout=burstType==='ground'?(2.7*Math.pow(yieldKt,0.4)):0;
+
+  // Casualty estimates (very rough — based on population density assumptions)
+  const popDensity=target.pop==='Staff'||target.pop==='N/A'?100:parseInt(target.pop.replace(/[^0-9]/g,''))*1000/(Math.PI*25);
+  const fatal=Math.round(Math.PI*psi20*psi20*popDensity);
+  const injured=Math.round(Math.PI*(psi5*psi5-psi20*psi20)*popDensity*0.5);
+
+  const el=document.getElementById('blastResults');
+  if(!el) return;
+
+  const RINGS=[
+    {label:'Fireball',r:fireball,color:'#ff4444',desc:'Everything vaporized'},
+    {label:'Heavy Blast (20 psi)',r:psi20,color:'#ff8800',desc:'Reinforced concrete destroyed'},
+    {label:'Moderate Blast (5 psi)',r:psi5,color:'#ffcc00',desc:'Most buildings destroyed'},
+    {label:'Light Blast (1 psi)',r:psi1,color:'#88ff88',desc:'Windows shattered, light damage'},
+    {label:'Thermal (3rd° burns)',r:thermal3,color:'#ff66aa',desc:'Exposed skin receives 3rd degree burns'},
+    {label:'Lethal Radiation (500 rem)',r:radiation500,color:'#aa66ff',desc:'50% fatality within weeks'},
+  ];
+  if(fallout>0) RINGS.push({label:'Fallout Zone',r:fallout,color:'#ff44ff',desc:'Lethal fallout downwind'});
+
+  const maxR=Math.max(...RINGS.map(r=>r.r));
+  const scale=150/maxR; // px per km
+
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start">
+      <div style="position:relative;width:340px;height:340px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center">
+        ${RINGS.slice().reverse().map(r=>{
+          const size=Math.max(4,r.r*scale*2);
+          return `<div style="position:absolute;width:${size}px;height:${size}px;border-radius:50%;border:2px solid ${r.color};background:${r.color}22;"></div>`;
+        }).join('')}
+        <div style="position:absolute;width:6px;height:6px;background:white;border-radius:50%;z-index:5"></div>
+        <div style="position:absolute;bottom:8px;right:8px;font-family:var(--mono);font-size:.45rem;color:var(--text3)">
+          ${target.name} · ${yieldKt} kt ${burstType}
+        </div>
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--red);margin-bottom:12px">
+          ${yieldKt} kt ${burstType==='air'?'AIRBURST':'GROUND BURST'} — ${target.name}
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.55rem;margin-bottom:16px">
+          <thead><tr style="border-bottom:2px solid var(--border);text-align:left;color:var(--text3);font-size:.45rem;text-transform:uppercase">
+            <th style="padding:6px 4px">Effect</th><th style="padding:6px 4px">Radius</th><th style="padding:6px 4px">Area</th><th style="padding:6px 4px">Description</th>
+          </tr></thead>
+          <tbody>${RINGS.map(r=>`
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:6px 4px"><span style="color:${r.color}">●</span> ${r.label}</td>
+              <td style="padding:6px 4px;color:var(--text);font-weight:700">${r.r<1?(r.r*1000).toFixed(0)+'m':r.r.toFixed(2)+' km'}</td>
+              <td style="padding:6px 4px;color:var(--text2)">${(Math.PI*r.r*r.r).toFixed(2)} km²</td>
+              <td style="padding:6px 4px;color:var(--text3)">${r.desc}</td>
+            </tr>
+          `).join('')}</tbody>
+        </table>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+          <div style="background:var(--red-dim);border:1px solid var(--red);border-radius:4px;padding:10px;text-align:center">
+            <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">EST. FATALITIES</div>
+            <div style="font-family:var(--mono);font-size:1.2rem;font-weight:700;color:var(--red)">${fatal>1000000?(fatal/1000000).toFixed(1)+'M':fatal>1000?(fatal/1000).toFixed(0)+'K':fatal}</div>
+          </div>
+          <div style="background:var(--orange-dim);border:1px solid var(--orange);border-radius:4px;padding:10px;text-align:center">
+            <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">EST. INJURIES</div>
+            <div style="font-family:var(--mono);font-size:1.2rem;font-weight:700;color:var(--orange)">${injured>1000000?(injured/1000000).toFixed(1)+'M':injured>1000?(injured/1000).toFixed(0)+'K':injured}</div>
+          </div>
+        </div>
+        <div style="font-family:var(--mono);font-size:.45rem;color:var(--text3);line-height:1.5">
+          ⚠ These are rough estimates using simplified Glasstone & Dolan scaling laws.<br>
+          Actual effects vary by terrain, weather, construction, and population distribution.<br>
+          Based on: Y^(1/3) cube-root scaling · ${burstType==='air'?'Optimized airburst altitude':'Surface detonation with fallout'}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ===== THREAT NETWORK GRAPH (Canvas) =====
+function renderThreatNetwork(){
+  const canvas=document.getElementById('threatNetCanvas');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const rect=canvas.parentElement.getBoundingClientRect();
+  canvas.width=rect.width;
+  canvas.height=Math.max(500,rect.height);
+  const W=canvas.width,H=canvas.height;
+
+  const isUkraine=currentTheater.id==='ukraine';
+  // Define nodes with categories
+  const nodes=isUkraine?[
+    {id:'ua',label:'Ukraine',cat:'state',x:W*.4,y:H*.3,r:20,color:'#4488ff'},
+    {id:'ru',label:'Russia',cat:'state',x:W*.6,y:H*.3,r:20,color:'#ff4444'},
+    {id:'nato',label:'NATO',cat:'alliance',x:W*.2,y:H*.2,r:16,color:'#4488ff'},
+    {id:'eu',label:'EU',cat:'alliance',x:W*.15,y:H*.45,r:14,color:'#4488ff'},
+    {id:'zaf',label:'Zelensky',cat:'leader',x:W*.35,y:H*.15,r:12,color:'#88bbff'},
+    {id:'putin',label:'Putin',cat:'leader',x:W*.65,y:H*.15,r:12,color:'#ff8888'},
+    {id:'ukr_army',label:'UAF Ground',cat:'military',x:W*.3,y:H*.45,r:14,color:'#4488ff'},
+    {id:'ukr_af',label:'UAF Air Force',cat:'military',x:W*.25,y:H*.55,r:12,color:'#4488ff'},
+    {id:'ru_army',label:'Russian Army',cat:'military',x:W*.7,y:H*.45,r:14,color:'#ff4444'},
+    {id:'wagner',label:'Wagner/Africa',cat:'military',x:W*.8,y:H*.35,r:12,color:'#ff8888'},
+    {id:'ru_navy',label:'Black Sea Fleet',cat:'military',x:W*.75,y:H*.55,r:12,color:'#ff4444'},
+    {id:'china',label:'China',cat:'state',x:W*.85,y:H*.2,r:14,color:'#ffaa00'},
+    {id:'india',label:'India',cat:'state',x:W*.85,y:H*.65,r:12,color:'#ffaa00'},
+    {id:'himars',label:'HIMARS',cat:'weapon',x:W*.2,y:H*.65,r:10,color:'#88ff88'},
+    {id:'patriot',label:'Patriot',cat:'weapon',x:W*.15,y:H*.7,r:10,color:'#88ff88'},
+    {id:'f16',label:'F-16s',cat:'weapon',x:W*.3,y:H*.65,r:10,color:'#88ff88'},
+    {id:'shahed',label:'Shahed Drones',cat:'weapon',x:W*.65,y:H*.65,r:10,color:'#ff8888'},
+    {id:'kalibr',label:'Kalibr Missiles',cat:'weapon',x:W*.8,y:H*.6,r:10,color:'#ff8888'},
+    {id:'grain',label:'Grain Corridor',cat:'economic',x:W*.5,y:H*.7,r:10,color:'#ffcc00'},
+    {id:'energy',label:'Energy Grid',cat:'infra',x:W*.4,y:H*.8,r:10,color:'#ffcc00'},
+    {id:'npp',label:'Zaporizhzhia NPP',cat:'nuclear',x:W*.55,y:H*.8,r:12,color:'#ff44ff'},
+  ]:[
+    {id:'us',label:'United States',cat:'state',x:W*.3,y:H*.2,r:20,color:'#4488ff'},
+    {id:'iran',label:'Iran',cat:'state',x:W*.7,y:H*.2,r:20,color:'#ff4444'},
+    {id:'israel',label:'Israel',cat:'state',x:W*.25,y:H*.4,r:16,color:'#4488ff'},
+    {id:'irgc',label:'IRGC',cat:'military',x:W*.65,y:H*.4,r:16,color:'#ff4444'},
+    {id:'centcom',label:'CENTCOM',cat:'military',x:W*.2,y:H*.55,r:14,color:'#4488ff'},
+    {id:'navy',label:'US 5th Fleet',cat:'military',x:W*.15,y:H*.4,r:14,color:'#4488ff'},
+    {id:'hezbollah',label:'Hezbollah',cat:'proxy',x:W*.55,y:H*.55,r:14,color:'#ff8888'},
+    {id:'houthi',label:'Houthis',cat:'proxy',x:W*.6,y:H*.7,r:12,color:'#ff8888'},
+    {id:'pmu',label:'Iraqi PMF',cat:'proxy',x:W*.5,y:H*.45,r:12,color:'#ff8888'},
+    {id:'saudi',label:'Saudi Arabia',cat:'state',x:W*.4,y:H*.65,r:14,color:'#ffaa00'},
+    {id:'uae',label:'UAE',cat:'state',x:W*.35,y:H*.75,r:12,color:'#ffaa00'},
+    {id:'china',label:'China',cat:'state',x:W*.85,y:H*.3,r:14,color:'#ffaa00'},
+    {id:'russia',label:'Russia',cat:'state',x:W*.85,y:H*.5,r:14,color:'#ffaa00'},
+    {id:'natanz',label:'Natanz',cat:'nuclear',x:W*.75,y:H*.6,r:10,color:'#ff44ff'},
+    {id:'fordow',label:'Fordow',cat:'nuclear',x:W*.8,y:H*.7,r:10,color:'#ff44ff'},
+    {id:'hormuz',label:'Str. of Hormuz',cat:'choke',x:W*.5,y:H*.8,r:12,color:'#ffcc00'},
+    {id:'thaad',label:'THAAD',cat:'weapon',x:W*.3,y:H*.55,r:10,color:'#88ff88'},
+    {id:'shahab',label:'Shahab-3',cat:'weapon',x:W*.75,y:H*.45,r:10,color:'#ff8888'},
+    {id:'carrier',label:'Carrier Groups',cat:'military',x:W*.1,y:H*.65,r:12,color:'#4488ff'},
+  ];
+
+  const edges=isUkraine?[
+    ['ua','zaf'],['ru','putin'],['ua','ukr_army'],['ua','ukr_af'],['ru','ru_army'],['ru','wagner'],['ru','ru_navy'],
+    ['nato','ua'],['eu','ua'],['nato','himars'],['nato','patriot'],['nato','f16'],
+    ['ukr_army','himars'],['ukr_af','f16'],['ukr_army','patriot'],
+    ['ru_army','shahed'],['ru_navy','kalibr'],['china','ru'],['india','ru'],
+    ['ua','grain'],['ua','energy'],['ua','npp'],['ru_army','npp'],['ru','shahed'],
+  ]:[
+    ['us','centcom'],['us','navy'],['us','israel'],['iran','irgc'],
+    ['irgc','hezbollah'],['irgc','houthi'],['irgc','pmu'],
+    ['centcom','thaad'],['navy','carrier'],['israel','us'],
+    ['iran','natanz'],['iran','fordow'],['iran','shahab'],['irgc','shahab'],
+    ['saudi','us'],['uae','us'],['china','iran'],['russia','iran'],
+    ['houthi','hormuz'],['navy','hormuz'],['iran','hormuz'],
+  ];
+
+  // Simple physics simulation
+  let dragging=null,dragOff={x:0,y:0};
+  const vx=nodes.map(()=>0),vy=nodes.map(()=>0);
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // Draw edges
+    ctx.lineWidth=1;
+    for(const[a,b] of edges){
+      const na=nodes.find(n=>n.id===a),nb=nodes.find(n=>n.id===b);
+      if(!na||!nb) continue;
+      ctx.strokeStyle='rgba(100,100,100,0.3)';
+      ctx.beginPath();ctx.moveTo(na.x,na.y);ctx.lineTo(nb.x,nb.y);ctx.stroke();
+    }
+    // Draw nodes
+    for(const n of nodes){
+      ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+      ctx.fillStyle=n.color+'44';ctx.fill();
+      ctx.strokeStyle=n.color;ctx.lineWidth=2;ctx.stroke();
+      ctx.fillStyle=n.color;ctx.font=`bold ${Math.max(9,n.r*.7)}px monospace`;
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(n.label,n.x,n.y+n.r+10);
+    }
+  }
+
+  // Apply simple force-directed layout
+  function simulate(){
+    for(let iter=0;iter<50;iter++){
+      // Repulsion between all nodes
+      for(let i=0;i<nodes.length;i++){
+        for(let j=i+1;j<nodes.length;j++){
+          let dx=nodes[j].x-nodes[i].x,dy=nodes[j].y-nodes[i].y;
+          let d=Math.sqrt(dx*dx+dy*dy)||1;
+          if(d<80){
+            const f=200/d;
+            vx[i]-=dx/d*f*.05;vy[i]-=dy/d*f*.05;
+            vx[j]+=dx/d*f*.05;vy[j]+=dy/d*f*.05;
+          }
+        }
+      }
+      // Attraction along edges
+      for(const[a,b] of edges){
+        const i=nodes.findIndex(n=>n.id===a),j=nodes.findIndex(n=>n.id===b);
+        if(i<0||j<0) continue;
+        let dx=nodes[j].x-nodes[i].x,dy=nodes[j].y-nodes[i].y;
+        let d=Math.sqrt(dx*dx+dy*dy)||1;
+        if(d>120){
+          const f=(d-120)*.002;
+          vx[i]+=dx/d*f;vy[i]+=dy/d*f;
+          vx[j]-=dx/d*f;vy[j]-=dy/d*f;
+        }
+      }
+      // Apply velocities with damping
+      for(let i=0;i<nodes.length;i++){
+        if(nodes[i]===dragging) continue;
+        nodes[i].x+=vx[i];nodes[i].y+=vy[i];
+        nodes[i].x=Math.max(30,Math.min(W-30,nodes[i].x));
+        nodes[i].y=Math.max(30,Math.min(H-30,nodes[i].y));
+        vx[i]*=.9;vy[i]*=.9;
+      }
+    }
+    draw();
+  }
+
+  simulate();
+
+  // Mouse drag interaction
+  canvas.addEventListener('mousedown',e=>{
+    const rect=canvas.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(canvas.width/rect.width);
+    const my=(e.clientY-rect.top)*(canvas.height/rect.height);
+    for(const n of nodes){
+      if(Math.hypot(n.x-mx,n.y-my)<n.r+5){
+        dragging=n;dragOff={x:n.x-mx,y:n.y-my};break;
+      }
+    }
+  });
+  canvas.addEventListener('mousemove',e=>{
+    if(!dragging) return;
+    const rect=canvas.getBoundingClientRect();
+    dragging.x=(e.clientX-rect.left)*(canvas.width/rect.width)+dragOff.x;
+    dragging.y=(e.clientY-rect.top)*(canvas.height/rect.height)+dragOff.y;
+    draw();
+  });
+  canvas.addEventListener('mouseup',()=>{dragging=null});
+  canvas.addEventListener('mouseleave',()=>{dragging=null});
+}
+
+// ===== THREAT CLOCK (Canvas) =====
+function updateThreatClock(){
+  const canvas=document.getElementById('threatClockCanvas');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const w=120,h=120,cx=w/2,cy=h/2,r=50;
+
+  // Get threat level from escalation gauge
+  const fill=document.getElementById('escalationFill');
+  const width=fill?parseFloat(fill.style.width)||50:50;
+  const threatPct=width/100; // 0-1
+
+  ctx.clearRect(0,0,w,h);
+
+  // Clock face
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fillStyle='rgba(13,17,23,0.8)';ctx.fill();
+  ctx.strokeStyle='rgba(100,100,100,0.4)';ctx.lineWidth=2;ctx.stroke();
+
+  // Hour markers
+  for(let i=0;i<12;i++){
+    const a=i*Math.PI/6-Math.PI/2;
+    const x1=cx+Math.cos(a)*(r-8),y1=cy+Math.sin(a)*(r-8);
+    const x2=cx+Math.cos(a)*(r-3),y2=cy+Math.sin(a)*(r-3);
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);
+    ctx.strokeStyle=i===0?'#ff4444':'rgba(150,150,150,0.5)';ctx.lineWidth=i===0?2:1;ctx.stroke();
+  }
+
+  // "Midnight" label at top
+  ctx.fillStyle='#ff4444';ctx.font='bold 7px monospace';ctx.textAlign='center';
+  ctx.fillText('MIDNIGHT',cx,cy-r+14);
+
+  // Threat hand — points proportionally around the clock
+  // 0% threat = 6 o'clock (safe), 100% = 12 o'clock (midnight/critical)
+  const angle=(1-threatPct)*Math.PI-Math.PI/2; // maps 0->6 o'clock, 1->12 o'clock
+  const handLen=r-15;
+  const hx=cx+Math.cos(angle)*handLen;
+  const hy=cy+Math.sin(angle)*handLen;
+
+  // Hand glow
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(hx,hy);
+  ctx.strokeStyle=threatPct>0.7?'#ff4444':threatPct>0.4?'#ff8800':'#44ff44';
+  ctx.lineWidth=3;ctx.lineCap='round';ctx.stroke();
+  ctx.lineWidth=1;ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.stroke();
+
+  // Center dot
+  ctx.beginPath();ctx.arc(cx,cy,4,0,Math.PI*2);
+  ctx.fillStyle=threatPct>0.7?'#ff4444':'#888';ctx.fill();
+
+  // Minutes to midnight
+  const minutes=Math.round((1-threatPct)*720); // 12 hours = 720 min
+  const timeStr=minutes>60?`${Math.floor(minutes/60)}h ${minutes%60}m`:`${minutes}m`;
+
+  const label=document.getElementById('threatClockLabel');
+  if(label){
+    const phase=threatPct>0.8?'CRITICAL':threatPct>0.6?'ELEVATED':threatPct>0.4?'GUARDED':threatPct>0.2?'LOW':'MINIMAL';
+    label.innerHTML=`<span style="color:${threatPct>0.7?'var(--red)':threatPct>0.4?'var(--orange)':'var(--green)'}">
+      ${timeStr} to midnight · ${phase}</span>`;
+  }
+}
+
+// Initialize blast targets on theater switch
+const _origSwitchTheaterP9=switchTheater;
+switchTheater=function(theaterId){
+  _origSwitchTheaterP9(theaterId);
+  initBlastTargets();
+};
+initBlastTargets();
+
+// Update threat clock periodically
+setInterval(updateThreatClock,5000);
+setTimeout(updateThreatClock,2000);
 
 // Auto-refresh: news every 5min, videos every 30min, OSINT every 20min (all CDN-cached server-side)
 setInterval(fetchNews,300000);
