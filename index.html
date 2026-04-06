@@ -969,8 +969,8 @@
 <div class="panel" id="panel-airtraffic">
   <div class="full-frame">
     <div class="section-head">
-      <span>✈ AIR TRAFFIC TRACKING</span>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span id="airTrafficTitle">✈ AIR TRAFFIC TRACKING</span>
+      <div id="airTrafficButtons" style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=26.5&lon=53.6&zoom=6.0&hideSideBar')" title="Unfiltered - shows military aircraft">ADS-B Persian Gulf</button>
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=32.08&lon=53.69&zoom=5.0&hideSideBar')">ADS-B Iran</button>
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=31.77&lon=35.22&zoom=7.0&hideSideBar')">ADS-B Israel</button>
@@ -1428,6 +1428,33 @@ function switchTheater(theaterId){
   // Re-render forces/assets if theater has changed
   if(theaterId==='ukraine') renderUkraineForces();
   else renderForcesPanel();
+
+  // Update air traffic buttons
+  const airBtns=document.getElementById('airTrafficButtons');
+  if(airBtns){
+    if(theaterId==='ukraine'){
+      airBtns.innerHTML=`
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=48.5&lon=35.0&zoom=6.0&hideSideBar')">ADS-B Ukraine</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=50.45&lon=30.52&zoom=8.0&hideSideBar')">ADS-B Kyiv</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=44.0&lon=34.0&zoom=7.0&hideSideBar')">ADS-B Crimea</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=54.0&lon=27.0&zoom=5.0&hideSideBar')">ADS-B Poland/Baltics</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=44.0&lon=26.0&zoom=6.0&hideSideBar')">ADS-B Romania</button>
+        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/48.5,35.0/6','_blank')">FR24 Ukraine ↗</button>
+        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/54.0,20.0/5','_blank')">FR24 Poland/Baltics ↗</button>
+        <button class="overlay-btn" onclick="window.open('https://globe.adsbexchange.com/?lat=48.5&lon=35.0&zoom=6.0','_blank')">ADS-B Exchange ↗</button>`;
+    }else{
+      airBtns.innerHTML=`
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=26.5&lon=53.6&zoom=6.0&hideSideBar')">ADS-B Persian Gulf</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=32.08&lon=53.69&zoom=5.0&hideSideBar')">ADS-B Iran</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=31.77&lon=35.22&zoom=7.0&hideSideBar')">ADS-B Israel</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=14.5&lon=42.5&zoom=6.0&hideSideBar')">ADS-B Red Sea</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=29.0&lon=48.0&zoom=7.0&hideSideBar')">ADS-B Kuwait/Iraq</button>
+        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/26.51,53.58/6','_blank')">FR24 Persian Gulf ↗</button>
+        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/32.08,53.69/5','_blank')">FR24 Iran ↗</button>
+        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/31.77,35.22/7','_blank')">FR24 Israel ↗</button>
+        <button class="overlay-btn" onclick="window.open('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0','_blank')">ADS-B Exchange ↗</button>`;
+    }
+  }
 
   // Update war map title
   const warmapTitle=document.getElementById('warmapTitle');
