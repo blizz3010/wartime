@@ -1225,8 +1225,12 @@
     <button class="forces-subnav-btn active" onclick="showImpactSubpage('overview')">◈ Overview</button>
     <button class="forces-subnav-btn" onclick="showImpactSubpage('infrastructure')">🏗 Infrastructure</button>
     <button class="forces-subnav-btn" onclick="showImpactSubpage('timeline')">📅 Timeline</button>
+    <button class="forces-subnav-btn" onclick="showImpactSubpage('casualties')">💀 Casualties</button>
+    <button class="forces-subnav-btn" onclick="showImpactSubpage('sanctions')">🚫 Sanctions</button>
+    <button class="forces-subnav-btn" onclick="showImpactSubpage('equipment')">🔧 Equipment Losses</button>
     <button class="forces-subnav-btn" onclick="showImpactSubpage('cyber')">🖥 Cyber Warfare</button>
     <button class="forces-subnav-btn" onclick="showImpactSubpage('forecast')">📊 Forecast & Markets</button>
+    <button class="forces-subnav-btn" onclick="showImpactSubpage('brief')">📋 Daily Brief</button>
   </div>
 
   <!-- Impact Overview -->
@@ -1251,6 +1255,24 @@
   <div class="subpage" id="impact-page-timeline">
     <div class="section-head"><span>📅 KEY EVENTS TIMELINE</span></div>
     <div id="impactTimeline"></div>
+  </div>
+
+  <!-- Casualties & Humanitarian -->
+  <div class="subpage" id="impact-page-casualties">
+    <div class="section-head"><span>💀 CASUALTIES & HUMANITARIAN IMPACT</span><span class="badge">ESTIMATED</span></div>
+    <div id="casualtiesPanel"></div>
+  </div>
+
+  <!-- Sanctions Tracker -->
+  <div class="subpage" id="impact-page-sanctions">
+    <div class="section-head"><span>🚫 SANCTIONS & ECONOMIC WARFARE</span></div>
+    <div id="sanctionsPanel"></div>
+  </div>
+
+  <!-- Equipment Losses -->
+  <div class="subpage" id="impact-page-equipment">
+    <div class="section-head"><span>🔧 EQUIPMENT LOSSES LEDGER</span><span class="badge">ESTIMATED</span></div>
+    <div id="equipmentPanel"></div>
   </div>
 
   <!-- Cyber Warfare -->
@@ -1292,6 +1314,12 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Daily Brief -->
+  <div class="subpage" id="impact-page-brief">
+    <div class="section-head"><span>📋 DAILY SITUATION BRIEF</span><span class="badge">AUTO-GENERATED</span></div>
+    <div id="dailyBriefPanel"></div>
   </div>
 
   <div style="padding:12px 20px;font-family:var(--mono);font-size:.55rem;color:var(--text3);border-top:1px solid var(--border)">
@@ -3555,6 +3583,11 @@ function renderImpactDashboard(){
 
   // Forecast & Markets
   renderForecastPanel();
+  // New Phase 8C panels
+  renderCasualtiesPanel();
+  renderSanctionsPanel();
+  renderEquipmentPanel();
+  renderDailyBrief();
 
   // Infrastructure Detail page (expanded view)
   const infraDetailEl=document.getElementById('impactInfraDetail');
@@ -3804,6 +3837,282 @@ function renderForecastPanel(){
       </div>
     `).join('');
   }
+}
+
+// ===== CASUALTIES & HUMANITARIAN PANEL =====
+function renderCasualtiesPanel(){
+  const isUkraine=currentTheater.id==='ukraine';
+  const data=isUkraine?{
+    title:'UKRAINE-RUSSIA WAR',
+    sides:[
+      {name:'Ukraine',flag:'🇺🇦',military:'~80,000-100,000+',civilian:'~11,000+',wounded:'~200,000+',displaced:'6.5M internally',refugees:'6.3M abroad',color:'var(--blue)'},
+      {name:'Russia',flag:'🇷🇺',military:'~150,000-200,000+',civilian:'N/A',wounded:'~300,000+',displaced:'—',refugees:'—',color:'var(--red)'},
+    ],
+    humanitarian:[
+      {label:'Children affected',value:'7.5M+',icon:'👶'},
+      {label:'Schools damaged/destroyed',value:'3,800+',icon:'🏫'},
+      {label:'Medical facilities hit',value:'1,200+',icon:'🏥'},
+      {label:'Homes destroyed',value:'2M+',icon:'🏠'},
+      {label:'Agricultural land mined',value:'174,000 km²',icon:'🌾'},
+      {label:'Cluster munition contamination',value:'Extensive',icon:'💣'},
+    ],
+    sources:'UN OHCHR, UNHCR, Ukrainian MOD, UK MOD, Mediazona, ACLED'
+  }:{
+    title:'US-IRAN CONFLICT',
+    sides:[
+      {name:'Iran/Axis',flag:'🇮🇷',military:'~8,500-12,000',civilian:'~2,000-4,000',wounded:'~25,000+',displaced:'1.2M',refugees:'850K+',color:'var(--red)'},
+      {name:'US/Coalition',flag:'🇺🇸',military:'~45-85',civilian:'N/A',wounded:'~200+',displaced:'—',refugees:'—',color:'var(--blue)'},
+    ],
+    humanitarian:[
+      {label:'Medical supply shortage',value:'Critical',icon:'💊'},
+      {label:'Water infrastructure damaged',value:'40%+',icon:'💧'},
+      {label:'Fuel shortage',value:'Severe',icon:'⛽'},
+      {label:'Food insecurity',value:'12M+ affected',icon:'🍞'},
+      {label:'Power outages',value:'60%+ of grid',icon:'⚡'},
+      {label:'Internet disruption',value:'~96% down',icon:'📡'},
+    ],
+    sources:'ICRC, WHO, UNRWA, CENTCOM, Iranian Red Crescent, Reuters, AP'
+  };
+
+  const el=document.getElementById('casualtiesPanel');
+  if(!el) return;
+  el.innerHTML=`
+    <div style="padding:16px 20px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        ${data.sides.map(s=>`
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:16px">
+            <div style="font-family:var(--mono);font-size:.8rem;font-weight:700;color:${s.color};margin-bottom:12px">${s.flag} ${s.name}</div>
+            <div style="display:grid;gap:8px">
+              <div style="display:flex;justify-content:space-between"><span style="font-family:var(--mono);font-size:.6rem;color:var(--text3)">Military KIA</span><span style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--red)">${s.military}</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="font-family:var(--mono);font-size:.6rem;color:var(--text3)">Civilian Deaths</span><span style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--orange)">${s.civilian}</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="font-family:var(--mono);font-size:.6rem;color:var(--text3)">Wounded</span><span style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--orange)">${s.wounded}</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="font-family:var(--mono);font-size:.6rem;color:var(--text3)">Displaced</span><span style="font-family:var(--mono);font-size:.7rem;color:var(--text2)">${s.displaced}</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="font-family:var(--mono);font-size:.6rem;color:var(--text3)">Refugees</span><span style="font-family:var(--mono);font-size:.7rem;color:var(--text2)">${s.refugees}</span></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <h3 style="font-family:var(--mono);font-size:.7rem;color:var(--text);margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:8px">HUMANITARIAN CRISIS INDICATORS</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
+        ${data.humanitarian.map(h=>`
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px;display:flex;align-items:center;gap:10px">
+            <span style="font-size:1.2rem">${h.icon}</span>
+            <div>
+              <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3)">${h.label}</div>
+              <div style="font-family:var(--mono);font-size:.75rem;font-weight:700;color:var(--orange)">${h.value}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);margin-top:16px">Sources: ${data.sources} · All figures are estimates from open-source reporting</div>
+    </div>`;
+}
+
+// ===== SANCTIONS TRACKER =====
+function renderSanctionsPanel(){
+  const isUkraine=currentTheater.id==='ukraine';
+  const sanctions=isUkraine?[
+    {entity:'Russia',type:'Financial',detail:'SWIFT disconnection (major banks), Central Bank reserves frozen (~$300B)',severity:'critical',date:'Feb 2022+'},
+    {entity:'Russia',type:'Export Controls',detail:'Semiconductor, advanced tech, dual-use goods export ban by US/EU/Japan/Korea',severity:'critical',date:'Mar 2022+'},
+    {entity:'Russia',type:'Energy',detail:'EU oil import ban, price cap ($60/bbl), coal ban, LNG restrictions pending',severity:'high',date:'Dec 2022+'},
+    {entity:'Russia',type:'Oligarch Assets',detail:'$58B+ in yachts, real estate, bank accounts frozen across EU/US/UK',severity:'high',date:'Feb 2022+'},
+    {entity:'Russia',type:'Aviation',detail:'Airspace closures (EU/US/Canada/UK), aircraft leasing terminated, parts embargo',severity:'high',date:'Feb 2022+'},
+    {entity:'Belarus',type:'Financial',detail:'Sanctions mirroring Russia — SWIFT restrictions, trade embargo, regime sanctions',severity:'medium',date:'Mar 2022+'},
+    {entity:'Russia',type:'Diamond/Gold',detail:'Ban on Russian diamond and gold imports (G7)',severity:'medium',date:'2023+'},
+    {entity:'Third Parties',type:'Secondary',detail:'Sanctions evasion enforcement — Turkey, UAE, Central Asia under scrutiny',severity:'low',date:'2023+'},
+  ]:[
+    {entity:'Iran',type:'Nuclear',detail:'JCPOA-related sanctions reimposed — uranium enrichment, centrifuge manufacturing',severity:'critical',date:'Pre-conflict'},
+    {entity:'Iran',type:'Oil/Energy',detail:'Complete oil export embargo enforced by US Navy; secondary sanctions on buyers',severity:'critical',date:'Mar 2026+'},
+    {entity:'IRGC',type:'Financial',detail:'Total asset freeze; IRGC designated as FTO; all affiliated entities sanctioned',severity:'critical',date:'2019/reinforced'},
+    {entity:'Iran',type:'Shipping',detail:'Iranian tanker fleet sanctioned; insurance voided; port access denied globally',severity:'high',date:'Mar 2026+'},
+    {entity:'Iran',type:'Aviation',detail:'Complete aviation parts embargo; no-fly zones enforced over Iranian airspace',severity:'high',date:'Mar 2026+'},
+    {entity:'Hezbollah',type:'Financial',detail:'Global asset freeze; designation as terrorist org by EU (2024); banking cut off',severity:'high',date:'Ongoing'},
+    {entity:'Houthis',type:'Arms/Financial',detail:'FTO re-designation; maritime interdiction of weapons shipments',severity:'medium',date:'Jan 2024+'},
+    {entity:'China/India',type:'Secondary',detail:'Warnings on Iranian oil purchases; waivers revoked',severity:'low',date:'Mar 2026+'},
+  ];
+
+  const SEV_COLORS={critical:'var(--red)',high:'var(--orange)',medium:'var(--text2)',low:'var(--text3)'};
+  const el=document.getElementById('sanctionsPanel');
+  if(!el) return;
+  el.innerHTML=`
+    <div style="padding:16px 20px">
+      <table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.6rem">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border);text-align:left;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-size:.5rem">
+            <th style="padding:8px 4px">Entity</th><th style="padding:8px 4px">Type</th><th style="padding:8px 4px">Detail</th><th style="padding:8px 4px">Severity</th><th style="padding:8px 4px">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sanctions.map(s=>`
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px 4px;font-weight:700;color:var(--text);white-space:nowrap">${s.entity}</td>
+              <td style="padding:8px 4px;color:var(--text2);white-space:nowrap">${s.type}</td>
+              <td style="padding:8px 4px;color:var(--text2);line-height:1.4">${s.detail}</td>
+              <td style="padding:8px 4px"><span style="color:${SEV_COLORS[s.severity]};text-transform:uppercase;font-weight:700;font-size:.5rem">${s.severity}</span></td>
+              <td style="padding:8px 4px;color:var(--text3);white-space:nowrap">${s.date}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ===== EQUIPMENT LOSSES LEDGER =====
+function renderEquipmentPanel(){
+  const isUkraine=currentTheater.id==='ukraine';
+  const equipment=isUkraine?{
+    sides:[
+      {name:'Russia 🇷🇺',color:'var(--red)',losses:[
+        {type:'Main Battle Tanks',count:'3,600+',icon:'🛡'},
+        {type:'AFVs/IFVs',count:'7,200+',icon:'🚛'},
+        {type:'Artillery Systems',count:'2,400+',icon:'💥'},
+        {type:'MLRS',count:'1,100+',icon:'🚀'},
+        {type:'Aircraft (fixed-wing)',count:'370+',icon:'✈'},
+        {type:'Helicopters',count:'330+',icon:'🚁'},
+        {type:'UAVs',count:'18,000+',icon:'🤖'},
+        {type:'Naval Vessels',count:'28+',icon:'🚢'},
+        {type:'Air Defense Systems',count:'1,050+',icon:'📡'},
+        {type:'Trucks/Vehicles',count:'22,000+',icon:'🚐'},
+      ]},
+      {name:'Ukraine 🇺🇦',color:'var(--blue)',losses:[
+        {type:'Main Battle Tanks',count:'800+',icon:'🛡'},
+        {type:'AFVs/IFVs',count:'1,600+',icon:'🚛'},
+        {type:'Artillery Systems',count:'600+',icon:'💥'},
+        {type:'MLRS',count:'200+',icon:'🚀'},
+        {type:'Aircraft (fixed-wing)',count:'90+',icon:'✈'},
+        {type:'Helicopters',count:'40+',icon:'🚁'},
+        {type:'UAVs',count:'8,000+',icon:'🤖'},
+        {type:'Naval Vessels',count:'15+',icon:'🚢'},
+        {type:'Air Defense Systems',count:'300+',icon:'📡'},
+        {type:'Trucks/Vehicles',count:'6,000+',icon:'🚐'},
+      ]},
+    ],
+    source:'Oryx (visually confirmed), Ukrainian MOD, UK MOD Intelligence Updates'
+  }:{
+    sides:[
+      {name:'Iran/Axis 🇮🇷',color:'var(--red)',losses:[
+        {type:'Ballistic Missiles (expended)',count:'400+',icon:'🚀'},
+        {type:'Fighter Aircraft',count:'85+',icon:'✈'},
+        {type:'Air Defense Systems',count:'90%+ destroyed',icon:'📡'},
+        {type:'Naval Vessels',count:'18+',icon:'🚢'},
+        {type:'UAVs/Drones',count:'500+',icon:'🤖'},
+        {type:'Coastal Missile Batteries',count:'60%+ destroyed',icon:'💥'},
+        {type:'Military Bases Struck',count:'200+',icon:'🏗'},
+        {type:'Submarines',count:'3',icon:'🔱'},
+      ]},
+      {name:'US/Coalition 🇺🇸',color:'var(--blue)',losses:[
+        {type:'Aircraft',count:'2 (non-combat)',icon:'✈'},
+        {type:'UAVs',count:'8',icon:'🤖'},
+        {type:'Tomahawks (expended)',count:'400+',icon:'🚀'},
+        {type:'JASSM-ER (expended)',count:'200+',icon:'🚀'},
+        {type:'GBU-57 MOP (expended)',count:'20+',icon:'💣'},
+        {type:'Interceptors (expended)',count:'150+',icon:'🛡'},
+      ]},
+    ],
+    source:'CENTCOM, ISW, Janes, OSINT satellite imagery analysis'
+  };
+
+  const el=document.getElementById('equipmentPanel');
+  if(!el) return;
+  el.innerHTML=`
+    <div style="padding:16px 20px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        ${equipment.sides.map(s=>`
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:16px">
+            <div style="font-family:var(--mono);font-size:.8rem;font-weight:700;color:${s.color};margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:8px">${s.name}</div>
+            ${s.losses.map(l=>`
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--surface)">
+                <span style="font-family:var(--mono);font-size:.6rem;color:var(--text2)">${l.icon} ${l.type}</span>
+                <span style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:${s.color}">${l.count}</span>
+              </div>
+            `).join('')}
+          </div>
+        `).join('')}
+      </div>
+      <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);margin-top:16px">Sources: ${equipment.source} · Actual losses likely higher than confirmed figures</div>
+    </div>`;
+}
+
+// ===== DAILY SITUATION BRIEF =====
+function renderDailyBrief(){
+  const isUkraine=currentTheater.id==='ukraine';
+  const today=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  // Auto-generate brief from current news data
+  const cats=getNewsCategories();
+  const catCounts={};
+  for(const item of allFilteredNews){
+    const k=item.category?item.category.key:'other';
+    catCounts[k]=(catCounts[k]||0)+1;
+  }
+  const topCat=Object.entries(catCounts).sort((a,b)=>b[1]-a[1])[0];
+  const breaking=allFilteredNews.filter(i=>i.title.toLowerCase().includes('breaking')).length;
+  const total=allFilteredNews.length;
+  const flashItems=allFilteredNews.filter(i=>{const p=classifyPrecedence(i);return p.level==='flash'||p.level==='immediate';});
+
+  const el=document.getElementById('dailyBriefPanel');
+  if(!el) return;
+  el.innerHTML=`
+    <div style="padding:20px;font-family:var(--mono)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:2px solid var(--border);padding-bottom:12px">
+        <div>
+          <div style="font-size:.9rem;font-weight:700;color:var(--text)">${isUkraine?'UKRAINE-RUSSIA':'US-IRAN'} THEATER SITUATION BRIEF</div>
+          <div style="font-size:.6rem;color:var(--text3);margin-top:4px">${today} · AUTO-GENERATED FROM OPEN-SOURCE INTELLIGENCE</div>
+        </div>
+        <div style="font-size:.6rem;color:var(--red);font-weight:700">UNCLASSIFIED // FOUO</div>
+      </div>
+
+      <div style="margin-bottom:16px">
+        <div style="font-size:.7rem;font-weight:700;color:var(--orange);margin-bottom:8px">1. SITUATION OVERVIEW</div>
+        <div style="font-size:.6rem;color:var(--text2);line-height:1.6;padding-left:12px">
+          Currently tracking <b style="color:var(--text)">${total}</b> open-source reports across ${Object.keys(catCounts).length} categories.
+          ${breaking>0?`<span style="color:var(--red)"><b>${breaking}</b> BREAKING developments in the last refresh cycle.</span>`:'No active BREAKING alerts.'}
+          ${topCat?`Dominant reporting category: <b style="color:var(--text)">${(cats[topCat[0]]?.label||topCat[0]).replace(/[⚔⛨⚖⚓☢✚⛽⚡]\s?/g,'')}</b> (${topCat[1]} items).`:''}
+        </div>
+      </div>
+
+      ${flashItems.length>0?`
+      <div style="margin-bottom:16px">
+        <div style="font-size:.7rem;font-weight:700;color:var(--red);margin-bottom:8px">2. FLASH/IMMEDIATE PRIORITY ITEMS</div>
+        <div style="padding-left:12px">
+          ${flashItems.slice(0,5).map(i=>`
+            <div style="font-size:.6rem;color:var(--text);line-height:1.5;padding:4px 0;border-left:2px solid var(--red);padding-left:8px;margin-bottom:6px">
+              <span class="precedence-badge prec-${classifyPrecedence(i).level}" style="font-size:.45rem;margin-right:4px">${classifyPrecedence(i).label}</span>
+              ${escHtml(i.title)}
+              <span style="color:var(--text3);margin-left:4px">(${i.sourceName||'NEWS'} · ${timeAgo(new Date(i.pubDate))})</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>`:''}
+
+      <div style="margin-bottom:16px">
+        <div style="font-size:.7rem;font-weight:700;color:var(--blue);margin-bottom:8px">${flashItems.length>0?'3':'2'}. CATEGORY BREAKDOWN</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;padding-left:12px">
+          ${Object.entries(catCounts).sort((a,b)=>b[1]-a[1]).map(([k,n])=>{
+            const label=(cats[k]?.label||k).replace(/[⚔⛨⚖⚓☢✚⛽⚡]\s?/g,'');
+            return `<div style="font-size:.6rem;color:var(--text2);display:flex;justify-content:space-between;padding:4px 8px;background:var(--surface2);border-radius:3px">
+              <span>${label}</span><span style="font-weight:700;color:var(--text)">${n}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <div style="margin-bottom:16px">
+        <div style="font-size:.7rem;font-weight:700;color:var(--green);margin-bottom:8px">${flashItems.length>0?'4':'3'}. LATEST HEADLINES</div>
+        <div style="padding-left:12px">
+          ${allFilteredNews.slice(0,8).map((i,idx)=>`
+            <div style="font-size:.6rem;color:var(--text2);line-height:1.5;padding:3px 0">
+              <span style="color:var(--text3)">${idx+1}.</span> ${escHtml(i.title)}
+              <span style="color:var(--text3)">(${i.sourceName||'NEWS'})</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div style="border-top:1px solid var(--border);padding-top:12px;font-size:.5rem;color:var(--text3)">
+        CLASSIFICATION: UNCLASSIFIED // FOR OFFICIAL USE ONLY · AUTO-GENERATED · DO NOT DISTRIBUTE · Sources may include unverified open-source reporting
+      </div>
+    </div>`;
 }
 
 function computeDashboardScores(newsItems){
