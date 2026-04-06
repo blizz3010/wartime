@@ -1623,7 +1623,7 @@ let compactNewsView=false;
 // Fetch all news from server-side aggregator (single request, CDN-cached 5 min)
 async function fetchAllNews(){
   const theater=currentTheater?currentTheater.newsParam:'iran';
-  const res=await fetch('/api/news?theater='+theater);
+  const res=await fetch('/api/news?theater='+theater,{signal:AbortSignal.timeout(15000)});
   if(!res.ok) throw new Error('API returned '+res.status);
   return await res.json();
 }
@@ -1810,7 +1810,7 @@ function toggleNewsView(){
 }
 
 function stripHtml(html){
-  const d=document.createElement('div');d.innerHTML=html;return d.textContent||'';
+  return (html||'').replace(/<[^>]*>?/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#039;/g,"'");
 }
 
 // ===== VIDEO CLIPS (Server-side aggregation — CDN cached) =====
@@ -1987,7 +1987,7 @@ function formatDuration(sec){
   return m+':'+String(s).padStart(2,'0');
 }
 function escHtml(str){
-  const d=document.createElement('div');d.textContent=str||'';return d.innerHTML;
+  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function escAttr(str){
   return (str||'').replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -4730,7 +4730,6 @@ document.addEventListener('keydown',e=>{
       `\nDEFCON: ${s.defcon}`,
       `\nHormuz: ${s.hormuz}`
     );
-    alert(`SCORING DEBUG\n\nTheater: ${currentTheater.shortName}\nEscalation: ${sc.escalation} pts\nDe-escalation: ${sc.deescalation} pts\nMilitary: ${sc.military} pts\nNet: ${Math.round((sc.escalation||0)-(sc.deescalation||0)+(sc.military||0)*0.3)}\n\nThreat: ${s.threat}\nDEFCON: ${s.defcon}\nHormuz/Status: ${s.hormuz}`);
   }
   // ? = toggle keyboard shortcut hint
   if(e.key==='?'){

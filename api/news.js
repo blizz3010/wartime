@@ -77,9 +77,9 @@ function parseRSS(xml, sourceName) {
     const pubDate = (block.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/) || [])[1] || '';
     if (title.trim()) {
       items.push({
-        title: title.trim().replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#039;/g, "'"),
+        title: title.trim().replace(/<[^>]*>?/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#039;/g, "'"),
         link: link.trim(),
-        description: desc.trim().replace(/<[^>]+>/g, '').slice(0, 500),
+        description: desc.trim().replace(/<[^>]*>?/g, '').slice(0, 500),
         pubDate: pubDate.trim(),
         sourceName,
       });
@@ -135,6 +135,10 @@ export default async function handler(req, res) {
   try {
     // Determine theater from query param (default: iran)
     const theater = (req.query?.theater || 'iran').toLowerCase();
+    const VALID_THEATERS = ['iran', 'ukraine'];
+    if (!VALID_THEATERS.includes(theater)) {
+      return res.status(400).json({ error: 'Invalid theater parameter' });
+    }
     const feeds = theater === 'ukraine' ? RSS_FEEDS_UKRAINE : RSS_FEEDS_IRAN;
     const keywords = theater === 'ukraine' ? KEYWORDS_UKRAINE : KEYWORDS_IRAN;
 
@@ -170,7 +174,6 @@ export default async function handler(req, res) {
 
     // Cache on Vercel CDN for 5 min, serve stale for 10 min while revalidating
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
-    res.setHeader('Access-Control-Allow-Origin', '*');
     return res.status(200).json({
       items: allItems,
       feedCount,
@@ -179,6 +182,7 @@ export default async function handler(req, res) {
       fetchedAt: new Date().toISOString(),
     });
   } catch (err) {
-    return res.status(500).json({ error: 'Failed to aggregate feeds: ' + err.message });
+    console.error('news error:', err);
+    return res.status(500).json({ error: 'Failed to aggregate feeds' });
   }
 }

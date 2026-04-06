@@ -12,6 +12,10 @@ const MEMORY_CACHE_TTL = 300000; // 5 minutes
 
 module.exports = async (req, res) => {
   const theater = (req.query?.theater || 'iran').toLowerCase();
+  const VALID_THEATERS = ['iran', 'ukraine'];
+  if (!VALID_THEATERS.includes(theater)) {
+    return res.status(400).json({ error: 'Invalid theater parameter' });
+  }
   const cacheKey = theater;
 
   // Serve from memory cache if warm and fresh (per theater)
@@ -259,6 +263,7 @@ module.exports = async (req, res) => {
       res.setHeader('X-Cache', 'memory-stale');
       return res.status(200).json(memoryCache);
     }
-    res.status(500).json({ error: 'Failed to aggregate clips', detail: err.message });
+    console.error('clips error:', err);
+    res.status(500).json({ error: 'Failed to aggregate clips' });
   }
 };
