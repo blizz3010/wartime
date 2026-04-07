@@ -2834,23 +2834,30 @@ function renderForcesPanel(){
   const cmdEl=document.getElementById('commandStructure');
   const coalitionCmd=[
     {rank:'Commander-in-Chief',name:'President Trump',org:'White House / NCA',note:'National Command Authority',status:'active'},
-    {rank:'Secretary of Defense',name:'SecDef Pete Hegseth',org:'The Pentagon',note:'Authorized operations',status:'active'},
-    {rank:'CENTCOM Commander',name:'Gen. Michael E. Kurilla',org:'US CENTCOM — Tampa / Forward',note:'Theater combatant commander',status:'active'},
-    {rank:'NAVCENT / 5th Fleet',name:'Vice Adm. Brad Cooper',org:'NSA Bahrain',note:'Naval operations — 3 CSGs',status:'active'},
+    {rank:'Secretary of Defense',name:'SecDef Pete Hegseth',org:'The Pentagon',note:'Authorized Operation Epic Fury',status:'active'},
+    {rank:'CENTCOM Commander',name:'Adm. Brad Cooper',org:'US CENTCOM — Tampa / Forward',note:'Theater combatant commander',status:'active'},
+    {rank:'NAVCENT / 5th Fleet',name:'Vice Adm. George Wikoff',org:'NSA Bahrain',note:'Naval operations — 3 CSGs',status:'active'},
     {rank:'AFCENT / 9th Air Force',name:'Lt. Gen. Alex Grynkewich',org:'Al Udeid Air Base, Qatar',note:'Air campaign commander',status:'active'},
     {rank:'ARCENT / 3rd Army',name:'Lt. Gen. Patrick Frank',org:'Camp Arifjan, Kuwait',note:'Ground forces coordination',status:'active'},
-    {rank:'IDF Chief of Staff',name:'Maj. Gen. Eyal Zamir (acting)',org:'HaKirya, Tel Aviv',note:'Replaced Halevi (resigned Jan 2025)',status:'active'},
+    {rank:'IDF Chief of Staff',name:'Lt. Gen. Eyal Zamir',org:'HaKirya, Tel Aviv',note:'Replaced Halevi (resigned Jan 2025). In office since Mar 2025',status:'active'},
     {rank:'Mossad Director',name:'David Barnea',org:'Mossad HQ',note:'Covert ops & intelligence',status:'active'},
   ];
   const iranCmd=[
-    {rank:'Supreme Leader',name:'Ayatollah Ali Khamenei',org:'Location Unknown — Dispersed',note:'In hiding since Mar 5 strikes on Tehran',status:'unknown'},
-    {rank:'IRGC Commander',name:'MG Hossein Salami',org:'IRGC HQ — Dispersed',note:'IRGC HQ struck Mar 15. Whereabouts unconfirmed',status:'unknown'},
+    {rank:'Supreme Leader (former)',name:'Ayatollah Ali Khamenei',org:'Tehran — Supreme Leader Compound',note:'Killed in Israeli airstrike on compound — Feb 28, 2026',status:'kia'},
+    {rank:'Supreme Leader (successor)',name:'Mojtaba Khamenei',org:'Location Unknown',note:'Named successor by Assembly of Experts — Mar 7, 2026. In hiding',status:'unknown'},
+    {rank:'IRGC Commander',name:'MG Hossein Salami',org:'IRGC Headquarters',note:'Killed in Israeli opening strikes — Jun 13, 2025 (Twelve-Day War)',status:'kia'},
+    {rank:'IRGC Commander (successor)',name:'MG Mohammad Pakpour',org:'IRGC Headquarters, Tehran',note:'Replaced Salami. Killed in Feb 28, 2026 strikes on Tehran',status:'kia'},
     {rank:'IRGC-QF Commander',name:'BG Esmail Qaani',org:'Quds Force',note:'Killed in Israeli strike — Oct 2024',status:'kia'},
-    {rank:'IRGC Aerospace',name:'BG Amir Ali Hajizadeh',org:'IRGC Aerospace Force',note:'Killed in Israeli strike — Nov 26, 2024',status:'kia'},
-    {rank:'IRGCN Commander',name:'RADM Alireza Tangsiri',org:'IRGC Navy — Bandar Abbas',note:'Bandar Abbas struck Mar 14. Status unconfirmed',status:'unknown'},
-    {rank:'Artesh Commander',name:'MG Abdolrahim Mousavi',org:'Regular Armed Forces',note:'Assumed command continuity from Artesh backup HQ',status:'active'},
-    {rank:'IRIAF Commander',name:'BG Hamid Vahedi',org:'Air Force — Dispersed',note:'Air bases 60-80% degraded. ~40→12 operational aircraft',status:'active'},
-    {rank:'Basij Commander',name:'BG Gholamreza Soleimani',org:'Basij Militia',note:'Mobilizing 600K+ but C2 networks degraded',status:'active'},
+    {rank:'IRGC Aerospace',name:'BG Amir Ali Hajizadeh',org:'IRGC Aerospace Force',note:'Killed in Israeli opening strikes — Jun 13, 2025 (Twelve-Day War)',status:'kia'},
+    {rank:'IRGC Aerospace (successor)',name:'Seyyed Majid Mousavi',org:'IRGC Aerospace Force',note:'Replaced Hajizadeh. Killed in Feb 28, 2026 strikes on Tehran',status:'kia'},
+    {rank:'Defense Minister',name:'Aziz Nasirzadeh',org:'Ministry of Defence',note:'Killed in Feb 28, 2026 strikes on Tehran defense meeting',status:'kia'},
+    {rank:'Chief of Armed Forces',name:'MG Abdolrahim Mousavi',org:'General Staff',note:'Killed in Feb 28, 2026 strikes on Tehran',status:'kia'},
+    {rank:'Nat\'l Security Council',name:'Ali Shamkhani',org:'Supreme National Security Council',note:'Killed in Feb 28, 2026 strikes on Tehran',status:'kia'},
+    {rank:'IRGCN Commander',name:'RADM Alireza Tangsiri',org:'IRGC Navy — Bandar Abbas',note:'Killed in Israeli strike on Bandar Abbas — Mar 26, 2026',status:'kia'},
+    {rank:'IRGC Intelligence',name:'MG Majid Khademi',org:'IRGC Intelligence Organization',note:'Killed in US-Israeli airstrike — late Mar 2026',status:'kia'},
+    {rank:'Basij Commander',name:'BG Gholamreza Soleimani',org:'Basij Militia',note:'Killed — date unconfirmed. C2 networks degraded',status:'kia'},
+    {rank:'Nat\'l Security Chief',name:'Ali Larijani',org:'National Security Council',note:'Killed during US-Israeli strikes — 2026',status:'kia'},
+    {rank:'IRIAF Commander',name:'BG Bahman Behmard',org:'Air Force',note:'Replaced Vahedi (2025). Air bases 60-80% degraded. ~12 operational aircraft',status:'unknown'},
   ];
 
   cmdEl.innerHTML=`
@@ -2860,7 +2867,7 @@ function renderForcesPanel(){
           <span style="font-size:1.6rem">🇺🇸🇮🇱</span>
           <div>
             <div style="font-family:var(--mono);font-size:.85rem;font-weight:700;color:var(--blue);letter-spacing:1px">COALITION COMMAND</div>
-            <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">US Central Command + IDF · Joint Operations</div>
+            <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">US Central Command + IDF · Operation Epic Fury</div>
           </div>
         </div>
         ${coalitionCmd.map((c,i)=>{
@@ -2885,8 +2892,8 @@ function renderForcesPanel(){
         <div style="padding:16px 20px;background:rgba(35,158,59,0.06);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
           <span style="font-size:1.6rem">🇮🇷</span>
           <div>
-            <div style="font-family:var(--mono);font-size:.85rem;font-weight:700;color:var(--iran);letter-spacing:1px">IRANIAN COMMAND</div>
-            <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">Supreme Leader + IRGC + Artesh · Dual Command Structure</div>
+            <div style="font-family:var(--mono);font-size:.85rem;font-weight:700;color:var(--red);letter-spacing:1px">IRANIAN COMMAND — DECIMATED</div>
+            <div style="font-family:var(--mono);font-size:.5rem;color:var(--red)">~50 senior officials killed · Command structure collapsed</div>
           </div>
         </div>
         ${iranCmd.map((c,i)=>{
@@ -2910,7 +2917,7 @@ function renderForcesPanel(){
       </div>
     </div>
     <div style="padding:10px 20px;font-family:var(--mono);font-size:.45rem;color:var(--text3);background:var(--surface);border-top:1px solid var(--border)">
-      NOTE: Iran's command structure has been severely degraded. Two senior IRGC commanders (Hajizadeh, Qaani) were eliminated in Israeli strikes in late 2024, pre-dating the current conflict. IRGC HQ in Tehran was struck on Mar 15 with deep-penetration munitions. Supreme Leader Khamenei and IRGC Commander Salami have dispersed to unknown locations. C2 networks degraded by USCYBERCOM operations. Iran operates a dual command — IRGC reports to Supreme Leader, Artesh through defense ministry. With IRGC leadership decimated, operational command has fragmented.
+      NOTE: Iran's command structure has been systematically dismantled. Supreme Leader Khamenei was assassinated Feb 28, 2026 in an Israeli airstrike on his compound. At least 13 top defense officials were killed in the same day's strikes on a Tehran defense meeting, including IRGC Commander Pakpour, Defense Minister Nasirzadeh, Armed Forces Chief Mousavi, and security chief Shamkhani. This followed the Twelve-Day War (Jun 2025) which killed IRGC Commander Salami and Aerospace chief Hajizadeh. IRGCN Commander Tangsiri was killed Mar 26 in Bandar Abbas. Mojtaba Khamenei was named successor Supreme Leader on Mar 7 but remains in hiding. Nearly 50 senior officials confirmed killed. C2 networks further degraded by USCYBERCOM operations. Operational command has effectively fragmented.
     </div>
   `;
 
