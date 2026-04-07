@@ -934,7 +934,7 @@
 <div class="header">
   <div class="header-left">
     <div class="logo" style="cursor:pointer" onclick="activateTab(document.querySelector('[data-panel=&quot;overview&quot;]'))">&#9760; WARTIME <span>/ dashboard</span></div>
-    <select id="theaterSelect" class="theater-select" onchange="switchTheaterDebounced(this.value)">
+    <select id="theaterSelect" class="theater-select" onchange="switchTheaterDebounced(this.value)" aria-label="Select conflict theater">
       <option value="iran">IRAN / US-ISRAEL</option>
       <option value="ukraine">UKRAINE / RUSSIA</option>
     </select>
@@ -957,8 +957,8 @@
         <span id="theaterClock3" style="color:var(--text)">--:--</span></span>
     </span>
     <div class="header-toggles">
-      <button class="header-toggle" id="toggleSound" onclick="toggleAlertSound()" title="Breaking news alert sound">&#128264; ALERTS</button>
-      <button class="header-toggle" id="toggleNightOps" onclick="toggleNightOps()" title="Night operations theme">&#127761; NV</button>
+      <button class="header-toggle" id="toggleSound" onclick="toggleAlertSound()" title="Breaking news alert sound" aria-label="Toggle breaking news alert sound">&#128264; ALERTS</button>
+      <button class="header-toggle" id="toggleNightOps" onclick="toggleNightOps()" title="Night operations theme" aria-label="Toggle night vision mode">&#127761; NV</button>
     </div>
   </div>
 </div>
@@ -972,12 +972,12 @@
 <!-- TICKER -->
 <div class="ticker">
   <div class="tick"><div class="tick-label">Conflict</div><div class="tick-value red"><span class="tick-flags"><span class="flag">&#127482;&#127480;</span><span class="flag">&#127470;&#127473;</span> vs <span class="flag">&#127470;&#127479;</span></span></div></div>
-  <div class="tick" role="button" tabindex="0" id="tickHormuz" onclick="toggleTickerDetail('hormuz')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTickerDetail('hormuz')}"><div class="tick-label"><span class="tick-icon">&#9875;</span> Strait of Hormuz</div><div class="tick-value orange tick-pulse" id="tickHormuzVal">CLOSED</div><div class="tick-sub" id="tickHormuzSub"></div></div>
-  <div class="tick" role="button" tabindex="0" onclick="toggleTickerDetail('oil')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTickerDetail('oil')}"><div class="tick-label"><span class="tick-icon">&#128738;</span> Brent Crude</div><div class="tick-value orange" id="tickOil">~$105-115/bbl</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)">PRE-CONFLICT: ~$75</div></div>
-  <div class="tick" role="button" tabindex="0" onclick="toggleTickerDetail('threat')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTickerDetail('threat')}"><div class="tick-label"><span class="tick-icon">&#9888;&#65039;</span> Threat Level</div><div class="tick-value red tick-critical" id="tickThreat">CRITICAL</div><div class="tick-sub" id="tickThreatSub"></div></div>
-  <div class="tick" role="button" tabindex="0" id="tickCarrierWrap" onclick="toggleCarrierPanel()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleCarrierPanel()}"><div class="tick-label"><span class="tick-icon">&#9992;</span> Carrier Groups</div><div class="tick-value blue" id="tickCarrier">3 DEPLOYED</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)">CLICK FOR DETAILS</div></div>
-  <div class="tick" role="button" tabindex="0" onclick="toggleTickerDetail('defcon')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTickerDetail('defcon')}"><div class="tick-label"><span class="tick-icon">&#127915;</span> DEFCON</div><div class="tick-value red tick-critical" id="tickDefcon">LEVEL 2</div><div class="tick-sub" id="tickDefconSub"></div></div>
-  <div class="tick" role="button" tabindex="0" onclick="toggleTickerDetail('markets')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTickerDetail('markets')}"><div class="tick-label"><span class="tick-icon">&#128200;</span> Markets</div><div class="tick-value orange" id="tickMarkets">VOLATILE</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)" id="tickMarketsSub">CLICK FOR DETAILS</div></div>
+  <div class="tick" role="button" tabindex="0" id="tickHormuz" aria-label="Strait of Hormuz status details" onclick="toggleTickerDetail('hormuz')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTickerDetail('hormuz')}"><div class="tick-label"><span class="tick-icon">&#9875;</span> Strait of Hormuz</div><div class="tick-value orange tick-pulse" id="tickHormuzVal">CLOSED</div><div class="tick-sub" id="tickHormuzSub"></div></div>
+  <div class="tick" role="button" tabindex="0" aria-label="Brent Crude oil price details" onclick="toggleTickerDetail('oil')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTickerDetail('oil')}"><div class="tick-label"><span class="tick-icon">&#128738;</span> Brent Crude</div><div class="tick-value orange" id="tickOil">~$105-115/bbl</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)">PRE-CONFLICT: ~$75</div></div>
+  <div class="tick" role="button" tabindex="0" aria-label="Threat level details" onclick="toggleTickerDetail('threat')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTickerDetail('threat')}"><div class="tick-label"><span class="tick-icon">&#9888;&#65039;</span> Threat Level</div><div class="tick-value red tick-critical" id="tickThreat">CRITICAL</div><div class="tick-sub" id="tickThreatSub"></div></div>
+  <div class="tick" role="button" tabindex="0" id="tickCarrierWrap" aria-label="Carrier group deployment details" onclick="toggleCarrierPanel()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleCarrierPanel()}"><div class="tick-label"><span class="tick-icon">&#9992;</span> Carrier Groups</div><div class="tick-value blue" id="tickCarrier">3 DEPLOYED</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)">CLICK FOR DETAILS</div></div>
+  <div class="tick" role="button" tabindex="0" aria-label="DEFCON level details" onclick="toggleTickerDetail('defcon')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTickerDetail('defcon')}"><div class="tick-label"><span class="tick-icon">&#127915;</span> DEFCON</div><div class="tick-value red tick-critical" id="tickDefcon">LEVEL 2</div><div class="tick-sub" id="tickDefconSub"></div></div>
+  <div class="tick" role="button" tabindex="0" aria-label="Market volatility details" onclick="toggleTickerDetail('markets')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTickerDetail('markets')}"><div class="tick-label"><span class="tick-icon">&#128200;</span> Markets</div><div class="tick-value orange" id="tickMarkets">VOLATILE</div><div class="tick-sub" style="color:var(--text3);font-size:.45rem;font-family:var(--mono)" id="tickMarketsSub">CLICK FOR DETAILS</div></div>
 </div>
 <script>
 // Early theater patch — fixes flash of Iran content when Ukraine is saved
@@ -1030,7 +1030,7 @@
     <div class="sidebar">
       <div class="section-head">
         <span>⚡ LATEST NEWS <span class="news-updated" id="newsUpdated1" style="font-weight:400;color:var(--text3);margin-left:8px"></span></span>
-        <button class="refresh-btn" onclick="fetchNews(true)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
+        <button class="refresh-btn" onclick="fetchNews(true)" aria-label="Refresh news feed"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
       </div>
       <div id="newsCatBar" style="padding:6px 12px;background:var(--surface);border-bottom:1px solid var(--border)"></div>
       <div class="news-feed" id="newsFeed" aria-live="polite" aria-label="Latest news feed">
@@ -1050,11 +1050,11 @@
     <div class="section-head">
       <span id="warmapTitle">🗺 IRAN WAR MAP — LIVEUAMAP</span>
       <div class="map-btn-container" style="display:flex;gap:8px;">
-        <button class="overlay-btn" onclick="setMapSrc('https://iran.liveuamap.com/')">Iran Map</button>
-        <button class="overlay-btn" onclick="setMapSrc('https://israelpalestine.liveuamap.com/')">Israel-Palestine</button>
-        <button class="overlay-btn" onclick="setMapSrc('https://liveuamap.com/')">Global View</button>
-        <button class="overlay-btn" onclick="setMapSrc('https://iranstrikemap.com/')">Strike Map</button>
-        <button class="overlay-btn" onclick="window.open('https://acleddata.com/iran-crisis-live/','_blank')">ACLED Data ↗</button>
+        <button class="overlay-btn" onclick="setMapSrc('https://iran.liveuamap.com/')" aria-label="Switch to Iran live map">Iran Map</button>
+        <button class="overlay-btn" onclick="setMapSrc('https://israelpalestine.liveuamap.com/')" aria-label="Switch to Israel-Palestine live map">Israel-Palestine</button>
+        <button class="overlay-btn" onclick="setMapSrc('https://liveuamap.com/')" aria-label="Switch to global conflict map">Global View</button>
+        <button class="overlay-btn" onclick="setMapSrc('https://iranstrikemap.com/')" aria-label="Switch to Iran strike map">Strike Map</button>
+        <button class="overlay-btn" onclick="window.open('https://acleddata.com/iran-crisis-live/','_blank')" aria-label="Open ACLED conflict data in new tab">ACLED Data ↗</button>
       </div>
     </div>
     <iframe id="warmapFrame" src="about:blank" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
@@ -1067,11 +1067,11 @@
     <div class="section-head">
       <span id="maritimeTitle">⚓ STRAIT OF HORMUZ — MARITIME TRAFFIC</span>
       <div id="maritimeButtons" style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="overlay-btn" onclick="setMaritimeSrc(26.3,56.7,8)">Hormuz Strait</button>
-        <button class="overlay-btn" onclick="setMaritimeSrc(26.0,50.5,7)">Persian Gulf Wide</button>
-        <button class="overlay-btn" onclick="setMaritimeSrc(14.0,43.0,6)">Red Sea / Bab el-Mandeb</button>
-        <button class="overlay-btn" onclick="setMaritimeSrc(33.5,34.5,7)">Eastern Med</button>
-        <button class="overlay-btn" onclick="window.open('https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8','_blank')">Open MarineTraffic</button>
+        <button class="overlay-btn" onclick="setMaritimeSrc(26.3,56.7,8)" aria-label="View Hormuz Strait vessel traffic">Hormuz Strait</button>
+        <button class="overlay-btn" onclick="setMaritimeSrc(26.0,50.5,7)" aria-label="View Persian Gulf vessel traffic">Persian Gulf Wide</button>
+        <button class="overlay-btn" onclick="setMaritimeSrc(14.0,43.0,6)" aria-label="View Red Sea and Bab el-Mandeb vessel traffic">Red Sea / Bab el-Mandeb</button>
+        <button class="overlay-btn" onclick="setMaritimeSrc(33.5,34.5,7)" aria-label="View Eastern Mediterranean vessel traffic">Eastern Med</button>
+        <button class="overlay-btn" onclick="window.open('https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8','_blank')" aria-label="Open MarineTraffic in new tab">Open MarineTraffic</button>
       </div>
     </div>
     <iframe id="maritimeFrame" src="about:blank" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
@@ -1084,16 +1084,16 @@
     <div class="section-head">
       <span id="airTrafficTitle">✈ AIR TRAFFIC TRACKING</span>
       <div id="airTrafficButtons" style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=26.5&lon=53.6&zoom=6.0&hideSideBar')" title="Unfiltered - shows military aircraft">ADS-B Persian Gulf</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=32.08&lon=53.69&zoom=5.0&hideSideBar')">ADS-B Iran</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=31.77&lon=35.22&zoom=7.0&hideSideBar')">ADS-B Israel</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=14.5&lon=42.5&zoom=6.0&hideSideBar')">ADS-B Red Sea</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=29.0&lon=48.0&zoom=7.0&hideSideBar')">ADS-B Kuwait/Iraq</button>
-        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/26.51,53.58/6','_blank')">FR24 Persian Gulf ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/32.08,53.69/5','_blank')">FR24 Iran ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/31.77,35.22/7','_blank')">FR24 Israel ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0','_blank')">ADS-B Exchange ↗</button>
-        <button class="overlay-btn" id="gpsJamBtn" onclick="setAirSrc('https://gpsjam.org/?lat=26.5&lon=53.6&z=5')" title="GPS/GNSS interference map — electronic warfare activity" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=26.5&lon=53.6&zoom=6.0&hideSideBar')" title="Unfiltered - shows military aircraft" aria-label="ADS-B tracker Persian Gulf region">ADS-B Persian Gulf</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=32.08&lon=53.69&zoom=5.0&hideSideBar')" aria-label="ADS-B tracker Iran airspace">ADS-B Iran</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=31.77&lon=35.22&zoom=7.0&hideSideBar')" aria-label="ADS-B tracker Israel airspace">ADS-B Israel</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=14.5&lon=42.5&zoom=6.0&hideSideBar')" aria-label="ADS-B tracker Red Sea region">ADS-B Red Sea</button>
+        <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=29.0&lon=48.0&zoom=7.0&hideSideBar')" aria-label="ADS-B tracker Kuwait and Iraq airspace">ADS-B Kuwait/Iraq</button>
+        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/26.51,53.58/6','_blank')" aria-label="Open FlightRadar24 Persian Gulf in new tab">FR24 Persian Gulf ↗</button>
+        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/32.08,53.69/5','_blank')" aria-label="Open FlightRadar24 Iran in new tab">FR24 Iran ↗</button>
+        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/31.77,35.22/7','_blank')" aria-label="Open FlightRadar24 Israel in new tab">FR24 Israel ↗</button>
+        <button class="overlay-btn" onclick="window.open('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0','_blank')" aria-label="Open ADS-B Exchange in new tab">ADS-B Exchange ↗</button>
+        <button class="overlay-btn" id="gpsJamBtn" onclick="setAirSrc('https://gpsjam.org/?lat=26.5&lon=53.6&z=5')" title="GPS/GNSS interference map — electronic warfare activity" aria-label="GPS and GNSS jamming interference map" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming</button>
       </div>
     </div>
     <iframe id="airFrame" src="about:blank" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
@@ -1106,21 +1106,21 @@
     <span>▶ CONFLICT VIDEO INTELLIGENCE</span>
     <div style="display:flex;gap:8px;align-items:center">
       <div class="vid-source-tabs">
-        <button class="vid-src-tab active" data-source="all" onclick="switchVideoSource('all')">ALL</button>
-        <button class="vid-src-tab" data-source="youtube" onclick="switchVideoSource('youtube')">YOUTUBE</button>
-        <button class="vid-src-tab" data-source="reddit" onclick="switchVideoSource('reddit')">REDDIT</button>
+        <button class="vid-src-tab active" data-source="all" onclick="switchVideoSource('all')" aria-label="Show all video sources">ALL</button>
+        <button class="vid-src-tab" data-source="youtube" onclick="switchVideoSource('youtube')" aria-label="Show YouTube videos only">YOUTUBE</button>
+        <button class="vid-src-tab" data-source="reddit" onclick="switchVideoSource('reddit')" aria-label="Show Reddit videos only">REDDIT</button>
       </div>
-      <select id="videoSort" style="background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:.65rem;padding:3px 8px;border-radius:4px" onchange="fetchVideos()">
+      <select id="videoSort" aria-label="Sort videos by" style="background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:.65rem;padding:3px 8px;border-radius:4px" onchange="fetchVideos()">
         <option value="date">Sort: Latest</option>
         <option value="relevance">Sort: Relevance</option>
         <option value="viewCount">Sort: Most Viewed</option>
       </select>
-      <select id="videoTimeRange" style="background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:.65rem;padding:3px 8px;border-radius:4px" onchange="fetchVideos()">
+      <select id="videoTimeRange" aria-label="Video time range" style="background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:.65rem;padding:3px 8px;border-radius:4px" onchange="fetchVideos()">
         <option value="day" selected>Past 24h</option>
         <option value="week">Past Week</option>
         <option value="month">Past Month</option>
       </select>
-      <button class="refresh-btn" onclick="fetchVideos(true)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
+      <button class="refresh-btn" onclick="fetchVideos(true)" aria-label="Refresh video clips"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
     </div>
   </div>
   <div id="vidStatus" style="padding:8px 16px;font-family:var(--mono);font-size:.6rem;color:var(--text3);border-bottom:1px solid var(--border)">
@@ -1136,11 +1136,11 @@
   <div style="height:calc(100vh - 96px);display:flex;flex-direction:column">
     <!-- Channel selector bar -->
     <div class="stream-nav">
-      <button class="stream-nav-arrow" onclick="switchStream(-1)">&#9664;</button>
+      <button class="stream-nav-arrow" onclick="switchStream(-1)" aria-label="Previous live stream channel">&#9664;</button>
       <div class="stream-channels" id="streamChannels"></div>
-      <button class="stream-nav-arrow" onclick="switchStream(1)">&#9654;</button>
-      <a id="streamOpenBtn" href="#" target="_blank" class="overlay-btn" style="text-decoration:none;margin-left:8px;white-space:nowrap;flex-shrink:0">Open on YouTube ↗</a>
-      <button class="overlay-btn" onclick="refreshCurrentStream()" style="margin-left:4px;flex-shrink:0" title="Re-fetch live stream">↻ Refresh</button>
+      <button class="stream-nav-arrow" onclick="switchStream(1)" aria-label="Next live stream channel">&#9654;</button>
+      <a id="streamOpenBtn" href="#" target="_blank" rel="noopener noreferrer" class="overlay-btn" style="text-decoration:none;margin-left:8px;white-space:nowrap;flex-shrink:0" aria-label="Open current stream on YouTube">Open on YouTube ↗</a>
+      <button class="overlay-btn" onclick="refreshCurrentStream()" style="margin-left:4px;flex-shrink:0" title="Re-fetch live stream" aria-label="Refresh current live stream">↻ Refresh</button>
     </div>
     <!-- Main player -->
     <div style="flex:1;position:relative;background:#000">
@@ -1160,7 +1160,7 @@
         <button class="vid-src-tab" data-osint="analysis" onclick="filterOsint('analysis')" aria-label="Show analysis posts">ANALYSIS</button>
         <button class="vid-src-tab" data-osint="osint" onclick="filterOsint('osint')" aria-label="Show OSINT intelligence">OSINT</button>
       </div>
-      <button class="refresh-btn" onclick="fetchOsint(true)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
+      <button class="refresh-btn" onclick="fetchOsint(true)" aria-label="Refresh OSINT feeds"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
     </div>
   </div>
   <div id="osintStatus" style="padding:8px 16px;font-family:var(--mono);font-size:.6rem;color:var(--text3);border-bottom:1px solid var(--border)">
@@ -1177,14 +1177,14 @@
     <div class="section-head">
       <span id="cyberMapTitle">🛡 LIVE CYBER THREAT MAP</span>
       <div id="cyberMapButtons" style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="overlay-btn active" onclick="setCyberSrc('https://threatmap.fortiguard.com/','Fortinet')" style="background:#1a3320;border-color:#4dff88;color:#4dff88">⚔ Fortinet</button>
-        <button class="overlay-btn" onclick="setCyberSrc('https://cybermap.kaspersky.com/','Kaspersky')">🌐 Kaspersky</button>
-        <button class="overlay-btn" onclick="setCyberSrc('https://threatmap.checkpoint.com/','Check Point')">🛡 Check Point</button>
-        <button class="overlay-btn" onclick="setCyberSrc('https://horizon.netscout.com/','NETSCOUT')">📊 NETSCOUT</button>
-        <button class="overlay-btn" onclick="setCyberSrc('https://threatmap.bitdefender.com/','Bitdefender')">🔒 Bitdefender</button>
-        <button class="overlay-btn" onclick="setCyberSrc('https://www.digitalattackmap.com/','DDoS Map')">💥 DDoS Map</button>
-        <button class="overlay-btn" onclick="setCyberSrc('https://radar.cloudflare.com/','Cloudflare')">☁ Cloudflare</button>
-        <button class="overlay-btn" onclick="window.open('https://threatmap.fortiguard.com/','_blank')">Open Full View ↗</button>
+        <button class="overlay-btn active" onclick="setCyberSrc('https://threatmap.fortiguard.com/','Fortinet')" aria-label="Switch to Fortinet cyber threat map" style="background:#1a3320;border-color:#4dff88;color:#4dff88">⚔ Fortinet</button>
+        <button class="overlay-btn" onclick="setCyberSrc('https://cybermap.kaspersky.com/','Kaspersky')" aria-label="Switch to Kaspersky cyber threat map">🌐 Kaspersky</button>
+        <button class="overlay-btn" onclick="setCyberSrc('https://threatmap.checkpoint.com/','Check Point')" aria-label="Switch to Check Point threat map">🛡 Check Point</button>
+        <button class="overlay-btn" onclick="setCyberSrc('https://horizon.netscout.com/','NETSCOUT')" aria-label="Switch to NETSCOUT cyber threat horizon">📊 NETSCOUT</button>
+        <button class="overlay-btn" onclick="setCyberSrc('https://threatmap.bitdefender.com/','Bitdefender')" aria-label="Switch to Bitdefender threat map">🔒 Bitdefender</button>
+        <button class="overlay-btn" onclick="setCyberSrc('https://www.digitalattackmap.com/','DDoS Map')" aria-label="Switch to Digital Attack DDoS map">💥 DDoS Map</button>
+        <button class="overlay-btn" onclick="setCyberSrc('https://radar.cloudflare.com/','Cloudflare')" aria-label="Switch to Cloudflare Radar internet health">☁ Cloudflare</button>
+        <button class="overlay-btn" onclick="window.open('https://threatmap.fortiguard.com/','_blank')" aria-label="Open current cyber map in new tab">Open Full View ↗</button>
       </div>
     </div>
     <iframe id="cyberFrame" src="about:blank" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
@@ -1489,11 +1489,11 @@
   <div class="pip-controls">
     <div class="pip-label"><span class="live-dot-sm"></span><span id="pipChannelName">--</span></div>
     <div class="pip-btns">
-      <button class="pip-btn" onclick="pipPrevNext(-1)" title="Previous channel">&#9664;</button>
-      <button class="pip-btn" onclick="pipPrevNext(1)" title="Next channel">&#9654;</button>
-      <button class="pip-btn" onclick="togglePipSize()" title="Resize">&#8596;</button>
-      <button class="pip-btn" onclick="pipGoFull()" title="Go to Live Streams">&#9635;</button>
-      <button class="pip-btn" onclick="closePip()" title="Close">&#10005;</button>
+      <button class="pip-btn" onclick="pipPrevNext(-1)" title="Previous channel" aria-label="Previous PiP channel">&#9664;</button>
+      <button class="pip-btn" onclick="pipPrevNext(1)" title="Next channel" aria-label="Next PiP channel">&#9654;</button>
+      <button class="pip-btn" onclick="togglePipSize()" title="Resize" aria-label="Resize PiP player">&#8596;</button>
+      <button class="pip-btn" onclick="pipGoFull()" title="Go to Live Streams" aria-label="Open in full live streams panel">&#9635;</button>
+      <button class="pip-btn" onclick="closePip()" title="Close" aria-label="Close PiP player">&#10005;</button>
     </div>
   </div>
   <iframe id="pipFrame" src="" allow="autoplay;encrypted-media" allowfullscreen></iframe>
@@ -2311,12 +2311,12 @@ function getFallbackVideos(){
         Browse verified conflict footage from official news outlets and OSINT communities
       </p>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;max-width:700px;margin:0 auto 16px">
-        <a href="https://www.youtube.com/@AlJazeeraEnglish/videos" target="_blank" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">📺 Al Jazeera</a>
-        <a href="https://www.youtube.com/@skaborshi/videos" target="_blank" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">📺 Sky News</a>
-        <a href="https://www.youtube.com/@ABORSHI/videos" target="_blank" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">📺 BBC News</a>
-        <a href="https://www.youtube.com/results?search_query=Iran+war+2026+news&sp=CAI%253D" target="_blank" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">🔍 YouTube Search</a>
-        <a href="https://www.reddit.com/r/CombatFootage/search/?q=iran&sort=new&t=week" target="_blank" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">🎯 r/CombatFootage</a>
-        <a href="https://www.reddit.com/r/worldnews/search/?q=iran+video&sort=new&t=week" target="_blank" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">🌍 r/worldnews</a>
+        <a href="https://www.youtube.com/@AlJazeeraEnglish/videos" target="_blank" rel="noopener noreferrer" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">📺 Al Jazeera</a>
+        <a href="https://www.youtube.com/@skaborshi/videos" target="_blank" rel="noopener noreferrer" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">📺 Sky News</a>
+        <a href="https://www.youtube.com/@ABORSHI/videos" target="_blank" rel="noopener noreferrer" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">📺 BBC News</a>
+        <a href="https://www.youtube.com/results?search_query=Iran+war+2026+news&sp=CAI%253D" target="_blank" rel="noopener noreferrer" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">🔍 YouTube Search</a>
+        <a href="https://www.reddit.com/r/CombatFootage/search/?q=iran&sort=new&t=week" target="_blank" rel="noopener noreferrer" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">🎯 r/CombatFootage</a>
+        <a href="https://www.reddit.com/r/worldnews/search/?q=iran+video&sort=new&t=week" target="_blank" rel="noopener noreferrer" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">🌍 r/worldnews</a>
       </div>
     </div>
   `;
@@ -5152,7 +5152,7 @@ function renderResources(){
     <div class="link-card">
       <h3>${c.icon} ${c.title}</h3>
       <p>${c.desc}</p>
-      <a href="${c.url}" target="_blank">${c.label} →</a>
+      <a href="${c.url}" target="_blank" rel="noopener noreferrer" aria-label="Open ${c.title} in new tab">${c.label} →</a>
     </div>
   `).join('');
 }

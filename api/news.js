@@ -105,30 +105,54 @@ async function fetchFeed(feed) {
   }
 }
 
-function filterByRelevance(allItems, keywords) {
+// Source credibility tiers — higher = more authoritative for conflict reporting
+const SOURCE_WEIGHT = {
+  'Reuters': 1.4, 'BBC': 1.3, 'Al Jazeera': 1.2, 'Guardian': 1.2, 'NPR': 1.1,
+  'CNN': 1.0, 'NBC': 1.0, 'FOX': 1.0, 'JPost': 1.1, 'Times of Israel': 1.1,
+  'Kyiv Independent': 1.3, 'Ukrinform': 1.2,
+};
+
+function scoreItem(item, keywords) {
   const { STRONG, MEDIUM, WEAK } = keywords;
-  return allItems.filter(item => {
-    const title = (item.title || '').toLowerCase();
-    const desc = (item.description || '').toLowerCase();
-    const full = title + ' ' + desc;
+  const title = (item.title || '').toLowerCase();
+  const desc = (item.description || '').toLowerCase();
+  const full = title + ' ' + desc;
 
-    // Strong keyword in title = instant pass
-    if (STRONG.some(k => title.includes(k))) return true;
+  let score = 0;
 
-    // Medium keyword in title = pass
-    if (MEDIUM.some(k => title.includes(k))) return true;
+  // Keyword scoring — title matches worth 2x description
+  const strongTitle = STRONG.filter(k => title.includes(k)).length;
+  const strongDesc = STRONG.filter(k => desc.includes(k)).length;
+  score += strongTitle * 10 + strongDesc * 5;
 
-    // Medium keyword in description + any other keyword = pass
-    const mediumHits = MEDIUM.filter(k => full.includes(k)).length;
-    if (mediumHits >= 2) return true;
+  const mediumTitle = MEDIUM.filter(k => title.includes(k)).length;
+  const mediumDesc = MEDIUM.filter(k => desc.includes(k)).length;
+  score += mediumTitle * 4 + mediumDesc * 2;
 
-    // Weak keywords: need 2+ distinct matches to pass
-    const weakHits = WEAK.filter(k => full.includes(k)).length;
-    if (mediumHits >= 1 && weakHits >= 1) return true;
-    if (weakHits >= 3) return true;
+  const weakHits = WEAK.filter(k => full.includes(k)).length;
+  score += weakHits * 1;
 
-    return false;
-  });
+  // Source credibility multiplier
+  const srcWeight = SOURCE_WEIGHT[item.sourceName] || 1.0;
+  score *= srcWeight;
+
+  // Temporal decay — articles lose 10% relevance per day after 24h
+  if (item.pubDate) {
+    const ageHours = (Date.now() - new Date(item.pubDate).getTime()) / 3600000;
+    if (ageHours > 24) {
+      const daysOld = (ageHours - 24) / 24;
+      score *= Math.max(0.3, 1 - daysOld * 0.1);
+    }
+  }
+
+  return score;
+}
+
+function filterByRelevance(allItems, keywords) {
+  // Score all items, filter threshold, sort by score
+  const scored = allItems.map(item => ({ ...item, _score: scoreItem(item, keywords) }));
+  // Minimum score threshold to pass (roughly: 1 medium keyword in title)
+  return scored.filter(item => item._score >= 3).sort((a, b) => b._score - a._score);
 }
 
 export default async function handler(req, res) {
@@ -163,11 +187,8 @@ export default async function handler(req, res) {
       return true;
     });
 
-    // Filter for theater relevance
+    // Filter for theater relevance and sort by weighted score
     allItems = filterByRelevance(allItems, keywords);
-
-    // Sort by date (newest first)
-    allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
     // Return max 100 filtered items
     allItems = allItems.slice(0, 100);
