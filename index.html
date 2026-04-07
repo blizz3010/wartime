@@ -1030,7 +1030,6 @@
       </div>
     </div>
     <div class="main-area">
-      <div id="overviewStats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;padding:8px 12px;background:var(--surface);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.55rem"></div>
       <div class="section-head"><span>🗺 LIVE WAR MAP ��� LIVEUAMAP</span><span class="badge">LIVE</span></div>
       <iframe id="overviewMapFrame" src="about:blank" style="width:100%;height:calc(100% - 68px);border:0" loading="lazy"></iframe>
     </div>
@@ -1788,8 +1787,6 @@ function switchTheater(theaterId){
   // Re-render resources, impact & overview stats for the new theater
   renderResources();
   renderImpactDashboard();
-  if(typeof renderOverviewStats==='function') renderOverviewStats();
-
   // Re-render livestreams with theater-specific channels
   if(typeof renderStreamNav==='function') renderStreamNav();
 
@@ -5732,33 +5729,6 @@ updateClock();
 setInterval(updateClock,1000);
 setInterval(updateDayCount,60000);
 fetchNews();
-// Overview quick stats
-function renderOverviewStats(){
-  const el=document.getElementById('overviewStats');
-  if(!el) return;
-  const isUkr=currentTheater.id==='ukraine';
-  const stats=isUkr?[
-    {label:'CONFLICT',value:'RUS vs UKR',color:'var(--red)'},
-    {label:'DAY',value:document.getElementById('dayCount')?.textContent||'--',color:'var(--text)'},
-    {label:'FRONT LINE',value:'~1,200 km',color:'var(--orange)'},
-    {label:'UKR FORCES',value:'~900,000',color:'var(--blue)'},
-    {label:'RUS FORCES',value:'~600,000',color:'var(--red)'},
-    {label:'RUS LOSSES (est)',value:'~350,000+',color:'var(--red)'},
-    {label:'REFUGEES',value:'6.3M+',color:'var(--orange)'},
-    {label:'NATO AID',value:'$380B+',color:'var(--blue)'},
-  ]:[
-    {label:'CONFLICT',value:'US/ISR vs IRAN',color:'var(--red)'},
-    {label:'DAY',value:document.getElementById('dayCount')?.textContent||'--',color:'var(--text)'},
-    {label:'THREAT LEVEL',value:'CRITICAL',color:'var(--red)'},
-    {label:'US FORCES',value:'~200,000+',color:'var(--blue)'},
-    {label:'CARRIERS',value:'3 CSGs',color:'var(--blue)'},
-    {label:'IRAN MISSILES',value:'3,000+',color:'var(--red)'},
-    {label:'OIL PRICE',value:'~$105-115',color:'var(--orange)'},
-    {label:'HORMUZ',value:document.getElementById('tickHormuzVal')?.textContent||'--',color:'var(--orange)'},
-  ];
-  el.innerHTML=stats.map(s=>`<div style="text-align:center;padding:4px 6px;background:var(--surface2);border-radius:4px;border:1px solid var(--border)"><div style="color:var(--text3);font-size:.45rem;letter-spacing:.5px">${s.label}</div><div style="color:${s.color};font-weight:700;font-size:.65rem;margin-top:2px">${s.value}</div></div>`).join('');
-}
-renderOverviewStats();
 // Render static sections
 renderImpactDashboard();
 renderResources();
