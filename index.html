@@ -1046,7 +1046,7 @@
         <button class="overlay-btn" onclick="setMapSrc('https://israelpalestine.liveuamap.com/')" aria-label="Switch to Israel-Palestine live map">Israel-Palestine</button>
         <button class="overlay-btn" onclick="setMapSrc('https://liveuamap.com/')" aria-label="Switch to global conflict map">Global View</button>
         <button class="overlay-btn" onclick="setMapSrc('https://iranstrikemap.com/')" aria-label="Switch to Iran strike map">Strike Map</button>
-        <button class="overlay-btn" onclick="window.open('https://acleddata.com/iran-crisis-live/','_blank')" aria-label="Open ACLED conflict data in new tab">ACLED Data ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://acleddata.com/iran-crisis-live/')" aria-label="Open ACLED conflict data in new tab">ACLED Data ↗</button>
       </div>
     </div>
     <iframe id="warmapFrame" src="about:blank" title="Interactive war map" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
@@ -1063,7 +1063,7 @@
         <button class="overlay-btn" onclick="setMaritimeSrc(26.0,50.5,7)" aria-label="View Persian Gulf vessel traffic">Persian Gulf Wide</button>
         <button class="overlay-btn" onclick="setMaritimeSrc(14.0,43.0,6)" aria-label="View Red Sea and Bab el-Mandeb vessel traffic">Red Sea / Bab el-Mandeb</button>
         <button class="overlay-btn" onclick="setMaritimeSrc(33.5,34.5,7)" aria-label="View Eastern Mediterranean vessel traffic">Eastern Med</button>
-        <button class="overlay-btn" onclick="window.open('https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8','_blank')" aria-label="Open MarineTraffic in new tab">Open MarineTraffic</button>
+        <button class="overlay-btn" onclick="openLink('https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8')" aria-label="Open MarineTraffic in new tab">Open MarineTraffic</button>
       </div>
     </div>
     <iframe id="maritimeFrame" src="about:blank" title="Maritime vessel traffic tracker" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
@@ -1081,11 +1081,11 @@
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=31.77&lon=35.22&zoom=7.0&hideSideBar')" aria-label="ADS-B tracker Israel airspace">ADS-B Israel</button>
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=14.5&lon=42.5&zoom=6.0&hideSideBar')" aria-label="ADS-B tracker Red Sea region">ADS-B Red Sea</button>
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=29.0&lon=48.0&zoom=7.0&hideSideBar')" aria-label="ADS-B tracker Kuwait and Iraq airspace">ADS-B Kuwait/Iraq</button>
-        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/26.51,53.58/6','_blank')" aria-label="Open FlightRadar24 Persian Gulf in new tab">FR24 Persian Gulf ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/32.08,53.69/5','_blank')" aria-label="Open FlightRadar24 Iran in new tab">FR24 Iran ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/31.77,35.22/7','_blank')" aria-label="Open FlightRadar24 Israel in new tab">FR24 Israel ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0','_blank')" aria-label="Open ADS-B Exchange in new tab">ADS-B Exchange ↗</button>
-        <button class="overlay-btn" id="gpsJamBtn" onclick="window.open(currentTheater.id==='ukraine'?'https://gpsjam.org/?lat=48.5&lon=35.0&z=5':'https://gpsjam.org/?lat=26.5&lon=53.6&z=5','_blank')" title="GPS/GNSS interference map — opens in new tab (iframe blocked)" aria-label="Open GPS jamming map in new tab" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://www.flightradar24.com/26.51,53.58/6')" aria-label="Open FlightRadar24 Persian Gulf in new tab">FR24 Persian Gulf ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://www.flightradar24.com/32.08,53.69/5')" aria-label="Open FlightRadar24 Iran in new tab">FR24 Iran ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://www.flightradar24.com/31.77,35.22/7')" aria-label="Open FlightRadar24 Israel in new tab">FR24 Israel ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0')" aria-label="Open ADS-B Exchange in new tab">ADS-B Exchange ↗</button>
+        <button class="overlay-btn" id="gpsJamBtn" onclick="openLink(currentTheater.id==='ukraine'?'https://gpsjam.org/?lat=48.5&lon=35.0&z=5':'https://gpsjam.org/?lat=26.5&lon=53.6&z=5')" title="GPS/GNSS interference map — opens in new tab (iframe blocked)" aria-label="Open GPS jamming map in new tab" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming ↗</button>
       </div>
     </div>
     <iframe id="airFrame" src="about:blank" title="Air traffic tracker" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
@@ -1150,12 +1150,12 @@
         <button class="overlay-btn active" onclick="setCyberSrc('https://threatmap.fortiguard.com/','Fortinet')" aria-label="Switch to Fortinet cyber threat map" style="background:#1a3320;border-color:#4dff88;color:#4dff88">⚔ Fortinet</button>
         <button class="overlay-btn" onclick="setCyberSrc('https://threatmap.bitdefender.com/','Bitdefender')" aria-label="Switch to Bitdefender threat map">🔒 Bitdefender</button>
         <button class="overlay-btn" onclick="setCyberSrc('https://www.digitalattackmap.com/','DDoS Map')" aria-label="Switch to Digital Attack DDoS map">💥 DDoS Map</button>
-        <button class="overlay-btn" onclick="window.open('https://cybermap.kaspersky.com/','_blank')" aria-label="Open Kaspersky cyber map in new tab">🌐 Kaspersky ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://threatmap.checkpoint.com/','_blank')" aria-label="Open Check Point threat map in new tab">🛡 Check Point ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://horizon.netscout.com/','_blank')" aria-label="Open NETSCOUT cyber threat horizon in new tab">📊 NETSCOUT ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://radar.cloudflare.com/','_blank')" aria-label="Open Cloudflare Radar in new tab">☁ Cloudflare ↗</button>
-        <button class="overlay-btn" onclick="window.open(currentTheater.id==='ukraine'?'https://gpsjam.org/?lat=48.5&lon=35.0&z=5':'https://gpsjam.org/?lat=26.5&lon=53.6&z=5','_blank')" aria-label="Open GPS jamming interference map in new tab" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://threatmap.fortiguard.com/','_blank')" aria-label="Open current cyber map in new tab">Open Full View ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://cybermap.kaspersky.com/')" aria-label="Open Kaspersky cyber map in new tab">🌐 Kaspersky ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://threatmap.checkpoint.com/')" aria-label="Open Check Point threat map in new tab">🛡 Check Point ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://horizon.netscout.com/')" aria-label="Open NETSCOUT cyber threat horizon in new tab">📊 NETSCOUT ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://radar.cloudflare.com/')" aria-label="Open Cloudflare Radar in new tab">☁ Cloudflare ↗</button>
+        <button class="overlay-btn" onclick="openLink(currentTheater.id==='ukraine'?'https://gpsjam.org/?lat=48.5&lon=35.0&z=5':'https://gpsjam.org/?lat=26.5&lon=53.6&z=5')" aria-label="Open GPS jamming interference map in new tab" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://threatmap.fortiguard.com/')" aria-label="Open current cyber map in new tab">Open Full View ↗</button>
       </div>
     </div>
     <iframe id="cyberFrame" src="about:blank" title="Cyber threat map" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
@@ -1706,10 +1706,10 @@ function switchTheater(theaterId){
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=44.0&lon=34.0&zoom=7.0&hideSideBar')">ADS-B Crimea</button>
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=54.0&lon=27.0&zoom=5.0&hideSideBar')">ADS-B Poland/Baltics</button>
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=44.0&lon=26.0&zoom=6.0&hideSideBar')">ADS-B Romania</button>
-        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/48.5,35.0/6','_blank')">FR24 Ukraine ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/54.0,20.0/5','_blank')">FR24 Poland/Baltics ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://globe.adsbexchange.com/?lat=48.5&lon=35.0&zoom=6.0','_blank')">ADS-B Exchange ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://gpsjam.org/?lat=48.5&lon=35.0&z=5','_blank')" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming ↗</button>`;
+        <button class="overlay-btn" onclick="openLink('https://www.flightradar24.com/48.5,35.0/6')">FR24 Ukraine ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://www.flightradar24.com/54.0,20.0/5')">FR24 Poland/Baltics ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://globe.adsbexchange.com/?lat=48.5&lon=35.0&zoom=6.0')">ADS-B Exchange ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://gpsjam.org/?lat=48.5&lon=35.0&z=5')" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming ↗</button>`;
     }else{
       airBtns.innerHTML=`
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=26.5&lon=53.6&zoom=6.0&hideSideBar')">ADS-B Persian Gulf</button>
@@ -1717,11 +1717,11 @@ function switchTheater(theaterId){
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=31.77&lon=35.22&zoom=7.0&hideSideBar')">ADS-B Israel</button>
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=14.5&lon=42.5&zoom=6.0&hideSideBar')">ADS-B Red Sea</button>
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=29.0&lon=48.0&zoom=7.0&hideSideBar')">ADS-B Kuwait/Iraq</button>
-        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/26.51,53.58/6','_blank')">FR24 Persian Gulf ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/32.08,53.69/5','_blank')">FR24 Iran ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/31.77,35.22/7','_blank')">FR24 Israel ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0','_blank')">ADS-B Exchange ↗</button>
-        <button class="overlay-btn" onclick="window.open('https://gpsjam.org/?lat=26.5&lon=53.6&z=5','_blank')" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming ↗</button>`;
+        <button class="overlay-btn" onclick="openLink('https://www.flightradar24.com/26.51,53.58/6')">FR24 Persian Gulf ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://www.flightradar24.com/32.08,53.69/5')">FR24 Iran ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://www.flightradar24.com/31.77,35.22/7')">FR24 Israel ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0')">ADS-B Exchange ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://gpsjam.org/?lat=26.5&lon=53.6&z=5')" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming ↗</button>`;
     }
   }
 
@@ -1740,14 +1740,14 @@ function switchTheater(theaterId){
         <button class="overlay-btn" onclick="setMaritimeSrc(46.0,37.0,8)">Sea of Azov</button>
         <button class="overlay-btn" onclick="setMaritimeSrc(41.0,29.0,9)">Bosphorus</button>
         <button class="overlay-btn" onclick="setMaritimeSrc(46.5,30.7,10)">Odesa Port</button>
-        <button class="overlay-btn" onclick="window.open('https://www.marinetraffic.com/en/ais/home/centerx:34.0/centery:43.5/zoom:7','_blank')">Open MarineTraffic</button>`;
+        <button class="overlay-btn" onclick="openLink('https://www.marinetraffic.com/en/ais/home/centerx:34.0/centery:43.5/zoom:7')">Open MarineTraffic</button>`;
     }else{
       maritimeButtons.innerHTML=`
         <button class="overlay-btn" onclick="setMaritimeSrc(26.3,56.7,8)">Hormuz Strait</button>
         <button class="overlay-btn" onclick="setMaritimeSrc(26.0,50.5,7)">Persian Gulf Wide</button>
         <button class="overlay-btn" onclick="setMaritimeSrc(14.0,43.0,6)">Red Sea / Bab el-Mandeb</button>
         <button class="overlay-btn" onclick="setMaritimeSrc(33.5,34.5,7)">Eastern Med</button>
-        <button class="overlay-btn" onclick="window.open('https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8','_blank')">Open MarineTraffic</button>`;
+        <button class="overlay-btn" onclick="openLink('https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8')">Open MarineTraffic</button>`;
     }
   }
 
@@ -5862,21 +5862,10 @@ document.addEventListener('keydown',e=>{
   }
   // N = night ops toggle
   if(e.key==='n'||e.key==='N'){e.preventDefault();toggleNightOps()}
-  // D = debug scoring panel
+  // D = toggle ticker detail (scoring breakdown)
   if(e.key==='d'||e.key==='D'){
     e.preventDefault();
-    const s=lastScoringResult;
-    const sc=s.scores||{};
-    console.log('%c[SCORING DEBUG]','color:#f85149;font-weight:bold',
-      `\nTheater: ${currentTheater.shortName}`,
-      `\nEscalation: ${sc.escalation}`,
-      `\nDe-escalation: ${sc.deescalation}`,
-      `\nMilitary: ${sc.military}`,
-      `\nNet Escalation: ${sc.escalation-(sc.deescalation||0)+(sc.military||0)*0.3}`,
-      `\nThreat: ${s.threat}`,
-      `\nDEFCON: ${s.defcon}`,
-      `\nHormuz: ${s.hormuz}`
-    );
+    toggleTickerDetail('threat');
   }
   // ? = toggle keyboard shortcut hint
   if(e.key==='?'){
@@ -5915,7 +5904,7 @@ const CMD_COMMANDS=[
   {icon:'👁',label:'Toggle Night Vision',hint:'Visual',action:()=>toggleNightVision(),tags:'night vision green nv goggles',kbd:'V'},
   {icon:'📺',label:'Toggle CRT Scanlines',hint:'Visual',action:()=>document.body.classList.toggle('crt-mode'),tags:'crt scanlines retro terminal'},
   {icon:'🔇',label:'Toggle Alert Sounds',hint:'Audio',action:()=>{alertSoundEnabled=!alertSoundEnabled;playAlertTone('click')},tags:'mute sound audio alerts',kbd:'M'},
-  {icon:'📡',label:'Open GPS Jamming Map',hint:'Tool',action:()=>{const lat=currentTheater.id==='ukraine'?'48.5':'26.5';const lon=currentTheater.id==='ukraine'?'35.0':'53.6';window.open(`https://gpsjam.org/?lat=${lat}&lon=${lon}&z=5`,'_blank')},tags:'gps jamming interference electronic warfare'},
+  {icon:'📡',label:'Open GPS Jamming Map',hint:'Tool',action:()=>{const lat=currentTheater.id==='ukraine'?'48.5':'26.5';const lon=currentTheater.id==='ukraine'?'35.0':'53.6';openLink(`https://gpsjam.org/?lat=${lat}&lon=${lon}&z=5`)},tags:'gps jamming interference electronic warfare'},
   {icon:'🔔',label:'Enable Browser Notifications',hint:'Setting',action:()=>requestNotificationPermission(),tags:'notifications alerts browser push'},
   {icon:'🖥',label:'Enter War Room Mode',hint:'Display',action:()=>enterWarRoom(),tags:'war room kiosk fullscreen rotate auto cycle wall monitor',kbd:'F'},
   {icon:'❓',label:'Show Keyboard Shortcuts',hint:'Help',action:()=>document.getElementById('kbdHint').classList.toggle('show'),tags:'keyboard shortcuts help keys',kbd:'?'},
