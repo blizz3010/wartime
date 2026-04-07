@@ -1094,7 +1094,7 @@
         <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/32.08,53.69/5','_blank')" aria-label="Open FlightRadar24 Iran in new tab">FR24 Iran ↗</button>
         <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/31.77,35.22/7','_blank')" aria-label="Open FlightRadar24 Israel in new tab">FR24 Israel ↗</button>
         <button class="overlay-btn" onclick="window.open('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0','_blank')" aria-label="Open ADS-B Exchange in new tab">ADS-B Exchange ↗</button>
-        <button class="overlay-btn" id="gpsJamBtn" onclick="setAirSrc('https://gpsjam.org/?lat=26.5&lon=53.6&z=5')" title="GPS/GNSS interference map — electronic warfare activity" aria-label="GPS and GNSS jamming interference map" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming</button>
+        <button class="overlay-btn" id="gpsJamBtn" onclick="window.open(currentTheater.id==='ukraine'?'https://gpsjam.org/?lat=48.5&lon=35.0&z=5':'https://gpsjam.org/?lat=26.5&lon=53.6&z=5','_blank')" title="GPS/GNSS interference map — opens in new tab (iframe blocked)" aria-label="Open GPS jamming map in new tab" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming ↗</button>
       </div>
     </div>
     <iframe id="airFrame" src="about:blank" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
@@ -1739,7 +1739,7 @@ function switchTheater(theaterId){
         <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/48.5,35.0/6','_blank')">FR24 Ukraine ↗</button>
         <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/54.0,20.0/5','_blank')">FR24 Poland/Baltics ↗</button>
         <button class="overlay-btn" onclick="window.open('https://globe.adsbexchange.com/?lat=48.5&lon=35.0&zoom=6.0','_blank')">ADS-B Exchange ↗</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://gpsjam.org/?lat=48.5&lon=35.0&z=5')" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming</button>`;
+        <button class="overlay-btn" onclick="window.open('https://gpsjam.org/?lat=48.5&lon=35.0&z=5','_blank')" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming ↗</button>`;
     }else{
       airBtns.innerHTML=`
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=26.5&lon=53.6&zoom=6.0&hideSideBar')">ADS-B Persian Gulf</button>
@@ -1751,7 +1751,7 @@ function switchTheater(theaterId){
         <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/32.08,53.69/5','_blank')">FR24 Iran ↗</button>
         <button class="overlay-btn" onclick="window.open('https://www.flightradar24.com/31.77,35.22/7','_blank')">FR24 Israel ↗</button>
         <button class="overlay-btn" onclick="window.open('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0','_blank')">ADS-B Exchange ↗</button>
-        <button class="overlay-btn" onclick="setAirSrc('https://gpsjam.org/?lat=26.5&lon=53.6&z=5')" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming</button>`;
+        <button class="overlay-btn" onclick="window.open('https://gpsjam.org/?lat=26.5&lon=53.6&z=5','_blank')" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming ↗</button>`;
     }
   }
 
@@ -5919,7 +5919,7 @@ const CMD_COMMANDS=[
   {icon:'👁',label:'Toggle Night Vision',hint:'Visual',action:()=>toggleNightVision(),tags:'night vision green nv goggles',kbd:'V'},
   {icon:'📺',label:'Toggle CRT Scanlines',hint:'Visual',action:()=>document.body.classList.toggle('crt-mode'),tags:'crt scanlines retro terminal'},
   {icon:'🔇',label:'Toggle Alert Sounds',hint:'Audio',action:()=>{alertSoundEnabled=!alertSoundEnabled;playAlertTone('click')},tags:'mute sound audio alerts',kbd:'M'},
-  {icon:'📡',label:'Open GPS Jamming Map',hint:'Tool',action:()=>{activateTab(document.querySelector('[data-panel="airtraffic"]'));setTimeout(()=>{const lat=currentTheater.id==='ukraine'?'48.5':'26.5';const lon=currentTheater.id==='ukraine'?'35.0':'53.6';setAirSrc(`https://gpsjam.org/?lat=${lat}&lon=${lon}&z=5`)},100)},tags:'gps jamming interference electronic warfare'},
+  {icon:'📡',label:'Open GPS Jamming Map',hint:'Tool',action:()=>{const lat=currentTheater.id==='ukraine'?'48.5':'26.5';const lon=currentTheater.id==='ukraine'?'35.0':'53.6';window.open(`https://gpsjam.org/?lat=${lat}&lon=${lon}&z=5`,'_blank')},tags:'gps jamming interference electronic warfare'},
   {icon:'🔔',label:'Enable Browser Notifications',hint:'Setting',action:()=>requestNotificationPermission(),tags:'notifications alerts browser push'},
   {icon:'🖥',label:'Enter War Room Mode',hint:'Display',action:()=>enterWarRoom(),tags:'war room kiosk fullscreen rotate auto cycle wall monitor',kbd:'F'},
   {icon:'❓',label:'Show Keyboard Shortcuts',hint:'Help',action:()=>document.getElementById('kbdHint').classList.toggle('show'),tags:'keyboard shortcuts help keys',kbd:'?'},
