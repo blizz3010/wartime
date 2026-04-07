@@ -3,6 +3,19 @@ export default async function handler(req, res) {
   if (!channelId && !liveUrl) {
     return res.status(400).json({ error: 'channelId or liveUrl required' });
   }
+  if (channelId && !/^UC[\w-]{22}$/.test(channelId)) {
+    return res.status(400).json({ error: 'Invalid channelId format' });
+  }
+  if (liveUrl) {
+    try {
+      const parsed = new URL(liveUrl);
+      if (!['www.youtube.com', 'youtube.com', 'youtu.be'].includes(parsed.hostname)) {
+        return res.status(400).json({ error: 'liveUrl must be a YouTube URL' });
+      }
+    } catch {
+      return res.status(400).json({ error: 'Invalid liveUrl' });
+    }
+  }
 
   try {
     // Method 1: If a direct live URL is provided, scrape it for the video ID
@@ -26,15 +39,17 @@ export default async function handler(req, res) {
       url.searchParams.set('key', apiKey);
 
       const ytRes = await fetch(url.toString());
-      const data = await ytRes.json();
-      const liveItem = (data.items || [])[0];
-      if (liveItem) {
-        res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=1200');
-        return res.status(200).json({
-          videoId: liveItem.id.videoId,
-          title: liveItem.snippet.title,
-          channelTitle: liveItem.snippet.channelTitle,
-        });
+      if (ytRes.ok) {
+        const data = await ytRes.json();
+        const liveItem = (data.items || [])[0];
+        if (liveItem) {
+          res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=1200');
+          return res.status(200).json({
+            videoId: liveItem.id.videoId,
+            title: liveItem.snippet.title,
+            channelTitle: liveItem.snippet.channelTitle,
+          });
+        }
       }
     }
 

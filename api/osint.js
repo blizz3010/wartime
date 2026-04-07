@@ -3,6 +3,10 @@
 // CDN-cached so visitors share one response — prevents rate limiting
 module.exports = async (req, res) => {
   const theater = (req.query?.theater || 'iran').toLowerCase();
+  const VALID_THEATERS = ['iran', 'ukraine'];
+  if (!VALID_THEATERS.includes(theater)) {
+    return res.status(400).json({ error: 'Invalid theater parameter' });
+  }
 
   const OSINT_SUBS_IRAN = [
     { sub: 'OSINT', queries: ['iran OSINT', 'iran satellite imagery'] },
@@ -38,7 +42,7 @@ module.exports = async (req, res) => {
   const RSS_KW = theater === 'ukraine' ? UKRAINE_KW : IRAN_KW;
 
   function stripHtml(html) {
-    return (html || '').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+    return (html || '').replace(/<[^>]*>?/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
   }
 
   function parseRSS(xml) {
@@ -67,32 +71,40 @@ module.exports = async (req, res) => {
     const allPosts = [];
     const seenIds = new Set();
 
-    // --- Reddit fetches (batched to minimize calls) ---
-    const redditFetches = [];
+    // --- Reddit fetches (batched with 429 backoff) ---
+    const redditItems = [];
     for (const acc of OSINT_SUBS) {
       for (const q of acc.queries) {
-        redditFetches.push(
-          fetch(`https://www.reddit.com/r/${acc.sub}/search.json?q=${encodeURIComponent(q)}&sort=new&t=week&limit=15&restrict_sr=1`, {
-            headers: { 'User-Agent': 'wartime-dashboard/1.0', 'Accept': 'application/json' },
-            signal: AbortSignal.timeout(8000),
-          }).then(r => r.ok ? r.json() : null).catch(() => null)
-            .then(data => ({ data, sub: acc.sub }))
-        );
+        redditItems.push({
+          url: `https://www.reddit.com/r/${acc.sub}/search.json?q=${encodeURIComponent(q)}&sort=new&t=week&limit=15&restrict_sr=1`,
+          sub: acc.sub,
+        });
       }
     }
-
-    // Also fetch hot posts from key subs
     for (const sub of HOT_SUBS) {
-      redditFetches.push(
-        fetch(`https://www.reddit.com/r/${sub}/hot.json?limit=15`, {
-          headers: { 'User-Agent': 'wartime-dashboard/1.0', 'Accept': 'application/json' },
-          signal: AbortSignal.timeout(8000),
-        }).then(r => r.ok ? r.json() : null).catch(() => null)
-          .then(data => ({ data, sub }))
-      );
+      redditItems.push({
+        url: `https://www.reddit.com/r/${sub}/hot.json?limit=15`,
+        sub,
+      });
     }
 
-    // --- RSS fetches ---
+    const fetchRedditItem = (item) =>
+      fetch(item.url, {
+        headers: { 'User-Agent': 'wartime-dashboard/1.0', 'Accept': 'application/json' },
+        signal: AbortSignal.timeout(8000),
+      }).then(r => {
+        if (r.status === 429) return { rateLimited: true };
+        return r.ok ? r.json() : null;
+      }).catch(() => null)
+        .then(data => {
+          if (data && data.rateLimited) return { data: null, sub: item.sub, rateLimited: true };
+          return { data, sub: item.sub };
+        });
+
+    const batch1 = redditItems.slice(0, 6);
+    const batch2 = redditItems.slice(6);
+
+    // --- RSS fetches (run in parallel with Reddit batch 1) ---
     const rssFetches = RSS_FEEDS.map(async feed => {
       try {
         const r = await fetch(feed.url, {
@@ -107,10 +119,17 @@ module.exports = async (req, res) => {
       }
     });
 
-    const [redditResults, rssResults] = await Promise.all([
-      Promise.allSettled(redditFetches),
+    // Fire batch 1 + RSS in parallel
+    const [redditResults1, rssResults] = await Promise.all([
+      Promise.allSettled(batch1.map(fetchRedditItem)),
       Promise.allSettled(rssFetches),
     ]);
+
+    // Adaptive delay — back off if batch 1 hit rate limits
+    const had429 = redditResults1.some(r => r.status === 'fulfilled' && r.value?.rateLimited);
+    await new Promise(r => setTimeout(r, had429 ? 2000 : 500));
+    const redditResults2 = await Promise.allSettled(batch2.map(fetchRedditItem));
+    const redditResults = [...redditResults1, ...redditResults2];
 
     // Process Reddit
     for (const result of redditResults) {
@@ -176,7 +195,6 @@ module.exports = async (req, res) => {
 
     // Cache on CDN for 20 minutes, stale-while-revalidate for 40 minutes
     res.setHeader('Cache-Control', 's-maxage=1200, stale-while-revalidate=2400');
-    res.setHeader('Access-Control-Allow-Origin', '*');
     res.status(200).json({
       posts: allPosts.slice(0, 100),
       meta: {
@@ -187,6 +205,7 @@ module.exports = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to aggregate OSINT feeds', detail: err.message });
+    console.error('osint error:', err);
+    res.status(500).json({ error: 'Failed to aggregate OSINT feeds' });
   }
 };

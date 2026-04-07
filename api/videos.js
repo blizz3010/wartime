@@ -44,7 +44,7 @@ export default async function handler(req, res) {
       detailUrl.searchParams.set('key', apiKey);
 
       const detailRes = await fetch(detailUrl.toString());
-      const detailData = await detailRes.json();
+      const detailData = detailRes.ok ? await detailRes.json() : { items: [] };
       (detailData.items || []).forEach(v => {
         durations[v.id] = {
           duration: v.contentDetails?.duration || '',

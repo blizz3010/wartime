@@ -12,6 +12,10 @@ const MEMORY_CACHE_TTL = 300000; // 5 minutes
 
 module.exports = async (req, res) => {
   const theater = (req.query?.theater || 'iran').toLowerCase();
+  const VALID_THEATERS = ['iran', 'ukraine'];
+  if (!VALID_THEATERS.includes(theater)) {
+    return res.status(400).json({ error: 'Invalid theater parameter' });
+  }
   const cacheKey = theater;
 
   // Serve from memory cache if warm and fresh (per theater)
@@ -95,15 +99,19 @@ module.exports = async (req, res) => {
         headers: { 'User-Agent': 'wartime-dashboard/1.0 (conflict tracker)', 'Accept': 'application/json' },
         signal: AbortSignal.timeout(10000),
       }).then(r => {
-        if (r.status === 429) return null; // Rate limited — skip gracefully
+        if (r.status === 429) return { rateLimited: true }; // Rate limited — flag for backoff
         return r.ok ? r.json() : null;
       }).catch(() => null)
-        .then(data => ({ data, sub: item.sub, isHot: item.isHot, isNew: item.isNew }));
+        .then(data => {
+          if (data && data.rateLimited) return { data: null, sub: item.sub, rateLimited: true };
+          return { data, sub: item.sub, isHot: item.isHot, isNew: item.isNew };
+        });
 
     // Fetch batch 1 first
     const results1 = await Promise.allSettled(batch1.map(fetchReddit));
-    // Small delay then batch 2
-    await new Promise(r => setTimeout(r, 500));
+    // Adaptive delay — back off longer if batch 1 hit rate limits
+    const had429 = results1.some(r => r.status === 'fulfilled' && r.value?.rateLimited);
+    await new Promise(r => setTimeout(r, had429 ? 2000 : 500));
     const results2 = await Promise.allSettled(batch2.map(fetchReddit));
 
     const redditResults = [...results1, ...results2];
@@ -255,6 +263,7 @@ module.exports = async (req, res) => {
       res.setHeader('X-Cache', 'memory-stale');
       return res.status(200).json(memoryCache);
     }
-    res.status(500).json({ error: 'Failed to aggregate clips', detail: err.message });
+    console.error('clips error:', err);
+    res.status(500).json({ error: 'Failed to aggregate clips' });
   }
 };
