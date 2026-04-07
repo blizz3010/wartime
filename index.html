@@ -1066,10 +1066,10 @@
     <div class="section-head">
       <span id="warmapTitle">🗺 IRAN WAR MAP — LIVEUAMAP</span>
       <div class="map-btn-container" style="display:flex;gap:8px;">
-        <button class="overlay-btn" onclick="setMapSrc('https://iran.liveuamap.com/')" aria-label="Switch to Iran live map">Iran Map</button>
-        <button class="overlay-btn" onclick="setMapSrc('https://israelpalestine.liveuamap.com/')" aria-label="Switch to Israel-Palestine live map">Israel-Palestine</button>
+        <button class="overlay-btn" onclick="setMapSrc('https://liveuamap.com/en?ll=32.4279;53.6880&zoom=5')" aria-label="Switch to Iran live map">Iran Map</button>
+        <button class="overlay-btn" onclick="setMapSrc('https://liveuamap.com/en?ll=31.5;35.0&zoom=7')" aria-label="Switch to Israel-Palestine live map">Israel-Palestine</button>
+        <button class="overlay-btn" onclick="setMapSrc('https://liveuamap.com/en?ll=29.0;47.0&zoom=4')" aria-label="Switch to Middle East wide map">Middle East</button>
         <button class="overlay-btn" onclick="setMapSrc('https://liveuamap.com/')" aria-label="Switch to global conflict map">Global View</button>
-        <button class="overlay-btn" onclick="setMapSrc('https://iranstrikemap.com/')" aria-label="Switch to Iran strike map">Strike Map</button>
         <button class="overlay-btn" onclick="openLink('https://acleddata.com/iran-crisis-live/')" aria-label="Open ACLED conflict data in new tab">ACLED Data ↗</button>
       </div>
     </div>
@@ -1552,10 +1552,11 @@ const THEATERS={
     flags:'\u{1F1FA}\u{1F1F8}\u{1F1EE}\u{1F1F1} vs \u{1F1EE}\u{1F1F7}',
     flagsHtml:'<span class="flag">&#127482;&#127480;</span><span class="flag">&#127470;&#127473;</span> vs <span class="flag">&#127470;&#127479;</span>',
     startDate:'2026-02-28',
-    mapUrl:'https://iran.liveuamap.com/',
+    mapUrl:'https://liveuamap.com/en?ll=32.4279;53.6880&zoom=5',
     mapButtons:[
-      {label:'Iran Map',url:'https://iran.liveuamap.com/'},
-      {label:'Israel-Palestine',url:'https://israelpalestine.liveuamap.com/'},
+      {label:'Iran Map',url:'https://liveuamap.com/en?ll=32.4279;53.6880&zoom=5'},
+      {label:'Israel-Palestine',url:'https://liveuamap.com/en?ll=31.5;35.0&zoom=7'},
+      {label:'Middle East',url:'https://liveuamap.com/en?ll=29.0;47.0&zoom=4'},
     ],
     maritimeUrl:'https://www.vesselfinder.com/aismap?lat=26.59&lon=56.27&zoom=10&width=1600&height=900&names=true',
     airTrafficUrl:'https://globe.adsbexchange.com/?lat=27.000&lon=54.000&zoom=5.5',
@@ -5188,7 +5189,7 @@ function renderResources(){
     {icon:'🎖',title:'UK MoD Intelligence Updates',desc:'Daily intelligence updates from UK Ministry of Defence on the conflict in Ukraine.',url:'https://twitter.com/DefenceHQ',label:'@DefenceHQ'},
     {icon:'📊',title:'Mediazona Casualties',desc:'Independent verified Russian military casualty tracker using obituaries and court records.',url:'https://en.zona.media/article/2022/05/11/casualties_eng',label:'zona.media'},
   ]:[
-    {icon:'🗺',title:'Liveuamap — Iran',desc:'Real-time conflict map with geolocated news reports, strikes, and military movements across Iran.',url:'https://iran.liveuamap.com/',label:'iran.liveuamap.com'},
+    {icon:'🗺',title:'Liveuamap — Iran',desc:'Real-time conflict map with geolocated news reports, strikes, and military movements across Iran.',url:'https://liveuamap.com/en?ll=32.4279;53.6880&zoom=5',label:'liveuamap.com'},
     {icon:'🗺',title:'Iran Strike Map',desc:'Independent OSINT tracker with 115+ confirmed strikes, leader status, and verified video.',url:'https://iranstrikemap.com/',label:'iranstrikemap.com'},
     {icon:'🗺',title:'ACLED Iran Crisis',desc:'Armed Conflict Location & Event Data — updated daily map of all strikes and retaliations.',url:'https://acleddata.com/iran-crisis-live/',label:'acleddata.com'},
     {icon:'🗺',title:'ISW/CTP ArcGIS Map',desc:'Institute for the Study of War interactive strike map companion to their daily conflict coverage.',url:'https://storymaps.arcgis.com/stories/089bc1a2fe684405a67d67f13bd31324',label:'storymaps.arcgis.com'},
