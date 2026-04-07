@@ -730,6 +730,13 @@
     .impact-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
     .news-controls{overflow-x:auto;scrollbar-width:none}
     .news-controls::-webkit-scrollbar{display:none}
+    /* Responsive: new panels */
+    #cyberMapButtons{gap:4px!important}
+    #cyberMapButtons .overlay-btn{font-size:.5rem;padding:6px 8px}
+    .forces-subnav,.timeline-filters{overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap!important}
+    .forces-subnav::-webkit-scrollbar,.timeline-filters::-webkit-scrollbar{display:none}
+    .cmd-palette{width:95vw!important}
+    .cmd-input{font-size:.7rem;padding:12px 14px}
   }
   @media(max-width:400px){
     .logo{font-size:1rem;letter-spacing:1px}
@@ -1168,14 +1175,14 @@
     <div class="section-head">
       <span id="cyberMapTitle">🛡 LIVE CYBER THREAT MAP</span>
       <div id="cyberMapButtons" style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="overlay-btn active" onclick="setCyberSrc('https://cybermap.kaspersky.com/','Kaspersky Cybermap')" style="background:#1a3320;border-color:#4dff88;color:#4dff88">🌐 Kaspersky</button>
-        <button class="overlay-btn" onclick="setCyberSrc('https://threatmap.checkpoint.com/','Check Point ThreatCloud')">🛡 Check Point</button>
-        <button class="overlay-btn" onclick="setCyberSrc('https://horizon.netscout.com/','NETSCOUT Cyber Threat Horizon')">📊 NETSCOUT</button>
-        <button class="overlay-btn" onclick="setCyberSrc('https://threatmap.bitdefender.com/','Bitdefender Threat Map')">🔒 Bitdefender</button>
-        <button class="overlay-btn" onclick="setCyberSrc('https://threatmap.fortiguard.com/','Fortinet FortiGuard')">⚔ Fortinet</button>
-        <button class="overlay-btn" onclick="setCyberSrc('https://www.digitalattackmap.com/','Digital Attack Map — DDoS')">💥 DDoS Map</button>
-        <button class="overlay-btn" onclick="setCyberSrc('https://radar.cloudflare.com/','Cloudflare Radar — Internet Health')">☁ Cloudflare</button>
-        <button class="overlay-btn" onclick="window.open('https://cybermap.kaspersky.com/','_blank')">Open Full View ↗</button>
+        <button class="overlay-btn active" onclick="setCyberSrc('https://threatmap.fortiguard.com/','Fortinet')" style="background:#1a3320;border-color:#4dff88;color:#4dff88">⚔ Fortinet</button>
+        <button class="overlay-btn" onclick="setCyberSrc('https://cybermap.kaspersky.com/','Kaspersky')">🌐 Kaspersky</button>
+        <button class="overlay-btn" onclick="setCyberSrc('https://threatmap.checkpoint.com/','Check Point')">🛡 Check Point</button>
+        <button class="overlay-btn" onclick="setCyberSrc('https://horizon.netscout.com/','NETSCOUT')">📊 NETSCOUT</button>
+        <button class="overlay-btn" onclick="setCyberSrc('https://threatmap.bitdefender.com/','Bitdefender')">🔒 Bitdefender</button>
+        <button class="overlay-btn" onclick="setCyberSrc('https://www.digitalattackmap.com/','DDoS Map')">💥 DDoS Map</button>
+        <button class="overlay-btn" onclick="setCyberSrc('https://radar.cloudflare.com/','Cloudflare')">☁ Cloudflare</button>
+        <button class="overlay-btn" onclick="window.open('https://threatmap.fortiguard.com/','_blank')">Open Full View ↗</button>
       </div>
     </div>
     <iframe id="cyberFrame" src="about:blank" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
@@ -1812,6 +1819,12 @@ function switchTheater(theaterId){
   // Re-render livestreams with theater-specific channels
   if(typeof renderStreamNav==='function') renderStreamNav();
 
+  // Reset Cyber Map iframe on theater switch (some maps show regional data)
+  const cyberFrame=document.getElementById('cyberFrame');
+  if(cyberFrame&&cyberFrame.src&&cyberFrame.src!=='about:blank'&&cyberFrame.src!==window.location.href){
+    cyberFrame.src=cyberFrame.src; // reload current map
+  }
+
   // Re-fetch news with theater param
   fetchNews(true);
 
@@ -1865,14 +1878,16 @@ function setMaritimeSrc(lat,lon,zoom){
   document.getElementById('maritimeFrame').src=`https://www.vesselfinder.com/aismap?lat=${lat}&lon=${lon}&zoom=${zoom}&width=1600&height=900&names=true`;
 }
 function setAirSrc(url){document.getElementById('airFrame').src=url}
+let activeCyberLabel='Fortinet';
 function setCyberSrc(url,label){
   document.getElementById('cyberFrame').src=url;
-  // Update active button state
+  activeCyberLabel=label||'';
   document.querySelectorAll('#cyberMapButtons .overlay-btn').forEach(b=>{
-    b.style.background='';b.style.borderColor='';b.style.color='';
-    if(b.textContent.includes(label?.split(' ')[0]||'---')){
-      b.style.background='#1a3320';b.style.borderColor='#4dff88';b.style.color='#4dff88';
-    }
+    const isExt=b.textContent.includes('↗');
+    const isActive=!isExt&&b.textContent.includes(label);
+    b.style.background=isActive?'#1a3320':'';
+    b.style.borderColor=isActive?'#4dff88':'';
+    b.style.color=isActive?'#4dff88':'';
   });
 }
 
@@ -2306,7 +2321,7 @@ function closeModal(){
 document.getElementById('videoModal').addEventListener('click',e=>{
   if(e.target===e.currentTarget)closeModal();
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+// Escape for modal handled in main keyboard shortcuts dispatcher
 
 // ===== UTILITIES =====
 function timeAgo(date){
@@ -2651,8 +2666,13 @@ async function fetchOsint(force){
     renderOsint();
   }catch(e){
     console.warn('OSINT API failed:',e);
-    status.textContent='Failed to load OSINT feeds. Try refreshing.';
-    grid.innerHTML='<div class="loading" style="grid-column:1/-1">Failed to load OSINT feeds. Click REFRESH to retry.</div>';
+    if(allOsintPosts.length>0){
+      status.textContent=`API error — showing ${allOsintPosts.length} cached posts. Click REFRESH to retry.`;
+      renderOsint();
+    }else{
+      status.textContent='Failed to load OSINT feeds. Reddit API may be rate-limited.';
+      grid.innerHTML='<div class="loading" style="grid-column:1/-1">Failed to load OSINT feeds. Reddit API may be rate-limited (429). Click REFRESH to retry.</div>';
+    }
   }
 }
 
@@ -5712,7 +5732,7 @@ document.querySelector('[data-panel="osint"]').addEventListener('click',()=>{
 },{once:true});
 document.querySelector('[data-panel="cybermap"]').addEventListener('click',()=>{
   const f=document.getElementById('cyberFrame');
-  if(!f.src||f.src==='about:blank'||f.src===window.location.href) f.src='https://cybermap.kaspersky.com/';
+  if(!f.src||f.src==='about:blank'||f.src===window.location.href) f.src='https://threatmap.fortiguard.com/';
 },{once:true});
 
 // Track active panel for badges + PiP behavior
@@ -5752,10 +5772,16 @@ function searchNews(query){
 
 // ===== KEYBOARD SHORTCUTS =====
 document.addEventListener('keydown',e=>{
-  // Escape — close any open panels (works even in inputs)
+  // Escape — unified close handler (priority order)
+  // Note: War Room escape is handled separately with capture:true (higher priority)
   if(e.key==='Escape'){
+    if(warRoomActive) return; // handled by capture listener
+    const cmdPal=document.getElementById('cmdPalette');
+    if(cmdPal&&cmdPal.classList.contains('show')){closeCmdPalette();return;}
     if(activeTickerDetail){document.getElementById('tickerDetailPanel').classList.remove('show');activeTickerDetail=null;return;}
     if(carrierPanelOpen){toggleCarrierPanel();return;}
+    const modal=document.getElementById('videoModal');
+    if(modal&&modal.classList.contains('active')){closeModal();return;}
     const hint=document.getElementById('kbdHint');
     if(hint&&hint.classList.contains('show')){hint.classList.remove('show');return;}
   }
