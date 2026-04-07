@@ -1015,7 +1015,6 @@
   <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-airtraffic" data-panel="airtraffic"><span class="tab-icon">✈</span>AIR TRAFFIC</div>
   <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-videos" data-panel="videos"><span class="tab-icon">▶</span>VIDEO CLIPS</div>
   <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-livestreams" data-panel="livestreams"><span class="tab-icon">◉</span>LIVE STREAMS</div>
-  <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-osint" data-panel="osint"><span class="tab-icon">◎</span>OSINT / SOCIAL</div>
   <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-cybermap" data-panel="cybermap"><span class="tab-icon">🛡</span>CYBER MAP</div>
   <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-forces" data-panel="forces"><span class="tab-icon">⚔</span>FORCES</div>
   <div class="nav-tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-assets" data-panel="assets"><span class="tab-icon">🎯</span>ASSETS</div>
@@ -1150,28 +1149,6 @@
   </div>
 </div>
 
-<!-- ==================== OSINT / SOCIAL PANEL ==================== -->
-<div class="panel" id="panel-osint" role="tabpanel">
-  <div class="section-head">
-    <span>◎ OSINT / SOCIAL INTELLIGENCE</span>
-    <div style="display:flex;gap:8px;align-items:center">
-      <div class="vid-source-tabs" role="group" aria-label="Filter OSINT posts">
-        <button class="vid-src-tab active" data-osint="all" onclick="filterOsint('all')" aria-label="Show all posts">ALL</button>
-        <button class="vid-src-tab" data-osint="social" onclick="filterOsint('social')" aria-label="Show social media posts">SOCIAL</button>
-        <button class="vid-src-tab" data-osint="analysis" onclick="filterOsint('analysis')" aria-label="Show analysis posts">ANALYSIS</button>
-        <button class="vid-src-tab" data-osint="osint" onclick="filterOsint('osint')" aria-label="Show OSINT intelligence">OSINT</button>
-      </div>
-      <button class="refresh-btn" onclick="fetchOsint(true)" aria-label="Refresh OSINT feeds"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> REFRESH</button>
-    </div>
-  </div>
-  <div id="osintStatus" style="padding:8px 16px;font-family:var(--mono);font-size:.6rem;color:var(--text3);border-bottom:1px solid var(--border)">
-    Aggregating OSINT sources...
-  </div>
-  <div class="osint-grid" id="osintGrid">
-    <div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading OSINT feeds...</div>
-  </div>
-</div>
-
 <!-- ==================== CYBER THREAT MAP PANEL ==================== -->
 <div class="panel" id="panel-cybermap" role="tabpanel">
   <div class="full-frame">
@@ -1185,6 +1162,7 @@
         <button class="overlay-btn" onclick="setCyberSrc('https://threatmap.bitdefender.com/','Bitdefender')" aria-label="Switch to Bitdefender threat map">🔒 Bitdefender</button>
         <button class="overlay-btn" onclick="setCyberSrc('https://www.digitalattackmap.com/','DDoS Map')" aria-label="Switch to Digital Attack DDoS map">💥 DDoS Map</button>
         <button class="overlay-btn" onclick="setCyberSrc('https://radar.cloudflare.com/','Cloudflare')" aria-label="Switch to Cloudflare Radar internet health">☁ Cloudflare</button>
+        <button class="overlay-btn" onclick="window.open(currentTheater.id==='ukraine'?'https://gpsjam.org/?lat=48.5&lon=35.0&z=5':'https://gpsjam.org/?lat=26.5&lon=53.6&z=5','_blank')" aria-label="Open GPS jamming interference map in new tab" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming ↗</button>
         <button class="overlay-btn" onclick="window.open('https://threatmap.fortiguard.com/','_blank')" aria-label="Open current cyber map in new tab">Open Full View ↗</button>
       </div>
     </div>
@@ -1811,9 +1789,8 @@ function switchTheater(theaterId){
   }
   renderCoalitionFleet();
 
-  // Invalidate OSINT/video/news caches so stale data from other theater is cleared
+  // Invalidate video/news caches so stale data from other theater is cleared
   if(typeof allVideoClips!=='undefined'){allVideoClips=[];videoLastFetch=0;}
-  if(typeof allOsintPosts!=='undefined'){allOsintPosts=[];osintLastFetch=0;}
 
   // Re-render resources, impact & overview stats for the new theater
   renderResources();
@@ -1833,7 +1810,7 @@ function switchTheater(theaterId){
   fetchNews(true);
 
   // Re-fetch OSINT & clips (force refresh to get theater-specific data)
-  if(typeof fetchOsint==='function') fetchOsint(true);
+  // OSINT tab removed
   if(typeof fetchVideos==='function') fetchVideos(true);
 
   // Remove loading transition
@@ -5785,9 +5762,6 @@ document.querySelector('[data-panel="livestreams"]').addEventListener('click',()
 document.querySelector('[data-panel="videos"]').addEventListener('click',()=>{
   if(document.getElementById('clipsGrid').querySelector('.loading'))fetchVideos();
 },{once:true});
-document.querySelector('[data-panel="osint"]').addEventListener('click',()=>{
-  if(document.getElementById('osintGrid').querySelector('.loading'))fetchOsint();
-},{once:true});
 document.querySelector('[data-panel="cybermap"]').addEventListener('click',()=>{
   const f=document.getElementById('cyberFrame');
   if(!f.src||f.src==='about:blank'||f.src===window.location.href) f.src='https://threatmap.fortiguard.com/';
@@ -5860,7 +5834,6 @@ document.addEventListener('keydown',e=>{
   if(e.key==='r'||e.key==='R'){
     e.preventDefault();
     if(currentPanel==='videos') fetchVideos(true);
-    else if(currentPanel==='osint') fetchOsint(true);
     else fetchNews(true);
   }
   // N = night ops toggle
@@ -5897,7 +5870,6 @@ const CMD_COMMANDS=[
   {icon:'✈',label:'Go to Air Traffic',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="airtraffic"]')),tags:'air traffic flight radar'},
   {icon:'▶',label:'Go to Video Clips',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="videos"]')),tags:'video clips combat footage'},
   {icon:'◉',label:'Go to Live Streams',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="livestreams"]')),tags:'live streams watch'},
-  {icon:'◎',label:'Go to OSINT / Social',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="osint"]')),tags:'osint social reddit intel'},
   {icon:'🛡',label:'Go to Cyber Map',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="cybermap"]')),tags:'cyber map threat attack kaspersky'},
   {icon:'⚔',label:'Go to Forces',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="forces"]')),tags:'forces order battle'},
   {icon:'🎯',label:'Go to Assets',hint:'Panel',action:()=>activateTab(document.querySelector('[data-panel="assets"]')),tags:'assets carriers bases'},
@@ -6411,20 +6383,18 @@ loadPrefs();
 setInterval(savePrefs,30000);
 
 // Visibility-aware auto-refresh — pauses when tab is hidden, resumes on return
-let _refreshTimers={news:null,videos:null,osint:null};
-let _lastFetch={news:Date.now(),videos:Date.now(),osint:Date.now()};
-const REFRESH_MS={news:300000,videos:1800000,osint:1200000}; // 5min, 30min, 20min
+let _refreshTimers={news:null,videos:null};
+let _lastFetch={news:Date.now(),videos:Date.now()};
+const REFRESH_MS={news:300000,videos:1800000}; // 5min, 30min
 function startRefreshTimers(){
   if(_refreshTimers.news) clearInterval(_refreshTimers.news);
   if(_refreshTimers.videos) clearInterval(_refreshTimers.videos);
-  if(_refreshTimers.osint) clearInterval(_refreshTimers.osint);
   _refreshTimers.news=setInterval(()=>{_lastFetch.news=Date.now();fetchNews()},REFRESH_MS.news);
   _refreshTimers.videos=setInterval(()=>{if(allVideoClips.length>0){_lastFetch.videos=Date.now();fetchVideos()}},REFRESH_MS.videos);
-  _refreshTimers.osint=setInterval(()=>{if(allOsintPosts.length>0){_lastFetch.osint=Date.now();fetchOsint()}},REFRESH_MS.osint);
 }
 function stopRefreshTimers(){
   Object.values(_refreshTimers).forEach(t=>{if(t)clearInterval(t)});
-  _refreshTimers={news:null,videos:null,osint:null};
+  _refreshTimers={news:null,videos:null};
 }
 startRefreshTimers();
 document.addEventListener('visibilitychange',()=>{
@@ -6432,11 +6402,9 @@ document.addEventListener('visibilitychange',()=>{
     savePrefs();
     stopRefreshTimers();
   }else{
-    // On return, fetch stale data immediately then restart timers
     const now=Date.now();
     if(now-_lastFetch.news>REFRESH_MS.news) fetchNews();
     if(now-_lastFetch.videos>REFRESH_MS.videos&&allVideoClips.length>0) fetchVideos();
-    if(now-_lastFetch.osint>REFRESH_MS.osint&&allOsintPosts.length>0) fetchOsint();
     startRefreshTimers();
   }
 });
