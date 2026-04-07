@@ -3835,6 +3835,29 @@ function renderImpactDashboard(){
     {date:'Mar 2022',text:'Siege of Mariupol begins; Azovstal steelworks becomes symbol of resistance',cat:'military'},
     {date:'Feb 24',text:'Russia launches full-scale invasion of Ukraine from north, east, and south',cat:'military'},
   ]:[
+    {date:'Apr 7',text:'Trump\'s 8 PM ET deadline for Iran to reopen Strait of Hormuz — threatened destruction of all power plants and bridges if not met',cat:'diplomacy'},
+    {date:'Apr 6',text:'Iran formally rejects ceasefire via 10-point response; demands permanent end to hostilities, reconstruction, sanctions lifted',cat:'diplomacy'},
+    {date:'Apr 6',text:'19 killed including 6 children in US-Israeli strikes near Tehran (Shahriar & Baharestan); residential buildings destroyed',cat:'humanitarian'},
+    {date:'Apr 6',text:'Iran threatens Bab el-Mandeb closure in addition to Hormuz',cat:'maritime'},
+    {date:'Apr 5',text:'F-15E WSO rescued by US special operations forces after ~48 hours behind enemy lines in Iran',cat:'military'},
+    {date:'Apr 5',text:'Trump sets Apr 7 deadline: reopen Hormuz or face destruction of power plants & bridges ("Power Plant Day")',cat:'diplomacy'},
+    {date:'Apr 5',text:'Casualty update: ~2,076 dead in Iran, 26 in Israel, 13 US soldiers, 28 in Gulf states; 6,833 evacuated to hospitals',cat:'humanitarian'},
+    {date:'Apr 4',text:'Bushehr Nuclear Power Plant hit (4th strike); IAEA expresses "deep concern"; no radiation increase detected',cat:'nuclear'},
+    {date:'Apr 4',text:'Mahshahr Special Petrochemical Zone struck — at least 5 killed, 170 injured',cat:'strikes'},
+    {date:'Apr 3',text:'US F-15E Strike Eagle shot down over Iran; pilot rescued, WSO escapes into Zagros Mountains — IRGC & SEAL Team Six race to find him',cat:'military'},
+    {date:'Apr 3',text:'A-10 Warthog crashes near Strait of Hormuz during rescue operations; pilot safely recovered',cat:'military'},
+    {date:'Apr 3',text:'Iran strikes Gulf refineries: drones hit Kuwait\'s largest refinery, UAE Habshan gas facility, Saudi targets intercepted',cat:'strikes'},
+    {date:'Apr 2',text:'Intensified US-Israeli strikes on air defense systems, ballistic missile arrays, and R&D sites; Brent crude above $120/bbl',cat:'strikes'},
+    {date:'Apr 1',text:'Day 33 — Trump addresses nation on Operation Epic Fury; claims Iran "essentially decimated"',cat:'diplomacy'},
+    {date:'Mar 31',text:'Adm. Cooper: US "making undeniable progress in eliminating Iran\'s ability to project power"',cat:'military'},
+    {date:'Mar 29',text:'Joint strikes hit Bandar Khamir port; Shahid Haqqani pier in Bandar Abbas bombed; at least 5 killed',cat:'strikes'},
+    {date:'Mar 29',text:'IRGC Intelligence chief MG Majid Khademi killed in US-Israeli airstrike',cat:'strikes'},
+    {date:'Mar 28',text:'Houthis enter the war: ballistic missile fired at Beersheba, Israel — intercepted. First Houthi attack since 2025 Gaza ceasefire',cat:'strikes'},
+    {date:'Mar 28',text:'Houthis announce coordination with Iran, Hezbollah, and Iraqi militias; threaten Bab el-Mandeb closure',cat:'maritime'},
+    {date:'Mar 27',text:'IRGC announces Strait of Hormuz closed to all vessels going to/from US, Israel, and allied ports',cat:'maritime'},
+    {date:'Mar 26',text:'IRGCN Commander RADM Alireza Tangsiri killed in Israeli strike on Bandar Abbas',cat:'strikes'},
+    {date:'Mar 26',text:'Iran surpasses 27th straight day of near-complete internet blackout',cat:'cyber'},
+    {date:'Mar 23',text:'Unprecedented US-Israeli strikes across Iran; Trump postpones strikes on power plants, extending deadline',cat:'strikes'},
     {date:'Mar 22',text:'Continued strikes on IRGC positions; Strait of Hormuz remains closed; 3rd carrier group arrives',cat:'military'},
     {date:'Mar 21',text:'USCYBERCOM confirms offensive cyber operations against IRGC C2 networks',cat:'cyber'},
     {date:'Mar 20',text:'UN emergency session; China & Russia veto ceasefire; Iran fires Shahab-3 salvo at Al Dhafra',cat:'diplomacy'},
@@ -4198,7 +4221,7 @@ function renderMarketCards(data,container){
     const sparkHtml=q.sparkline&&q.sparkline.length>2?renderSparkBars(q.sparkline,q.warImpact>0?'var(--red)':'var(--green)'):'';
     return `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px">
       <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">${escHtml(q.name)}</div>
-      <div style="font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--text);margin:4px 0">${q.price!==null?('$'+q.price.toLocaleString()+q.unit):'N/A'}</div>
+      <div style="font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--text);margin:4px 0">${q.price!==null?((q.category==='commodity'||q.category==='etf'?'$':'')+q.price.toLocaleString()+q.unit):'N/A'}</div>
       ${sparkHtml}
       <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.5rem;margin-top:4px">
         <span style="color:${changeColor}">${arrow} ${q.dayChange!==null?q.dayChange.toFixed(1)+'% today':'—'}</span>
