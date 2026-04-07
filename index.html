@@ -924,7 +924,7 @@
 <!-- HEADER -->
 <div class="header">
   <div class="header-left">
-    <div class="logo">&#9760; WARTIME <span>/ dashboard</span></div>
+    <div class="logo" style="cursor:pointer" onclick="activateTab(document.querySelector('[data-panel=&quot;overview&quot;]'))">&#9760; WARTIME <span>/ dashboard</span></div>
     <select id="theaterSelect" class="theater-select" onchange="switchTheaterDebounced(this.value)">
       <option value="iran">IRAN / US-ISRAEL</option>
       <option value="ukraine">UKRAINE / RUSSIA</option>
@@ -3601,6 +3601,129 @@ function renderUkraineForces(){
       </div>
     `;
   }
+
+  // === UKRAINE SUPPORT NATIONS ===
+  const supportEl=document.getElementById('supportForces');
+  if(supportEl){
+    const supporters=[
+      {flag:'🇺🇸',name:'United States',type:'Military + Financial',detail:'Largest donor — $75B+ total aid. HIMARS, Patriot, ATACMS, Abrams, Bradley, F-16 training, intelligence sharing',amount:'$75B+'},
+      {flag:'🇬🇧',name:'United Kingdom',type:'Military + Training',detail:'Storm Shadow cruise missiles, Challenger 2 tanks, AS-90 SPGs, 50K+ troops trained in Operation Interflex',amount:'$12B+'},
+      {flag:'🇩🇪',name:'Germany',type:'Military + Financial',detail:'Leopard 2A6 tanks, Gepard SPAAG, IRIS-T SLM, Marder IFVs, Patriot battery, ammunition',amount:'$17B+'},
+      {flag:'🇵🇱',name:'Poland',type:'Military + Logistics Hub',detail:'Primary logistics corridor for Western aid. MiG-29 fighters, PT-91 tanks, Krab SPGs, Leopard 2A4',amount:'$4B+'},
+      {flag:'🇫🇷',name:'France',type:'Military + Diplomatic',detail:'SCALP-EG cruise missiles, AMX-10 RC, Caesar SPGs, SAMP/T air defense',amount:'$3B+'},
+      {flag:'🇳🇱',name:'Netherlands',type:'Military',detail:'F-16 fighters (lead donor nation for F-16 coalition), PzH 2000 SPGs',amount:'$3B+'},
+      {flag:'🇩🇰',name:'Denmark',type:'Military',detail:'F-16 fighters, Caesar howitzers, donated entire artillery inventory',amount:'$2B+'},
+      {flag:'🇳🇴',name:'Norway',type:'Military + Financial',detail:'NASAMS air defense systems, M109 SPGs, multi-year aid packages',amount:'$2B+'},
+      {flag:'🇨🇦',name:'Canada',type:'Military + Training',detail:'LAV APCs, M777 howitzers, training operations, Senator tanks',amount:'$2B+'},
+      {flag:'🇸🇪',name:'Sweden',type:'Military',detail:'CV90 IFVs, Archer SPGs, anti-ship missiles, Gripen discussions',amount:'$1.5B+'},
+      {flag:'🇪🇪🇱🇻🇱🇹',name:'Baltic States',type:'Military + Political',detail:'Highest per-capita donors. Stinger MANPADS, Javelin ATGMs, ammunition, political advocacy for NATO support',amount:'Significant'},
+      {flag:'🇨🇿',name:'Czech Republic',type:'Ammunition Initiative',detail:'Led Czech ammunition initiative: 800K+ shells sourced globally for Ukraine',amount:'$1B+'},
+    ];
+    supportEl.innerHTML=`<div style="padding:16px 20px;display:grid;gap:12px">${supporters.map(s=>`
+      <div style="display:flex;gap:12px;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;align-items:center">
+        <span style="font-size:1.4rem;min-width:36px;text-align:center">${s.flag}</span>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text)">${s.name}</span>
+            <span style="font-family:var(--mono);font-size:.55rem;color:var(--green);font-weight:700">${s.amount}</span>
+          </div>
+          <div style="font-family:var(--mono);font-size:.5rem;color:var(--blue);margin:2px 0">${s.type}</div>
+          <div style="font-family:var(--mono);font-size:.55rem;color:var(--text2);line-height:1.4">${s.detail}</div>
+        </div>
+      </div>
+    `).join('')}
+    <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">Sources: Kiel Institute Ukraine Support Tracker, IISS, government announcements · 40+ nations providing military/humanitarian aid</div>
+    </div>`;
+  }
+
+  // === UKRAINE PROXY / NON-STATE ACTORS (Russian side) ===
+  const proxyEl=document.getElementById('proxyForces');
+  if(proxyEl){
+    const proxies=[
+      {name:'Wagner Group / Africa Corps',allegiance:'Russia 🇷🇺',strength:'Est. 50,000 (peak)',status:'Restructured',color:'var(--red)',
+        detail:'Private military company. Led Bakhmut offensive (2022-23). After Prigozhin mutiny (Jun 2023) and death (Aug 2023), absorbed into Russian MOD as "Africa Corps". Recruited from prisons. Now operates primarily in Africa (Mali, CAR, Libya, Niger).'},
+      {name:'DPRK Troops',allegiance:'North Korea 🇰🇵',strength:'Est. 10,000-12,000',status:'Deployed',color:'var(--red)',
+        detail:'North Korean soldiers deployed to Russia starting late 2024. Reportedly fighting in Kursk region. First confirmed foreign troop deployment for Russia. Trained in Russia before frontline deployment.'},
+      {name:'Kadyrovites (Akhmat)',allegiance:'Chechen Republic 🇷🇺',strength:'Est. 10,000-20,000',status:'Active',color:'var(--red)',
+        detail:'Chechen units loyal to Ramzan Kadyrov. Used in Mariupol siege, Luhansk operations. Known for TikTok propaganda ("TikTok battalion"). Mixed combat effectiveness reports.'},
+      {name:'LNR/DNR Militias',allegiance:'Russian Proxy',strength:'Est. 30,000-40,000',status:'Integrated',color:'var(--red)',
+        detail:'Former separatist militias from Luhansk and Donetsk. Forcibly mobilized local population. Now integrated into Russian military command structure after 2022 annexation.'},
+      {name:'International Legion',allegiance:'Ukraine 🇺🇦',strength:'Est. 1,500-3,000',status:'Active',color:'var(--blue)',
+        detail:'Foreign volunteer unit within UAF. Fighters from 50+ countries. Formally established by presidential decree. Operates under Ukrainian military command.'},
+      {name:'Resistance Forces',allegiance:'Ukraine 🇺🇦',strength:'Unknown',status:'Active',color:'var(--blue)',
+        detail:'Ukrainian partisan operations in occupied territories. Intelligence gathering, sabotage of logistics, targeting of collaborators. Coordinated with Ukrainian military intelligence (GUR).'},
+    ];
+    proxyEl.innerHTML=`<div style="padding:16px 20px;display:grid;gap:12px">${proxies.map(p=>`
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:16px;border-left:3px solid ${p.color}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-family:var(--mono);font-size:.75rem;font-weight:700;color:var(--text)">${p.name}</span>
+          <span style="font-family:var(--mono);font-size:.5rem;padding:2px 6px;border-radius:3px;background:${p.color}22;color:${p.color};font-weight:700">${p.status}</span>
+        </div>
+        <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);margin-bottom:6px">${p.allegiance} · ${p.strength}</div>
+        <div style="font-family:var(--mono);font-size:.55rem;color:var(--text2);line-height:1.5">${p.detail}</div>
+      </div>
+    `).join('')}
+    <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">Sources: ISW, UK MOD, Mediazona, Ukrainian military intelligence (GUR)</div>
+    </div>`;
+  }
+
+  // === UKRAINE WEAPONS SYSTEMS ===
+  const weaponsEl=document.getElementById('weaponsSystems');
+  if(weaponsEl){
+    const weapons={
+      ukraine:[
+        {name:'HIMARS M142',type:'MLRS',origin:'🇺🇸',status:'Active',detail:'GMLRS 70km range, ATACMS 300km. Game-changer for destroying ammo depots and C2 nodes.'},
+        {name:'F-16 Fighting Falcon',type:'Fighter',origin:'🇺🇸🇳🇱🇩🇰',status:'Deploying',detail:'First Western jets delivered 2024. Denmark & Netherlands lead donor coalition. Pilot training ongoing.'},
+        {name:'Patriot PAC-3',type:'Air Defense',origin:'🇺🇸🇩🇪',status:'Active',detail:'Intercepting Kinzhal hypersonic missiles. Multiple batteries deployed. Critical for protecting cities.'},
+        {name:'Storm Shadow / SCALP-EG',type:'Cruise Missile',origin:'🇬🇧🇫🇷',status:'Active',detail:'Air-launched cruise missiles. 250km+ range. Used against Crimea targets and logistics hubs.'},
+        {name:'Leopard 2A6',type:'Main Battle Tank',origin:'🇩🇪',status:'Active',detail:'NATO standard MBT. Superior optics and armor to Russian equivalents. Multiple variants in service.'},
+        {name:'Neptune',type:'Anti-Ship Missile',origin:'🇺🇦',status:'Active',detail:'Indigenous Ukrainian missile. Sank the Moskva cruiser. Now used against land targets in Crimea.'},
+        {name:'Naval Drones (USVs)',type:'Maritime',origin:'🇺🇦',status:'Active',detail:'Sea Baby and Magura V5 uncrewed surface vessels. Devastated Black Sea Fleet without a navy.'},
+        {name:'Bayraktar TB2',type:'UAV',origin:'🇹🇷',status:'Active',detail:'Iconic in early war. Less effective after Russian air defense adapted. Still used for ISR.'},
+      ],
+      russia:[
+        {name:'Shahed-136 / Geran-2',type:'Loitering Munition',origin:'🇮🇷→🇷🇺',status:'Mass Use',detail:'Iranian-designed "kamikaze drone." Cheap ($20K each), used in swarms against infrastructure. 1000s launched.'},
+        {name:'Kinzhal (Kh-47M2)',type:'Hypersonic Missile',origin:'🇷🇺',status:'Active',detail:'Air-launched hypersonic. Mach 10+. Successfully intercepted by Patriot PAC-3 (May 2023).'},
+        {name:'Kalibr 3M-54',type:'Cruise Missile',origin:'🇷🇺',status:'Active',detail:'Sea-launched from Black Sea/Caspian. Primary standoff weapon. 1500km+ range. Strikes on energy grid.'},
+        {name:'Iskander-M (9K720)',type:'Ballistic Missile',origin:'🇷🇺',status:'Active',detail:'Tactical ballistic missile. 500km range. Carries conventional or cluster warheads. Hard to intercept.'},
+        {name:'KAB Glide Bombs',type:'Guided Bomb',origin:'🇷🇺',status:'Mass Use',detail:'UMPK glide kits on FAB-250/500/1500 bombs. Devastating on frontline. Dropped from 40km+ standoff range.'},
+        {name:'Lancet',type:'Loitering Munition',origin:'🇷🇺',status:'Active',detail:'Precision loitering munition. Effective against vehicles, artillery, air defense. Growing production.'},
+        {name:'T-90M Proryv',type:'Main Battle Tank',origin:'🇷🇺',status:'Active',detail:'Russia\'s most modern production tank. Better protection than T-72B3. Limited numbers deployed.'},
+        {name:'S-400 Triumf',type:'Air Defense',origin:'🇷🇺',status:'Active',detail:'Long-range SAM system. Limits Ukrainian air operations. Multiple batteries in Crimea and occupied areas.'},
+      ]
+    };
+    weaponsEl.innerHTML=`<div style="padding:16px 20px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <div style="font-family:var(--mono);font-size:.75rem;font-weight:700;color:var(--blue);margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:8px">🇺🇦 UKRAINE / WESTERN</div>
+          ${weapons.ukraine.map(w=>`
+            <div style="padding:8px 0;border-bottom:1px solid var(--surface2)">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-family:var(--mono);font-size:.65rem;font-weight:700;color:var(--text)">${w.name}</span>
+                <span style="font-family:var(--mono);font-size:.45rem;color:var(--blue)">${w.origin}</span>
+              </div>
+              <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">${w.type} · ${w.status}</div>
+              <div style="font-family:var(--mono);font-size:.5rem;color:var(--text2);line-height:1.4;margin-top:2px">${w.detail}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div>
+          <div style="font-family:var(--mono);font-size:.75rem;font-weight:700;color:var(--red);margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:8px">🇷🇺 RUSSIA</div>
+          ${weapons.russia.map(w=>`
+            <div style="padding:8px 0;border-bottom:1px solid var(--surface2)">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-family:var(--mono);font-size:.65rem;font-weight:700;color:var(--text)">${w.name}</span>
+                <span style="font-family:var(--mono);font-size:.45rem;color:var(--red)">${w.origin}</span>
+              </div>
+              <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">${w.type} · ${w.status}</div>
+              <div style="font-family:var(--mono);font-size:.5rem;color:var(--text2);line-height:1.4;margin-top:2px">${w.detail}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3);margin-top:16px">Sources: Oryx, IISS Military Balance, Janes, RUSI, Ukrainian MOD, UK MOD Intelligence Updates</div>
+    </div>`;
+  }
 }
 
 // ===== IMPACT / STATISTICS DASHBOARD =====
@@ -4502,21 +4625,35 @@ function computeDashboardScores(newsItems){
   else if(defconScore>=5){defcon=4;defconSub='ABOVE NORMAL READINESS';}
   else{defcon=5;defconSub='NORMAL READINESS';}
 
-  // --- STRAIT OF HORMUZ ---
-  // Separate from military scoring — only cares about shipping/transit keywords
-  // During an active conflict, default assumption is near-closed unless open signals appear
+  // --- MARITIME STATUS (theater-aware) ---
   const hormuzNet=hormuzOpenScore-hormuzClosedScore;
   let hormuzStatus,hormuzStatusClass,hormuzSub;
-  if(hormuzNet>=60){
-    hormuzStatus='OPEN';hormuzStatusClass='green';hormuzSub='NORMAL TRAFFIC FLOW';
-  }else if(hormuzNet>=30){
-    hormuzStatus='RESTRICTED';hormuzStatusClass='blue';hormuzSub='LIMITED CONVOY TRANSIT';
-  }else if(hormuzNet>=0&&hormuzTrafficMentions>=3){
-    hormuzStatus='MINIMAL TRAFFIC';hormuzStatusClass='orange tick-pulse';hormuzSub='SPORADIC TRANSITS W/ ESCORT';
-  }else if(hormuzNet>=-30||(hormuzMentions>0&&hormuzClosedScore<60)){
-    hormuzStatus='NEAR CLOSED';hormuzStatusClass='orange tick-pulse';hormuzSub='RARE TRANSITS · HIGH RISK';
+  const isUkraineScoring=currentTheater.id==='ukraine';
+
+  if(isUkraineScoring){
+    // Black Sea: alternative corridor operational, default is restricted/open
+    if(hormuzNet>=20||hormuzClosedScore<10){
+      hormuzStatus='OPEN';hormuzStatusClass='green';hormuzSub='ALTERNATIVE CORRIDOR ACTIVE';
+    }else if(hormuzNet>=0||(hormuzOpenScore>0&&hormuzClosedScore<30)){
+      hormuzStatus='RESTRICTED';hormuzStatusClass='blue';hormuzSub='CONVOY ROUTE W/ RISK';
+    }else if(hormuzNet>=-20){
+      hormuzStatus='CONTESTED';hormuzStatusClass='orange tick-pulse';hormuzSub='ATTACKS ON SHIPPING REPORTED';
+    }else{
+      hormuzStatus='BLOCKADE';hormuzStatusClass='red tick-pulse';hormuzSub='MAJOR DISRUPTION';
+    }
   }else{
-    hormuzStatus='CLOSED';hormuzStatusClass='red tick-pulse';hormuzSub='NO COMMERCIAL TRAFFIC';
+    // Strait of Hormuz: default is near-closed during active conflict
+    if(hormuzNet>=60){
+      hormuzStatus='OPEN';hormuzStatusClass='green';hormuzSub='NORMAL TRAFFIC FLOW';
+    }else if(hormuzNet>=30){
+      hormuzStatus='RESTRICTED';hormuzStatusClass='blue';hormuzSub='LIMITED CONVOY TRANSIT';
+    }else if(hormuzNet>=0&&hormuzTrafficMentions>=3){
+      hormuzStatus='MINIMAL TRAFFIC';hormuzStatusClass='orange tick-pulse';hormuzSub='SPORADIC TRANSITS W/ ESCORT';
+    }else if(hormuzNet>=-30||(hormuzMentions>0&&hormuzClosedScore<60)){
+      hormuzStatus='NEAR CLOSED';hormuzStatusClass='orange tick-pulse';hormuzSub='RARE TRANSITS · HIGH RISK';
+    }else{
+      hormuzStatus='CLOSED';hormuzStatusClass='red tick-pulse';hormuzSub='NO COMMERCIAL TRAFFIC';
+    }
   }
 
   const result={
@@ -4741,11 +4878,18 @@ function toggleTickerDetail(type){
           <div>
             <div style="font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px">📐 STATUS LEVELS</div>
             <div style="font-family:var(--mono);font-size:.6rem;color:var(--text2);line-height:1.8">
+              ${isUkraine?`
+              <span style="color:var(--green)">■</span> OPEN — Alternative corridor active<br>
+              <span style="color:var(--blue)">■</span> RESTRICTED — Convoy route with risk<br>
+              <span style="color:var(--orange)">■</span> CONTESTED — Attacks on shipping reported<br>
+              <span style="color:var(--red)">■</span> BLOCKADE — Major disruption
+              `:`
               <span style="color:var(--green)">■</span> OPEN — Normal traffic flow<br>
               <span style="color:var(--blue)">■</span> RESTRICTED — Limited convoy transit<br>
               <span style="color:var(--orange)">■</span> MINIMAL TRAFFIC — Sporadic w/ escort<br>
               <span style="color:var(--orange)">■</span> NEAR CLOSED — Rare transits, high risk<br>
               <span style="color:var(--red)">■</span> CLOSED — No commercial traffic
+              `}
             </div>
           </div>
           <div>
