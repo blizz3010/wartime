@@ -1,6 +1,9 @@
 // Image proxy for Wikipedia/Wikimedia images
 // Avoids hotlink blocking by fetching server-side and caching on Vercel CDN
-module.exports = async (req, res) => {
+
+import { fetchWithTimeout } from './lib/utils.js';
+
+export default async function handler(req, res) {
   const file = req.query.file;
   if (!file) {
     res.status(400).send('Missing ?file= parameter');
@@ -8,21 +11,21 @@ module.exports = async (req, res) => {
   }
 
   // Sanitize: only allow alphanumeric, dots, underscores, hyphens, parens, spaces
-  if (!/^[\w\s.\-()%]+$/.test(file)) {
+  if (!/^[\w\s.\-()]+$/.test(file)) {
     res.status(400).send('Invalid filename');
     return;
   }
 
-  const width = parseInt(req.query.w) || 400;
+  const width = Math.min(Math.max(parseInt(req.query.w) || 400, 50), 1200);
   const url = `https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${encodeURIComponent(file)}&width=${width}`;
 
   try {
-    const resp = await fetch(url, {
+    const resp = await fetchWithTimeout(url, {
       headers: {
         'User-Agent': 'WarTimeDashboard/1.0 (https://wartime-dashboard.vercel.app; contact@example.com)',
       },
       redirect: 'follow',
-    });
+    }, 10000);
 
     if (!resp.ok) {
       res.status(resp.status).send('Upstream error');
@@ -38,6 +41,7 @@ module.exports = async (req, res) => {
     res.setHeader('Content-Length', buffer.length);
     res.status(200).send(buffer);
   } catch (err) {
+    console.error('img proxy error:', err.message);
     res.status(502).send('Fetch failed');
   }
-};
+}

@@ -1,3 +1,5 @@
+import { fetchWithTimeout } from './lib/utils.js';
+
 export default async function handler(req, res) {
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) {
@@ -6,6 +8,9 @@ export default async function handler(req, res) {
 
   const { q = 'Iran war', sort = 'date', max = '24', after = '' } = req.query;
 
+  // Input validation
+  const safeQ = (q || 'Iran war').slice(0, 200);
+
   // Map our sort values to YouTube API order parameter
   const orderMap = { date: 'date', relevance: 'relevance', viewCount: 'viewCount' };
   const order = orderMap[sort] || 'date';
@@ -13,7 +18,7 @@ export default async function handler(req, res) {
   try {
     const url = new URL('https://www.googleapis.com/youtube/v3/search');
     url.searchParams.set('part', 'snippet');
-    url.searchParams.set('q', q);
+    url.searchParams.set('q', safeQ);
     url.searchParams.set('type', 'video');
     url.searchParams.set('order', order);
     url.searchParams.set('maxResults', Math.min(parseInt(max), 50).toString());
@@ -26,7 +31,7 @@ export default async function handler(req, res) {
       url.searchParams.set('publishedAfter', after);
     }
 
-    const ytRes = await fetch(url.toString());
+    const ytRes = await fetchWithTimeout(url.toString(), {}, 8000);
     const data = await ytRes.json();
 
     if (data.error) {
@@ -43,7 +48,7 @@ export default async function handler(req, res) {
       detailUrl.searchParams.set('id', videoIds);
       detailUrl.searchParams.set('key', apiKey);
 
-      const detailRes = await fetch(detailUrl.toString());
+      const detailRes = await fetchWithTimeout(detailUrl.toString(), {}, 8000);
       const detailData = detailRes.ok ? await detailRes.json() : { items: [] };
       (detailData.items || []).forEach(v => {
         durations[v.id] = {
@@ -67,6 +72,7 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
     return res.status(200).json({ videos });
   } catch (err) {
+    console.error('videos error:', err.message);
     return res.status(500).json({ error: 'Failed to fetch videos' });
   }
 }

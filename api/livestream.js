@@ -1,3 +1,5 @@
+import { fetchWithTimeout } from './lib/utils.js';
+
 export default async function handler(req, res) {
   const { channelId, liveUrl } = req.query;
   if (!channelId && !liveUrl) {
@@ -38,7 +40,7 @@ export default async function handler(req, res) {
       url.searchParams.set('maxResults', '1');
       url.searchParams.set('key', apiKey);
 
-      const ytRes = await fetch(url.toString());
+      const ytRes = await fetchWithTimeout(url.toString(), {}, 8000);
       if (ytRes.ok) {
         const data = await ytRes.json();
         const liveItem = (data.items || [])[0];
@@ -67,19 +69,19 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', 's-maxage=120, stale-while-revalidate=300');
     return res.status(200).json({ videoId: null });
   } catch (err) {
+    console.error('livestream error:', err);
     return res.status(500).json({ error: 'Failed to find live stream' });
   }
 }
 
 async function scrapeVideoId(url) {
   try {
-    const resp = await fetch(url, {
+    const resp = await fetchWithTimeout(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept-Language': 'en-US,en;q=0.9',
       },
-      redirect: 'follow',
-    });
+    }, 8000);
     if (!resp.ok) return null;
     const html = await resp.text();
 
@@ -99,7 +101,8 @@ async function scrapeVideoId(url) {
     }
 
     return null;
-  } catch (e) {
+  } catch (err) {
+    console.error('scrape failed:', err.message);
     return null;
   }
 }
