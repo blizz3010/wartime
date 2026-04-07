@@ -3748,6 +3748,18 @@ function renderUkraineForces(){
 }
 
 // ===== IMPACT / STATISTICS DASHBOARD =====
+// Global sparkline bar renderer (used by forecast + market data)
+function renderSparkBars(pts,color){
+  if(!pts||pts.length===0) return '';
+  const max=Math.max(...pts);
+  return `<div class="sparkline-wrap">${pts.map((v,i)=>{
+    const h=Math.max(3,Math.round((v/max)*28));
+    const prev=i>0?pts[i-1]:v;
+    const cls=v>prev?'':'down';
+    return `<div class="spark-bar ${cls}" style="height:${h}px" title="Day ${i+1}"></div>`;
+  }).join('')}</div>`;
+}
+
 function renderImpactDashboard(){
   const conflictDays=Math.floor((new Date()-new Date(currentTheater.startDate+'T00:00:00Z'))/(1000*60*60*24))+1;
   const isUkraine=currentTheater.id==='ukraine';
@@ -4125,60 +4137,81 @@ function renderForecastPanel(){
     `).join('');
   }
 
-  // Commodity indicators
-  const commodities=isUkraine?[
-    {name:'Brent Crude',val:'$78-85/bbl',base:'Pre-war: ~$75',change:'+8%',color:'var(--orange)'},
-    {name:'Natural Gas (TTF)',val:'€32-38/MWh',base:'Pre-war: €25',change:'+40%',color:'var(--red)'},
-    {name:'Wheat (CBOT)',val:'$6.20/bu',base:'Pre-war: $7.50',change:'-17%',color:'var(--green)'},
-    {name:'Fertilizer (Urea)',val:'$310/mt',base:'Pre-war: $420',change:'-26%',color:'var(--green)'},
-    {name:'Shipping (BDI)',val:'1,450',base:'Pre-war: 1,800',change:'-19%',color:'var(--green)'},
-    {name:'Neon Gas',val:'$350/m³',base:'Pre-war: $120',change:'+192%',color:'var(--red)'},
-  ]:[
-    {name:'Brent Crude',val:'$105-115/bbl',base:'Pre-conflict: ~$75',change:'+47%',color:'var(--red)'},
-    {name:'Natural Gas (Henry Hub)',val:'$4.80/MMBtu',base:'Pre-conflict: $2.60',change:'+85%',color:'var(--red)'},
-    {name:'Shipping (BDTI)',val:'2,100',base:'Pre-conflict: 800',change:'+163%',color:'var(--red)'},
-    {name:'War Risk Insurance',val:'+350bps',base:'Pre-conflict: +15bps',change:'+2233%',color:'var(--red)'},
-    {name:'Gold (XAU)',val:'$2,850/oz',base:'Pre-conflict: $2,400',change:'+19%',color:'var(--orange)'},
-    {name:'Wheat (CBOT)',val:'$7.10/bu',base:'Pre-conflict: $5.80',change:'+22%',color:'var(--orange)'},
-  ];
-
-  // Generate fake sparkline data for commodity mini-charts (simulated 14-day trend)
-  function genSparkData(changeStr){
-    const pct=parseFloat(changeStr)||0;
-    const up=pct>0;
-    const pts=[];
-    let v=50;
-    for(let i=0;i<14;i++){
-      v+=((up?1:-1)*Math.random()*3)+(Math.random()-0.5)*4;
-      v=Math.max(5,Math.min(95,v));
-      pts.push(v);
-    }
-    // Ensure last point reflects direction
-    if(up) pts[13]=Math.max(pts[13],60);
-    else pts[13]=Math.min(pts[13],40);
-    return pts;
-  }
-  function renderSparkBars(pts,color){
-    const max=Math.max(...pts);
-    return `<div class="sparkline-wrap">${pts.map((v,i)=>{
-      const h=Math.max(3,Math.round((v/max)*28));
-      const prev=i>0?pts[i-1]:v;
-      const cls=v>prev?'':'down';
-      return `<div class="spark-bar ${cls}" style="height:${h}px" title="Day ${i+1}"></div>`;
-    }).join('')}</div>`;
-  }
-
+  // Live commodity/market data from Yahoo Finance API
   const comEl=document.getElementById('commodityIndicators');
   if(comEl){
-    comEl.innerHTML=commodities.map(c=>`
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px">
-        <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">${escHtml(c.name)}</div>
-        <div style="font-family:var(--mono);font-size:1rem;font-weight:700;color:${c.color};margin:4px 0">${c.val}</div>
-        ${renderSparkBars(genSparkData(c.change),c.color)}
-        <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">${c.base} · <span style="color:${c.color}">${c.change}</span></div>
-      </div>
-    `).join('');
+    comEl.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:16px;font-family:var(--mono);font-size:.6rem;color:var(--text3)">Loading live market data...</div>';
+    fetchMarketData(isUkraine,comEl);
   }
+}
+
+// ===== LIVE MARKET DATA FETCH =====
+let _marketCache=null;
+let _marketCacheTime=0;
+async function fetchMarketData(isUkraine,container){
+  const theater=isUkraine?'ukraine':'iran';
+  // Client-side cache for 5 min
+  if(_marketCache&&_marketCache.theater===theater&&Date.now()-_marketCacheTime<300000){
+    renderMarketCards(_marketCache,container);
+    return;
+  }
+  try{
+    const r=await fetch(`/api/markets?theater=${theater}`,{signal:AbortSignal.timeout(15000)});
+    if(!r.ok) throw new Error('API '+r.status);
+    const data=await r.json();
+    data.theater=theater;
+    _marketCache=data;
+    _marketCacheTime=Date.now();
+    renderMarketCards(data,container);
+    // Update ticker oil price if we got Brent data
+    const brent=data.quotes?.find(q=>q.symbol==='BZ=F');
+    if(brent?.price){
+      const oilEl=document.getElementById('tickOil');
+      if(oilEl) oilEl.textContent='$'+brent.price.toFixed(0)+'/bbl';
+    }
+  }catch(e){
+    console.warn('Markets API failed:',e);
+    container.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:16px;font-family:var(--mono);font-size:.6rem;color:var(--text3)">Market data unavailable — API error. Will retry on next refresh.</div>';
+  }
+}
+function renderMarketCards(data,container){
+  const quotes=data.quotes||[];
+  const stress=data.stress||{};
+  const stressColor=stress.score>=75?'var(--red)':stress.score>=50?'var(--orange)':stress.score>=25?'#cc9900':'var(--green)';
+  // Stress score card first
+  let html=`<div style="background:var(--surface2);border:1px solid ${stressColor};border-radius:4px;padding:10px;grid-column:1/-1">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);letter-spacing:.5px">MARKET STRESS INDEX</div>
+        <div style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:${stressColor};margin:4px 0">${stress.score||0}/100 — ${stress.level||'N/A'}</div>
+      </div>
+      <div style="font-family:var(--mono);font-size:.45rem;color:var(--text3);text-align:right">
+        VIX: ${stress.components?.vix?.toFixed(1)||'—'}<br>
+        Oil impact: ${stress.components?.oilImpact?stress.components.oilImpact.toFixed(1)+'%':'—'}<br>
+        S&P 500 (1mo): ${stress.components?.sp500Month?stress.components.sp500Month.toFixed(1)+'%':'—'}
+      </div>
+    </div>
+    <div style="height:4px;background:var(--border);border-radius:2px;margin-top:8px;overflow:hidden"><div style="height:100%;width:${stress.score||0}%;background:${stressColor};border-radius:2px;transition:width .3s"></div></div>
+  </div>`;
+  // Individual quote cards
+  html+=quotes.map(q=>{
+    const changeColor=q.dayChange>0?'var(--red)':q.dayChange<0?'var(--green)':'var(--text3)';
+    const impactColor=q.warImpact>15?'var(--red)':q.warImpact>5?'var(--orange)':q.warImpact<-5?'var(--green)':'var(--text3)';
+    const arrow=q.dayChange>0?'▲':q.dayChange<0?'▼':'—';
+    const sparkHtml=q.sparkline&&q.sparkline.length>2?renderSparkBars(q.sparkline,q.warImpact>0?'var(--red)':'var(--green)'):'';
+    return `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px">
+      <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">${escHtml(q.name)}</div>
+      <div style="font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--text);margin:4px 0">${q.price!==null?('$'+q.price.toLocaleString()+q.unit):'N/A'}</div>
+      ${sparkHtml}
+      <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.5rem;margin-top:4px">
+        <span style="color:${changeColor}">${arrow} ${q.dayChange!==null?q.dayChange.toFixed(1)+'% today':'—'}</span>
+        <span style="color:${impactColor}">${q.warImpact!==null?(q.warImpact>0?'+':'')+q.warImpact.toFixed(0)+'% vs baseline':'—'}</span>
+      </div>
+      ${q.note?`<div style="font-family:var(--mono);font-size:.4rem;color:var(--text3);margin-top:3px">${escHtml(q.note)}</div>`:''}
+    </div>`;
+  }).join('');
+  html+=`<div style="grid-column:1/-1;font-family:var(--mono);font-size:.4rem;color:var(--text3);text-align:right;padding:4px 0">Data: Yahoo Finance · Cached ${new Date(data.cached).toLocaleTimeString()} · Refreshes every 5min</div>`;
+  container.innerHTML=html;
 }
 
 // ===== CASUALTIES & HUMANITARIAN PANEL =====
