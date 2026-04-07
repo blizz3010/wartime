@@ -933,7 +933,7 @@
 <!-- HEADER -->
 <div class="header">
   <div class="header-left">
-    <div class="logo" style="cursor:pointer" onclick="activateTab(document.querySelector('[data-panel=&quot;overview&quot;]'))">&#9760; WARTIME <span>/ dashboard</span></div>
+    <h1 class="logo" style="cursor:pointer;font-size:inherit;font-weight:inherit" onclick="activateTab(document.querySelector('[data-panel=&quot;overview&quot;]'))">&#9760; WARTIME <span>/ dashboard</span></h1>
     <select id="theaterSelect" class="theater-select" onchange="switchTheaterDebounced(this.value)" aria-label="Select conflict theater">
       <option value="iran">IRAN / US-ISRAEL</option>
       <option value="ukraine">UKRAINE / RUSSIA</option>
@@ -987,7 +987,7 @@
     var h=document.getElementById('tickHormuz');
     if(h){var l=h.querySelector('.tick-label');if(l)l.innerHTML='<span class="tick-icon">&#9875;</span> Black Sea';}
   }
-}catch(e){}})();
+}catch(e){/* localStorage may be blocked */}})();
 </script>
 
 <!-- TICKER DETAIL PANEL -->
@@ -1031,7 +1031,7 @@
     </div>
     <div class="main-area">
       <div class="section-head"><span>🗺 LIVE WAR MAP ��� LIVEUAMAP</span><span class="badge">LIVE</span></div>
-      <iframe id="overviewMapFrame" src="about:blank" style="width:100%;height:calc(100% - 68px);border:0" loading="lazy"></iframe>
+      <iframe id="overviewMapFrame" src="about:blank" title="Live war map" style="width:100%;height:calc(100% - 68px);border:0" loading="lazy"></iframe>
     </div>
   </div>
 </div>
@@ -1049,7 +1049,7 @@
         <button class="overlay-btn" onclick="window.open('https://acleddata.com/iran-crisis-live/','_blank')" aria-label="Open ACLED conflict data in new tab">ACLED Data ↗</button>
       </div>
     </div>
-    <iframe id="warmapFrame" src="about:blank" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
+    <iframe id="warmapFrame" src="about:blank" title="Interactive war map" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
   </div>
 </div>
 
@@ -1066,7 +1066,7 @@
         <button class="overlay-btn" onclick="window.open('https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8','_blank')" aria-label="Open MarineTraffic in new tab">Open MarineTraffic</button>
       </div>
     </div>
-    <iframe id="maritimeFrame" src="about:blank" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
+    <iframe id="maritimeFrame" src="about:blank" title="Maritime vessel traffic tracker" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
   </div>
 </div>
 
@@ -1088,7 +1088,7 @@
         <button class="overlay-btn" id="gpsJamBtn" onclick="window.open(currentTheater.id==='ukraine'?'https://gpsjam.org/?lat=48.5&lon=35.0&z=5':'https://gpsjam.org/?lat=26.5&lon=53.6&z=5','_blank')" title="GPS/GNSS interference map — opens in new tab (iframe blocked)" aria-label="Open GPS jamming map in new tab" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming ↗</button>
       </div>
     </div>
-    <iframe id="airFrame" src="about:blank" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
+    <iframe id="airFrame" src="about:blank" title="Air traffic tracker" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
   </div>
 </div>
 
@@ -1136,7 +1136,7 @@
     </div>
     <!-- Main player -->
     <div style="flex:1;position:relative;background:#000">
-      <iframe id="streamPlayer" src="" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="autoplay;encrypted-media" allowfullscreen></iframe>
+      <iframe id="streamPlayer" src="" title="Live stream player" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="autoplay;encrypted-media" allowfullscreen></iframe>
     </div>
   </div>
 </div>
@@ -1158,7 +1158,7 @@
         <button class="overlay-btn" onclick="window.open('https://threatmap.fortiguard.com/','_blank')" aria-label="Open current cyber map in new tab">Open Full View ↗</button>
       </div>
     </div>
-    <iframe id="cyberFrame" src="about:blank" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+    <iframe id="cyberFrame" src="about:blank" title="Cyber threat map" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   </div>
 </div>
 
@@ -1467,7 +1467,7 @@
       <button class="pip-btn" onclick="closePip()" title="Close" aria-label="Close PiP player">&#10005;</button>
     </div>
   </div>
-  <iframe id="pipFrame" src="" allow="autoplay;encrypted-media" allowfullscreen></iframe>
+  <iframe id="pipFrame" src="" title="Picture-in-picture stream" allow="autoplay;encrypted-media" allowfullscreen></iframe>
 </div>
 
 <!-- KEYBOARD SHORTCUT HINT -->
@@ -1497,7 +1497,7 @@
 <div class="modal-overlay" id="videoModal">
   <div class="modal-content">
     <button class="modal-close" onclick="closeModal()">&#10005;</button>
-    <iframe id="modalFrame" src="" allow="autoplay;encrypted-media" allowfullscreen></iframe>
+    <iframe id="modalFrame" src="" title="Video player" allow="autoplay;encrypted-media" allowfullscreen></iframe>
   </div>
 </div>
 
@@ -1646,7 +1646,7 @@ function switchTheater(theaterId){
     const btnContainer=warmapPanel.querySelector('.map-btn-container');
     if(btnContainer){
       btnContainer.innerHTML=theater.mapButtons.map(b=>
-        `<button class="overlay-btn" onclick="setMapSrc('${b.url}')">${b.label}</button>`
+        `<button class="overlay-btn" onclick="setMapSrc('${escAttr(b.url)}')">${escHtml(b.label)}</button>`
       ).join('');
     }
   }
@@ -1930,7 +1930,7 @@ async function fetchNews(forceRefresh=false){
   const containers=['newsFeed','newsFeedFull'];
   containers.forEach(id=>{
     const el=document.getElementById(id);
-    if(el&&(!allFilteredNews.length||forceRefresh)) el.innerHTML='<div class="loading"><div class="spinner"></div>Fetching latest news...</div>';
+    if(el&&(!allFilteredNews.length||forceRefresh)){el.innerHTML='<div class="loading"><div class="spinner"></div>Fetching latest news...</div>';el.setAttribute('aria-busy','true')}
   });
 
   try{
@@ -1951,6 +1951,7 @@ async function fetchNews(forceRefresh=false){
     }
   }
   refreshBtns.forEach(b=>b.classList.remove('spinning'));
+  containers.forEach(id=>{const el=document.getElementById(id);if(el)el.removeAttribute('aria-busy')});
   newsFetching=false;
 }
 
@@ -2078,7 +2079,7 @@ function loadArticle(url){
   const reader=document.getElementById('articleReader');
   const extBtn=document.getElementById('articleExternalBtn');
   if(reader){
-    reader.innerHTML=`<iframe src="${escAttr(url)}" style="width:100%;height:100%;border:0" sandbox="allow-scripts allow-same-origin allow-popups" loading="lazy"></iframe>`;
+    reader.innerHTML=`<iframe src="${escAttr(url)}" title="Article reader" style="width:100%;height:100%;border:0" sandbox="allow-scripts allow-same-origin allow-popups" loading="lazy"></iframe>`;
   }
   if(extBtn){
     extBtn.style.display='inline-block';
@@ -2244,7 +2245,7 @@ function renderVideoClips(){
     return `
       <div class="clip-card" onclick="${onclick}">
         <div class="clip-thumb">
-          ${thumb?`<img src="${thumb}" alt="" loading="lazy" onerror="this.style.display='none'">`:''}
+          ${thumb?`<img src="${thumb}" alt="${escAttr(v.title)}" width="320" height="180" loading="lazy" onerror="this.style.display='none'">`:''}
           <div class="play-btn"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
           <div class="clip-source ${srcCls}">${srcLabel}</div>
           ${dur?`<div class="clip-duration">${dur}</div>`:''}
@@ -2407,7 +2408,7 @@ async function selectStream(idx){
         return;
       }
     }
-  }catch(e){}
+  }catch(e){console.warn('Livestream resolution failed:',e.message)}
 
   // Fallback: use legacy live_stream embed (works for 24/7 channels like Al Jazeera)
   player.src=`https://www.youtube.com/embed/live_stream?channel=${s.channel}&autoplay=1&mute=1`;
@@ -2436,7 +2437,6 @@ function showPip(){
   const pip=document.getElementById('pipPlayer');
   const STREAMS=getActiveStreams();
   const s=STREAMS[pipStreamIdx];
-  const cachedId=liveStreamCache[s.channel];
   const cached=liveStreamCache[s.channel];
   const src=cached&&cached.videoId
     ?`https://www.youtube.com/embed/${cached.videoId}?autoplay=1&mute=1`
@@ -5702,6 +5702,7 @@ function renderInfraTracker(){
   });
 
   const summaryEl=document.getElementById('infraSummary');
+  if(!summaryEl) return;
   summaryEl.innerHTML=`
     <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--red)"></div>DESTROYED: ${statusCounts.destroyed||0}</div>
     <div class="fleet-summary-item"><div class="fleet-summary-dot" style="background:var(--orange)"></div>DAMAGED: ${statusCounts.damaged||0}</div>
@@ -5742,10 +5743,11 @@ try{
     if(sel) sel.value=saved;
     if(saved!=='iran') switchTheater(saved);
   }
-}catch(e){}
+}catch(e){console.warn('localStorage restore failed:',e.message)}
 
 // Set overview map iframe (visible on default tab — load immediately)
-document.getElementById('overviewMapFrame').src=currentTheater.mapUrl;
+const _overviewFrame=document.getElementById('overviewMapFrame');
+if(_overviewFrame) _overviewFrame.src=currentTheater.mapUrl;
 
 updateDayCount();
 updateClock();
@@ -5761,30 +5763,33 @@ renderCoalitionFleet();
 renderStreamNav();
 
 // Lazy-load non-visible iframes when their tab is first clicked
-document.querySelector('[data-panel="warmap"]').addEventListener('click',()=>{
+function addLazyTab(panel,cb){const el=document.querySelector(`[data-panel="${panel}"]`);if(el)el.addEventListener('click',cb,{once:true})}
+addLazyTab('warmap',()=>{
   const f=document.getElementById('warmapFrame');
-  if(!f.src||f.src==='about:blank'||f.src===window.location.href) f.src=currentTheater.mapUrl;
-},{once:true});
-document.querySelector('[data-panel="maritime"]').addEventListener('click',()=>{
+  if(f&&(!f.src||f.src==='about:blank'||f.src===window.location.href)) f.src=currentTheater.mapUrl;
+});
+addLazyTab('maritime',()=>{
   const f=document.getElementById('maritimeFrame');
-  if(!f.src||f.src==='about:blank'||f.src===window.location.href) f.src=currentTheater.maritimeUrl;
-},{once:true});
-document.querySelector('[data-panel="airtraffic"]').addEventListener('click',()=>{
+  if(f&&(!f.src||f.src==='about:blank'||f.src===window.location.href)) f.src=currentTheater.maritimeUrl;
+});
+addLazyTab('airtraffic',()=>{
   const f=document.getElementById('airFrame');
-  if(!f.src||f.src==='about:blank'||f.src===window.location.href) f.src=currentTheater.airTrafficUrl;
-},{once:true});
+  if(f&&(!f.src||f.src==='about:blank'||f.src===window.location.href)) f.src=currentTheater.airTrafficUrl;
+});
 
 // Lazy-load sections on tab click
-document.querySelector('[data-panel="livestreams"]').addEventListener('click',()=>{
-  if(!document.getElementById('streamPlayer').src||document.getElementById('streamPlayer').src===window.location.href)selectStream(0);
-},{once:true});
-document.querySelector('[data-panel="videos"]').addEventListener('click',()=>{
-  if(document.getElementById('clipsGrid').querySelector('.loading'))fetchVideos();
-},{once:true});
-document.querySelector('[data-panel="cybermap"]').addEventListener('click',()=>{
+addLazyTab('livestreams',()=>{
+  const sp=document.getElementById('streamPlayer');
+  if(sp&&(!sp.src||sp.src===window.location.href))selectStream(0);
+});
+addLazyTab('videos',()=>{
+  const cg=document.getElementById('clipsGrid');
+  if(cg&&cg.querySelector('.loading'))fetchVideos();
+});
+addLazyTab('cybermap',()=>{
   const f=document.getElementById('cyberFrame');
-  if(!f.src||f.src==='about:blank'||f.src===window.location.href) f.src='https://threatmap.fortiguard.com/';
-},{once:true});
+  if(f&&(!f.src||f.src==='about:blank'||f.src===window.location.href)) f.src='https://threatmap.fortiguard.com/';
+});
 
 // Track active panel for badges + PiP behavior
 document.querySelectorAll('.nav-tab').forEach(tab=>{
@@ -5941,11 +5946,11 @@ function renderCmdResults(query){
   if(cmdSelectedIdx>=filtered.length) cmdSelectedIdx=0;
   const el=document.getElementById('cmdResults');
   el.innerHTML=filtered.map((c,i)=>`
-    <div class="cmd-item${i===cmdSelectedIdx?' selected':''}" onmouseenter="cmdSelectedIdx=${i};renderCmdResults(document.getElementById('cmdInput').value)" onclick="CMD_COMMANDS.find(x=>x.label==='${c.label.replace(/'/g,"\\'")}').action();closeCmdPalette()">
-      <span class="cmd-item-icon">${c.icon}</span>
-      <span class="cmd-item-label">${c.label}</span>
-      <span class="cmd-item-hint">${c.hint}</span>
-      ${c.kbd?`<span class="cmd-item-kbd">${c.kbd}</span>`:''}
+    <div class="cmd-item${i===cmdSelectedIdx?' selected':''}" onmouseenter="cmdSelectedIdx=${i};renderCmdResults(document.getElementById('cmdInput').value)" onclick="window._cmdFiltered[${i}].action();closeCmdPalette()">
+      <span class="cmd-item-icon">${escHtml(c.icon)}</span>
+      <span class="cmd-item-label">${escHtml(c.label)}</span>
+      <span class="cmd-item-hint">${escHtml(c.hint)}</span>
+      ${c.kbd?`<span class="cmd-item-kbd">${escHtml(c.kbd)}</span>`:''}
     </div>
   `).join('')||'<div style="padding:20px;text-align:center;font-family:var(--mono);font-size:.6rem;color:var(--text3)">No commands match your search</div>';
   window._cmdFiltered=filtered;
