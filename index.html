@@ -1000,13 +1000,6 @@
   <div class="carrier-panel-inner" id="carrierPanelInner"></div>
 </div>
 
-<!-- ESCALATION GAUGE -->
-<div class="escalation-gauge" id="escalationGauge">
-  <span class="gauge-label">ESCALATION</span>
-  <div class="gauge-bar"><div class="gauge-fill" id="escalationFill" style="width:50%;background:var(--orange)"></div></div>
-  <span class="gauge-value" id="escalationValue">—</span>
-</div>
-
 <!-- NAV -->
 <div class="nav-tabs" role="tablist" aria-label="Dashboard navigation">
   <div class="nav-tab active" role="tab" tabindex="0" aria-selected="true" aria-controls="panel-overview" data-panel="overview"><span class="tab-icon">◉</span>OVERVIEW</div>
@@ -1156,12 +1149,12 @@
       <span id="cyberMapTitle">🛡 LIVE CYBER THREAT MAP</span>
       <div id="cyberMapButtons" style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="overlay-btn active" onclick="setCyberSrc('https://threatmap.fortiguard.com/','Fortinet')" aria-label="Switch to Fortinet cyber threat map" style="background:#1a3320;border-color:#4dff88;color:#4dff88">⚔ Fortinet</button>
-        <button class="overlay-btn" onclick="setCyberSrc('https://cybermap.kaspersky.com/','Kaspersky')" aria-label="Switch to Kaspersky cyber threat map">🌐 Kaspersky</button>
-        <button class="overlay-btn" onclick="setCyberSrc('https://threatmap.checkpoint.com/','Check Point')" aria-label="Switch to Check Point threat map">🛡 Check Point</button>
-        <button class="overlay-btn" onclick="setCyberSrc('https://horizon.netscout.com/','NETSCOUT')" aria-label="Switch to NETSCOUT cyber threat horizon">📊 NETSCOUT</button>
         <button class="overlay-btn" onclick="setCyberSrc('https://threatmap.bitdefender.com/','Bitdefender')" aria-label="Switch to Bitdefender threat map">🔒 Bitdefender</button>
         <button class="overlay-btn" onclick="setCyberSrc('https://www.digitalattackmap.com/','DDoS Map')" aria-label="Switch to Digital Attack DDoS map">💥 DDoS Map</button>
-        <button class="overlay-btn" onclick="setCyberSrc('https://radar.cloudflare.com/','Cloudflare')" aria-label="Switch to Cloudflare Radar internet health">☁ Cloudflare</button>
+        <button class="overlay-btn" onclick="window.open('https://cybermap.kaspersky.com/','_blank')" aria-label="Open Kaspersky cyber map in new tab">🌐 Kaspersky ↗</button>
+        <button class="overlay-btn" onclick="window.open('https://threatmap.checkpoint.com/','_blank')" aria-label="Open Check Point threat map in new tab">🛡 Check Point ↗</button>
+        <button class="overlay-btn" onclick="window.open('https://horizon.netscout.com/','_blank')" aria-label="Open NETSCOUT cyber threat horizon in new tab">📊 NETSCOUT ↗</button>
+        <button class="overlay-btn" onclick="window.open('https://radar.cloudflare.com/','_blank')" aria-label="Open Cloudflare Radar in new tab">☁ Cloudflare ↗</button>
         <button class="overlay-btn" onclick="window.open(currentTheater.id==='ukraine'?'https://gpsjam.org/?lat=48.5&lon=35.0&z=5':'https://gpsjam.org/?lat=26.5&lon=53.6&z=5','_blank')" aria-label="Open GPS jamming interference map in new tab" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming ↗</button>
         <button class="overlay-btn" onclick="window.open('https://threatmap.fortiguard.com/','_blank')" aria-label="Open current cyber map in new tab">Open Full View ↗</button>
       </div>
