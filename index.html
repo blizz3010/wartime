@@ -4198,7 +4198,7 @@ function renderMarketCards(data,container){
     const sparkHtml=q.sparkline&&q.sparkline.length>2?renderSparkBars(q.sparkline,q.warImpact>0?'var(--red)':'var(--green)'):'';
     return `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px">
       <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">${escHtml(q.name)}</div>
-      <div style="font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--text);margin:4px 0">${q.price!==null?('$'+q.price.toLocaleString()+q.unit):'N/A'}</div>
+      <div style="font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--text);margin:4px 0">${q.price!==null?((q.category==='commodity'||q.category==='etf'?'$':'')+q.price.toLocaleString()+q.unit):'N/A'}</div>
       ${sparkHtml}
       <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.5rem;margin-top:4px">
         <span style="color:${changeColor}">${arrow} ${q.dayChange!==null?q.dayChange.toFixed(1)+'% today':'—'}</span>
