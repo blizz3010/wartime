@@ -2833,24 +2833,24 @@ function renderForcesPanel(){
   // ===== COMMAND STRUCTURE =====
   const cmdEl=document.getElementById('commandStructure');
   const coalitionCmd=[
-    {rank:'Commander-in-Chief',name:'President Trump',org:'White House / NCA',note:'National Command Authority'},
-    {rank:'Secretary of Defense',name:'SecDef Pete Hegseth',org:'The Pentagon',note:'Authorized operations'},
-    {rank:'CENTCOM Commander',name:'Gen. Michael E. Kurilla',org:'US CENTCOM — Tampa / Forward',note:'Theater combatant commander'},
-    {rank:'NAVCENT / 5th Fleet',name:'Vice Adm. George Wikoff',org:'NSA Bahrain',note:'Naval operations — 3 CSGs'},
-    {rank:'AFCENT / 9th Air Force',name:'Lt. Gen. Alex Grynkewich',org:'Al Udeid Air Base, Qatar',note:'Air campaign commander'},
-    {rank:'ARCENT / 3rd Army',name:'Lt. Gen. Patrick Frank',org:'Camp Arifjan, Kuwait',note:'Ground forces coordination'},
-    {rank:'IDF Chief of Staff',name:'Lt. Gen. Herzi Halevi',org:'HaKirya, Tel Aviv',note:'Israeli military operations'},
-    {rank:'Mossad Director',name:'David Barnea',org:'Mossad HQ',note:'Covert ops & intelligence'},
+    {rank:'Commander-in-Chief',name:'President Trump',org:'White House / NCA',note:'National Command Authority',status:'active'},
+    {rank:'Secretary of Defense',name:'SecDef Pete Hegseth',org:'The Pentagon',note:'Authorized operations',status:'active'},
+    {rank:'CENTCOM Commander',name:'Gen. Michael E. Kurilla',org:'US CENTCOM — Tampa / Forward',note:'Theater combatant commander',status:'active'},
+    {rank:'NAVCENT / 5th Fleet',name:'Vice Adm. Brad Cooper',org:'NSA Bahrain',note:'Naval operations — 3 CSGs',status:'active'},
+    {rank:'AFCENT / 9th Air Force',name:'Lt. Gen. Alex Grynkewich',org:'Al Udeid Air Base, Qatar',note:'Air campaign commander',status:'active'},
+    {rank:'ARCENT / 3rd Army',name:'Lt. Gen. Patrick Frank',org:'Camp Arifjan, Kuwait',note:'Ground forces coordination',status:'active'},
+    {rank:'IDF Chief of Staff',name:'Maj. Gen. Eyal Zamir (acting)',org:'HaKirya, Tel Aviv',note:'Replaced Halevi (resigned Jan 2025)',status:'active'},
+    {rank:'Mossad Director',name:'David Barnea',org:'Mossad HQ',note:'Covert ops & intelligence',status:'active'},
   ];
   const iranCmd=[
-    {rank:'Supreme Leader',name:'Ayatollah Ali Khamenei',org:'Supreme Command',note:'Ultimate military authority'},
-    {rank:'IRGC Commander',name:'MG Hossein Salami',org:'IRGC Headquarters, Tehran',note:'IRGC — primary military force'},
-    {rank:'IRGC-QF Commander',name:'BG Esmail Qaani',org:'Quds Force',note:'Proxy operations abroad'},
-    {rank:'IRGC Aerospace',name:'BG Amir Ali Hajizadeh',org:'IRGC Aerospace Force',note:'Missile & drone operations'},
-    {rank:'IRGCN Commander',name:'RADM Alireza Tangsiri',org:'IRGC Navy',note:'Naval forces — Hormuz'},
-    {rank:'Artesh Commander',name:'MG Abdolrahim Mousavi',org:'Regular Armed Forces',note:'Conventional military'},
-    {rank:'IRIAF Commander',name:'BG Hamid Vahedi',org:'Air Force',note:'~40 operational aircraft'},
-    {rank:'Basij Commander',name:'BG Gholamreza Soleimani',org:'Basij Militia',note:'600K+ militia mobilized'},
+    {rank:'Supreme Leader',name:'Ayatollah Ali Khamenei',org:'Location Unknown — Dispersed',note:'In hiding since Mar 5 strikes on Tehran',status:'unknown'},
+    {rank:'IRGC Commander',name:'MG Hossein Salami',org:'IRGC HQ — Dispersed',note:'IRGC HQ struck Mar 15. Whereabouts unconfirmed',status:'unknown'},
+    {rank:'IRGC-QF Commander',name:'BG Esmail Qaani',org:'Quds Force',note:'Killed in Israeli strike — Oct 2024',status:'kia'},
+    {rank:'IRGC Aerospace',name:'BG Amir Ali Hajizadeh',org:'IRGC Aerospace Force',note:'Killed in Israeli strike — Nov 26, 2024',status:'kia'},
+    {rank:'IRGCN Commander',name:'RADM Alireza Tangsiri',org:'IRGC Navy — Bandar Abbas',note:'Bandar Abbas struck Mar 14. Status unconfirmed',status:'unknown'},
+    {rank:'Artesh Commander',name:'MG Abdolrahim Mousavi',org:'Regular Armed Forces',note:'Assumed command continuity from Artesh backup HQ',status:'active'},
+    {rank:'IRIAF Commander',name:'BG Hamid Vahedi',org:'Air Force — Dispersed',note:'Air bases 60-80% degraded. ~40→12 operational aircraft',status:'active'},
+    {rank:'Basij Commander',name:'BG Gholamreza Soleimani',org:'Basij Militia',note:'Mobilizing 600K+ but C2 networks degraded',status:'active'},
   ];
 
   cmdEl.innerHTML=`
@@ -2863,19 +2863,23 @@ function renderForcesPanel(){
             <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">US Central Command + IDF · Joint Operations</div>
           </div>
         </div>
-        ${coalitionCmd.map((c,i)=>`
-          <div style="display:flex;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid var(--border);${i===0?'background:rgba(88,166,255,0.04)':''}">
+        ${coalitionCmd.map((c,i)=>{
+          const statusColor=c.status==='kia'?'var(--red)':c.status==='unknown'?'var(--orange)':'var(--green)';
+          const statusLabel=c.status==='kia'?'KIA':c.status==='unknown'?'UNCONFIRMED':'ACTIVE';
+          return `
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid var(--border);${c.status==='kia'?'background:rgba(255,0,0,0.06);opacity:0.7':i===0?'background:rgba(88,166,255,0.04)':''}">
             <div style="width:24px;height:24px;background:var(--blue-dim);border:1px solid rgba(88,166,255,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.45rem;color:var(--blue);font-weight:700;flex-shrink:0">${i+1}</div>
             <div style="flex:1;min-width:0">
-              <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text)">${c.name}</div>
+              <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text);${c.status==='kia'?'text-decoration:line-through;opacity:0.6':''}">${c.name}</div>
               <div style="font-family:var(--mono);font-size:.5rem;color:var(--blue)">${c.rank}</div>
             </div>
             <div style="text-align:right;flex-shrink:0">
               <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">${c.org}</div>
               <div style="font-family:var(--mono);font-size:.45rem;color:var(--text3)">${c.note}</div>
+              <div style="font-family:var(--mono);font-size:.4rem;font-weight:700;color:${statusColor};margin-top:2px;letter-spacing:.5px">● ${statusLabel}</div>
             </div>
-          </div>
-        `).join('')}
+          </div>`;
+        }).join('')}
       </div>
       <div style="background:var(--surface);border-top:3px solid var(--iran)">
         <div style="padding:16px 20px;background:rgba(35,158,59,0.06);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
@@ -2885,23 +2889,28 @@ function renderForcesPanel(){
             <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">Supreme Leader + IRGC + Artesh · Dual Command Structure</div>
           </div>
         </div>
-        ${iranCmd.map((c,i)=>`
-          <div style="display:flex;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid var(--border);${i===0?'background:rgba(35,158,59,0.04)':''}">
-            <div style="width:24px;height:24px;background:rgba(35,158,59,0.15);border:1px solid rgba(35,158,59,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.45rem;color:var(--iran);font-weight:700;flex-shrink:0">${i+1}</div>
+        ${iranCmd.map((c,i)=>{
+          const statusColor=c.status==='kia'?'var(--red)':c.status==='unknown'?'var(--orange)':'var(--iran)';
+          const statusLabel=c.status==='kia'?'KILLED IN ACTION':c.status==='unknown'?'STATUS UNKNOWN':'ACTIVE';
+          const statusIcon=c.status==='kia'?'✕':c.status==='unknown'?'?':'●';
+          return `
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid var(--border);${c.status==='kia'?'background:rgba(255,0,0,0.08)':c.status==='unknown'?'background:rgba(255,165,0,0.04)':i===0?'background:rgba(35,158,59,0.04)':''}">
+            <div style="width:24px;height:24px;background:${c.status==='kia'?'rgba(255,0,0,0.15)':c.status==='unknown'?'rgba(255,165,0,0.15)':'rgba(35,158,59,0.15)'};border:1px solid ${c.status==='kia'?'rgba(255,0,0,0.3)':c.status==='unknown'?'rgba(255,165,0,0.3)':'rgba(35,158,59,0.3)'};border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.45rem;color:${statusColor};font-weight:700;flex-shrink:0">${statusIcon}</div>
             <div style="flex:1;min-width:0">
-              <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text)">${c.name}</div>
-              <div style="font-family:var(--mono);font-size:.5rem;color:var(--iran)">${c.rank}</div>
+              <div style="font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--text);${c.status==='kia'?'text-decoration:line-through;opacity:0.5':''}">${c.name}</div>
+              <div style="font-family:var(--mono);font-size:.5rem;color:${statusColor}">${c.rank}</div>
             </div>
             <div style="text-align:right;flex-shrink:0">
               <div style="font-family:var(--mono);font-size:.5rem;color:var(--text3)">${c.org}</div>
               <div style="font-family:var(--mono);font-size:.45rem;color:var(--text3)">${c.note}</div>
+              <div style="font-family:var(--mono);font-size:.4rem;font-weight:700;color:${statusColor};margin-top:2px;letter-spacing:.5px">${statusIcon} ${statusLabel}</div>
             </div>
-          </div>
-        `).join('')}
+          </div>`;
+        }).join('')}
       </div>
     </div>
     <div style="padding:10px 20px;font-family:var(--mono);font-size:.45rem;color:var(--text3);background:var(--surface);border-top:1px solid var(--border)">
-      NOTE: Iran operates a dual command structure — IRGC reports directly to Supreme Leader, while Artesh (regular military) reports through the defense ministry. IRGC has operational primacy in this conflict.
+      NOTE: Iran's command structure has been severely degraded. Two senior IRGC commanders (Hajizadeh, Qaani) were eliminated in Israeli strikes in late 2024, pre-dating the current conflict. IRGC HQ in Tehran was struck on Mar 15 with deep-penetration munitions. Supreme Leader Khamenei and IRGC Commander Salami have dispersed to unknown locations. C2 networks degraded by USCYBERCOM operations. Iran operates a dual command — IRGC reports to Supreme Leader, Artesh through defense ministry. With IRGC leadership decimated, operational command has fragmented.
     </div>
   `;
 
