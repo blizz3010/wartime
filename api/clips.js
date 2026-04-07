@@ -5,24 +5,25 @@
 // Key design: fewer Reddit API calls to avoid 429 rate limits.
 // Reddit allows ~10 req/min for unauthenticated. We batch smartly.
 
+import { getTheater, stripHtml, fetchWithTimeout, fetchRedditBatched, VALID_THEATERS } from './lib/utils.js';
+
 // In-memory cache for serverless warm starts (supplements CDN cache)
-let memoryCache = null;
-let memoryCacheTime = 0;
+// Keyed by theater so both theaters can be cached simultaneously
+const cache = new Map();
 const MEMORY_CACHE_TTL = 300000; // 5 minutes
 
-module.exports = async (req, res) => {
-  const theater = (req.query?.theater || 'iran').toLowerCase();
-  const VALID_THEATERS = ['iran', 'ukraine'];
-  if (!VALID_THEATERS.includes(theater)) {
+export default async function handler(req, res) {
+  const theater = getTheater(req);
+  if (!theater) {
     return res.status(400).json({ error: 'Invalid theater parameter' });
   }
-  const cacheKey = theater;
 
-  // Serve from memory cache if warm and fresh (per theater)
-  if (memoryCache && memoryCache._theater === cacheKey && Date.now() - memoryCacheTime < MEMORY_CACHE_TTL) {
+  // Serve from memory cache if warm and fresh
+  const cached = cache.get(theater);
+  if (cached && Date.now() - cached.time < MEMORY_CACHE_TTL) {
     res.setHeader('Cache-Control', 's-maxage=1800, stale-while-revalidate=3600');
     res.setHeader('X-Cache', 'memory-hit');
-    return res.status(200).json(memoryCache);
+    return res.status(200).json(cached.data);
   }
 
   const REDDIT_FETCHES_IRAN = [
@@ -91,39 +92,17 @@ module.exports = async (req, res) => {
     const seenTitles = new Set();
 
     // --- Staggered Reddit fetches (2 batches to avoid burst rate limit) ---
-    const batch1 = REDDIT_FETCHES.slice(0, 5);
-    const batch2 = REDDIT_FETCHES.slice(5);
-
-    const fetchReddit = (item) =>
-      fetch(item.url, {
-        headers: { 'User-Agent': 'wartime-dashboard/1.0 (conflict tracker)', 'Accept': 'application/json' },
-        signal: AbortSignal.timeout(10000),
-      }).then(r => {
-        if (r.status === 429) return { rateLimited: true }; // Rate limited — flag for backoff
-        return r.ok ? r.json() : null;
-      }).catch(() => null)
-        .then(data => {
-          if (data && data.rateLimited) return { data: null, sub: item.sub, rateLimited: true };
-          return { data, sub: item.sub, isHot: item.isHot, isNew: item.isNew };
-        });
-
-    // Fetch batch 1 first
-    const results1 = await Promise.allSettled(batch1.map(fetchReddit));
-    // Adaptive delay — back off longer if batch 1 hit rate limits
-    const had429 = results1.some(r => r.status === 'fulfilled' && r.value?.rateLimited);
-    await new Promise(r => setTimeout(r, had429 ? 2000 : 500));
-    const results2 = await Promise.allSettled(batch2.map(fetchReddit));
-
-    const redditResults = [...results1, ...results2];
-
     // --- YouTube RSS fetches (no API key needed, no rate limit issues) ---
-    const ytResults = await Promise.allSettled(
-      YT_CHANNELS.map(chId =>
-        fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${chId}`, {
-          signal: AbortSignal.timeout(8000),
-        }).then(r => r.ok ? r.text() : null).catch(() => null)
-      )
-    );
+    const [redditResults, ytResults] = await Promise.all([
+      fetchRedditBatched(REDDIT_FETCHES, 5, 10000),
+      Promise.allSettled(
+        YT_CHANNELS.map(chId =>
+          fetchWithTimeout(`https://www.youtube.com/feeds/videos.xml?channel_id=${chId}`, {}, 8000)
+            .then(r => r.ok ? r.text() : null)
+            .catch(err => { console.error('yt rss fetch:', err.message); return null; })
+        )
+      ),
+    ]);
 
     // Process Reddit results
     for (const result of redditResults) {
@@ -196,7 +175,7 @@ module.exports = async (req, res) => {
         const publishedMatch = entry.match(/<published>([\s\S]*?)<\/published>/);
         const authorMatch = entry.match(/<author>\s*<name>([\s\S]*?)<\/name>/);
 
-        const title = titleMatch ? titleMatch[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'") : '';
+        const title = titleMatch ? stripHtml(titleMatch[1]) : '';
         const vidUrl = linkMatch ? linkMatch[1] : '';
         const vidIdMatch = vidUrl.match(/[?&]v=([^&]+)/);
         const videoId = vidIdMatch ? vidIdMatch[1] : '';
@@ -249,21 +228,25 @@ module.exports = async (req, res) => {
     };
 
     // Store in memory cache for warm serverless instances
-    response._theater = cacheKey;
-    memoryCache = response;
-    memoryCacheTime = Date.now();
+    cache.set(theater, { data: response, time: Date.now() });
+    // Evict if somehow more entries than valid theaters
+    if (cache.size > VALID_THEATERS.length) {
+      const oldest = [...cache.entries()].sort((a, b) => a[1].time - b[1].time)[0];
+      cache.delete(oldest[0]);
+    }
 
     // Cache on CDN for 30 minutes, stale-while-revalidate for 1 hour
     res.setHeader('Cache-Control', 's-maxage=1800, stale-while-revalidate=3600');
     res.status(200).json(response);
   } catch (err) {
     // Serve stale memory cache on error
-    if (memoryCache) {
+    const stale = cache.get(theater);
+    if (stale) {
       res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
       res.setHeader('X-Cache', 'memory-stale');
-      return res.status(200).json(memoryCache);
+      return res.status(200).json(stale.data);
     }
     console.error('clips error:', err);
     res.status(500).json({ error: 'Failed to aggregate clips' });
   }
-};
+}

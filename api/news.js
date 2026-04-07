@@ -2,6 +2,8 @@
 // Returns a single JSON array. Vercel CDN caches the response for 5 minutes,
 // so even 10,000 visitors only trigger one actual fetch cycle every 5 min.
 
+import { getTheater, parseRSS, fetchWithTimeout } from './lib/utils.js';
+
 const RSS_FEEDS_IRAN = [
   { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml' },
   { name: 'BBC', url: 'https://feeds.bbci.co.uk/news/world/middle_east/rss.xml' },
@@ -63,44 +65,19 @@ const KEYWORDS_UKRAINE = {
     'trump','europe','baltic','poland','romania','energy','gas'],
 };
 
-// Simple XML to items parser (no dependencies needed)
-function parseRSS(xml, sourceName) {
-  const items = [];
-  // Match <item>...</item> blocks
-  const itemRegex = /<item[\s>]([\s\S]*?)<\/item>/gi;
-  let match;
-  while ((match = itemRegex.exec(xml)) !== null) {
-    const block = match[1];
-    const title = (block.match(/<title[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/) || [])[1] || '';
-    const link = (block.match(/<link[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/) || [])[1] || '';
-    const desc = (block.match(/<description[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/) || [])[1] || '';
-    const pubDate = (block.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/) || [])[1] || '';
-    if (title.trim()) {
-      items.push({
-        title: title.trim().replace(/<[^>]*>?/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#039;/g, "'"),
-        link: link.trim(),
-        description: desc.trim().replace(/<[^>]*>?/g, '').slice(0, 500),
-        pubDate: pubDate.trim(),
-        sourceName,
-      });
-    }
-  }
-  return items;
-}
-
 async function fetchFeed(feed) {
   try {
-    const res = await fetch(feed.url, {
+    const res = await fetchWithTimeout(feed.url, {
       headers: {
         'User-Agent': 'wartime-dashboard/1.0',
         'Accept': 'application/rss+xml, application/xml, text/xml, */*',
       },
-      signal: AbortSignal.timeout(6000),
-    });
+    }, 6000);
     if (!res.ok) return [];
     const text = await res.text();
-    return parseRSS(text, feed.name);
-  } catch {
+    return parseRSS(text, { sourceName: feed.name });
+  } catch (err) {
+    console.error(`feed fetch failed (${feed.name}):`, err.message);
     return [];
   }
 }
@@ -157,10 +134,8 @@ function filterByRelevance(allItems, keywords) {
 
 export default async function handler(req, res) {
   try {
-    // Determine theater from query param (default: iran)
-    const theater = (req.query?.theater || 'iran').toLowerCase();
-    const VALID_THEATERS = ['iran', 'ukraine'];
-    if (!VALID_THEATERS.includes(theater)) {
+    const theater = getTheater(req);
+    if (!theater) {
       return res.status(400).json({ error: 'Invalid theater parameter' });
     }
     const feeds = theater === 'ukraine' ? RSS_FEEDS_UKRAINE : RSS_FEEDS_IRAN;

@@ -1,10 +1,12 @@
 // Server-side market data aggregator
 // Fetches stock indices, commodities, and FX from Yahoo Finance
 // CDN-cached for 5 minutes — all visitors share one response
-module.exports = async (req, res) => {
-  const theater = (req.query?.theater || 'iran').toLowerCase();
-  const VALID_THEATERS = ['iran', 'ukraine'];
-  if (!VALID_THEATERS.includes(theater)) {
+
+import { getTheater, fetchWithTimeout } from './lib/utils.js';
+
+export default async function handler(req, res) {
+  const theater = getTheater(req);
+  if (!theater) {
     return res.status(400).json({ error: 'Invalid theater parameter' });
   }
 
@@ -41,12 +43,11 @@ module.exports = async (req, res) => {
   async function fetchYahooQuote(ticker) {
     try {
       const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker.symbol)}?range=1mo&interval=1d&includePrePost=false`;
-      const r = await fetch(url, {
+      const r = await fetchWithTimeout(url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; wartime-dashboard/1.0)',
           'Accept': 'application/json',
         },
-        signal: AbortSignal.timeout(8000),
       });
       if (!r.ok) return { ...ticker, error: true, status: r.status };
       const data = await r.json();
@@ -55,7 +56,6 @@ module.exports = async (req, res) => {
 
       const meta = result.meta || {};
       const closes = result.indicators?.quote?.[0]?.close || [];
-      const timestamps = result.timestamp || [];
 
       // Current price
       const price = meta.regularMarketPrice || closes[closes.length - 1] || null;
@@ -159,4 +159,4 @@ module.exports = async (req, res) => {
     console.error('markets error:', err);
     res.status(500).json({ error: 'Failed to fetch market data' });
   }
-};
+}
