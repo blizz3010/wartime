@@ -19,7 +19,7 @@
   :root{
     --bg:#080a0e;--surface:#0d1117;--surface2:#161b22;--surface3:#1c2333;
     --border:#21262d;--border2:#30363d;
-    --text:#e6edf3;--text2:#8b949e;--text3:#484f58;
+    --text:#e6edf3;--text2:#8b949e;--text3:#6b7681;
     --red:#f85149;--red-dim:#3d1214;
     --orange:#d29922;--orange-dim:#2d2006;
     --green:#3fb950;--green-dim:#0d2818;
@@ -917,6 +917,30 @@
   }
   .refresh-btn:hover{border-color:var(--red);color:var(--red)}
   .refresh-btn.spinning svg{animation:spin .6s linear infinite}
+
+  /* Utility classes — extracted from repeated inline styles */
+  .text-red{color:var(--red)}
+  .text-orange{color:var(--orange)}
+  .text-green{color:var(--green)}
+  .text-blue{color:var(--blue)}
+  .text-bold{font-weight:700}
+  .text-muted{color:var(--text3)}
+  .text-primary{color:var(--text)}
+  .mono-xs{font-family:var(--mono);font-size:.5rem;color:var(--text3)}
+  .mono-sm{font-family:var(--mono);font-size:.55rem;color:var(--text3)}
+  .mono-label{font-family:var(--mono);font-size:.65rem;color:var(--text2);margin-bottom:8px}
+  .data-row{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;padding:4px 0;border-bottom:1px solid var(--border)}
+  .info-card{text-align:center;padding:16px;background:var(--bg);border-radius:6px;border:1px solid var(--border)}
+  .mono-heading{font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--text)}
+  .section-footer{padding:12px 20px;font-family:var(--mono);font-size:.55rem;color:var(--text3);border-top:1px solid var(--border)}
+  .button-group{display:flex;gap:8px;flex-wrap:wrap}
+  .form-select{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:.65rem;padding:6px 8px;border-radius:4px}
+  .form-select-sm{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:.65rem;padding:3px 8px;border-radius:4px}
+  .form-label{font-family:var(--mono);font-size:.5rem;color:var(--text3);display:block;margin-bottom:4px}
+  .btn-neon{background:#2d0633;border-color:#d966ff;color:#d966ff}
+  .pad-md{padding:16px 20px}
+  .surface-box{background:var(--surface);padding:20px}
+  .btn-link{text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center}
 </style>
 </head>
 <body>
@@ -1058,7 +1082,7 @@
   <div class="full-frame">
     <div class="section-head">
       <span id="maritimeTitle">⚓ STRAIT OF HORMUZ — MARITIME TRAFFIC</span>
-      <div id="maritimeButtons" style="display:flex;gap:8px;flex-wrap:wrap">
+      <div id="maritimeButtons" class="button-group">
         <button class="overlay-btn" onclick="setMaritimeSrc(26.3,56.7,8)" aria-label="View Hormuz Strait vessel traffic">Hormuz Strait</button>
         <button class="overlay-btn" onclick="setMaritimeSrc(26.0,50.5,7)" aria-label="View Persian Gulf vessel traffic">Persian Gulf Wide</button>
         <button class="overlay-btn" onclick="setMaritimeSrc(14.0,43.0,6)" aria-label="View Red Sea and Bab el-Mandeb vessel traffic">Red Sea / Bab el-Mandeb</button>
@@ -1075,7 +1099,7 @@
   <div class="full-frame">
     <div class="section-head">
       <span id="airTrafficTitle">✈ AIR TRAFFIC TRACKING</span>
-      <div id="airTrafficButtons" style="display:flex;gap:8px;flex-wrap:wrap">
+      <div id="airTrafficButtons" class="button-group">
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=26.5&lon=53.6&zoom=6.0&hideSideBar')" title="Unfiltered - shows military aircraft" aria-label="ADS-B tracker Persian Gulf region">ADS-B Persian Gulf</button>
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=32.08&lon=53.69&zoom=5.0&hideSideBar')" aria-label="ADS-B tracker Iran airspace">ADS-B Iran</button>
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=31.77&lon=35.22&zoom=7.0&hideSideBar')" aria-label="ADS-B tracker Israel airspace">ADS-B Israel</button>
@@ -1085,7 +1109,7 @@
         <button class="overlay-btn" onclick="openLink('https://www.flightradar24.com/32.08,53.69/5')" aria-label="Open FlightRadar24 Iran in new tab">FR24 Iran ↗</button>
         <button class="overlay-btn" onclick="openLink('https://www.flightradar24.com/31.77,35.22/7')" aria-label="Open FlightRadar24 Israel in new tab">FR24 Israel ↗</button>
         <button class="overlay-btn" onclick="openLink('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0')" aria-label="Open ADS-B Exchange in new tab">ADS-B Exchange ↗</button>
-        <button class="overlay-btn" id="gpsJamBtn" onclick="openLink(currentTheater.id==='ukraine'?'https://gpsjam.org/?lat=48.5&lon=35.0&z=5':'https://gpsjam.org/?lat=26.5&lon=53.6&z=5')" title="GPS/GNSS interference map — opens in new tab (iframe blocked)" aria-label="Open GPS jamming map in new tab" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming ↗</button>
+        <button class="overlay-btn btn-neon" id="gpsJamBtn" onclick="openLink(currentTheater.id==='ukraine'?'https://gpsjam.org/?lat=48.5&lon=35.0&z=5':'https://gpsjam.org/?lat=26.5&lon=53.6&z=5')" title="GPS/GNSS interference map — opens in new tab (iframe blocked)" aria-label="Open GPS jamming map in new tab">📡 GPS Jamming ↗</button>
       </div>
     </div>
     <iframe id="airFrame" src="about:blank" title="Air traffic tracker" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
@@ -1102,12 +1126,12 @@
         <button class="vid-src-tab" data-source="youtube" onclick="switchVideoSource('youtube')" aria-label="Show YouTube videos only">YOUTUBE</button>
         <button class="vid-src-tab" data-source="reddit" onclick="switchVideoSource('reddit')" aria-label="Show Reddit videos only">REDDIT</button>
       </div>
-      <select id="videoSort" aria-label="Sort videos by" style="background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:.65rem;padding:3px 8px;border-radius:4px" onchange="fetchVideos()">
+      <select id="videoSort" aria-label="Sort videos by" class="form-select-sm" onchange="fetchVideos()">
         <option value="date">Sort: Latest</option>
         <option value="relevance">Sort: Relevance</option>
         <option value="viewCount">Sort: Most Viewed</option>
       </select>
-      <select id="videoTimeRange" aria-label="Video time range" style="background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:.65rem;padding:3px 8px;border-radius:4px" onchange="fetchVideos()">
+      <select id="videoTimeRange" aria-label="Video time range" class="form-select-sm" onchange="fetchVideos()">
         <option value="day" selected>Past 24h</option>
         <option value="week">Past Week</option>
         <option value="month">Past Month</option>
@@ -1146,7 +1170,7 @@
   <div class="full-frame">
     <div class="section-head">
       <span id="cyberMapTitle">🛡 LIVE CYBER THREAT MAP</span>
-      <div id="cyberMapButtons" style="display:flex;gap:8px;flex-wrap:wrap">
+      <div id="cyberMapButtons" class="button-group">
         <button class="overlay-btn active" onclick="setCyberSrc('https://threatmap.fortiguard.com/','Fortinet')" aria-label="Switch to Fortinet cyber threat map" style="background:#1a3320;border-color:#4dff88;color:#4dff88">⚔ Fortinet</button>
         <button class="overlay-btn" onclick="setCyberSrc('https://threatmap.bitdefender.com/','Bitdefender')" aria-label="Switch to Bitdefender threat map">🔒 Bitdefender</button>
         <button class="overlay-btn" onclick="setCyberSrc('https://www.digitalattackmap.com/','DDoS Map')" aria-label="Switch to Digital Attack DDoS map">💥 DDoS Map</button>
@@ -1154,7 +1178,7 @@
         <button class="overlay-btn" onclick="openLink('https://threatmap.checkpoint.com/')" aria-label="Open Check Point threat map in new tab">🛡 Check Point ↗</button>
         <button class="overlay-btn" onclick="openLink('https://horizon.netscout.com/')" aria-label="Open NETSCOUT cyber threat horizon in new tab">📊 NETSCOUT ↗</button>
         <button class="overlay-btn" onclick="openLink('https://radar.cloudflare.com/')" aria-label="Open Cloudflare Radar in new tab">☁ Cloudflare ↗</button>
-        <button class="overlay-btn" onclick="openLink(currentTheater.id==='ukraine'?'https://gpsjam.org/?lat=48.5&lon=35.0&z=5':'https://gpsjam.org/?lat=26.5&lon=53.6&z=5')" aria-label="Open GPS jamming interference map in new tab" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming ↗</button>
+        <button class="overlay-btn btn-neon" onclick="openLink(currentTheater.id==='ukraine'?'https://gpsjam.org/?lat=48.5&lon=35.0&z=5':'https://gpsjam.org/?lat=26.5&lon=53.6&z=5')" aria-label="Open GPS jamming interference map in new tab">📡 GPS Jamming ↗</button>
         <button class="overlay-btn" onclick="openLink('https://threatmap.fortiguard.com/')" aria-label="Open current cyber map in new tab">Open Full View ↗</button>
       </div>
     </div>
@@ -1709,7 +1733,7 @@ function switchTheater(theaterId){
         <button class="overlay-btn" onclick="openLink('https://www.flightradar24.com/48.5,35.0/6')">FR24 Ukraine ↗</button>
         <button class="overlay-btn" onclick="openLink('https://www.flightradar24.com/54.0,20.0/5')">FR24 Poland/Baltics ↗</button>
         <button class="overlay-btn" onclick="openLink('https://globe.adsbexchange.com/?lat=48.5&lon=35.0&zoom=6.0')">ADS-B Exchange ↗</button>
-        <button class="overlay-btn" onclick="openLink('https://gpsjam.org/?lat=48.5&lon=35.0&z=5')" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming ↗</button>`;
+        <button class="overlay-btn btn-neon" onclick="openLink('https://gpsjam.org/?lat=48.5&lon=35.0&z=5')">📡 GPS Jamming ↗</button>`;
     }else{
       airBtns.innerHTML=`
         <button class="overlay-btn" onclick="setAirSrc('https://globe.adsb.fi/?lat=26.5&lon=53.6&zoom=6.0&hideSideBar')">ADS-B Persian Gulf</button>
@@ -1721,7 +1745,7 @@ function switchTheater(theaterId){
         <button class="overlay-btn" onclick="openLink('https://www.flightradar24.com/32.08,53.69/5')">FR24 Iran ↗</button>
         <button class="overlay-btn" onclick="openLink('https://www.flightradar24.com/31.77,35.22/7')">FR24 Israel ↗</button>
         <button class="overlay-btn" onclick="openLink('https://globe.adsbexchange.com/?lat=26.5&lon=53.6&zoom=6.0')">ADS-B Exchange ↗</button>
-        <button class="overlay-btn" onclick="openLink('https://gpsjam.org/?lat=26.5&lon=53.6&z=5')" style="background:#2d0633;border-color:#d966ff;color:#d966ff">📡 GPS Jamming ↗</button>`;
+        <button class="overlay-btn btn-neon" onclick="openLink('https://gpsjam.org/?lat=26.5&lon=53.6&z=5')">📡 GPS Jamming ↗</button>`;
     }
   }
 
@@ -2281,12 +2305,12 @@ function getFallbackVideos(){
         Browse verified conflict footage from official news outlets and OSINT communities
       </p>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;max-width:700px;margin:0 auto 16px">
-        <a href="https://www.youtube.com/@AlJazeeraEnglish/videos" target="_blank" rel="noopener noreferrer" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">📺 Al Jazeera</a>
-        <a href="https://www.youtube.com/@skaborshi/videos" target="_blank" rel="noopener noreferrer" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">📺 Sky News</a>
-        <a href="https://www.youtube.com/@ABORSHI/videos" target="_blank" rel="noopener noreferrer" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">📺 BBC News</a>
-        <a href="https://www.youtube.com/results?search_query=Iran+war+2026+news&sp=CAI%253D" target="_blank" rel="noopener noreferrer" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">🔍 YouTube Search</a>
-        <a href="https://www.reddit.com/r/CombatFootage/search/?q=iran&sort=new&t=week" target="_blank" rel="noopener noreferrer" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">🎯 r/CombatFootage</a>
-        <a href="https://www.reddit.com/r/worldnews/search/?q=iran+video&sort=new&t=week" target="_blank" rel="noopener noreferrer" class="overlay-btn" style="text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center">🌍 r/worldnews</a>
+        <a href="https://www.youtube.com/@AlJazeeraEnglish/videos" target="_blank" rel="noopener noreferrer" class="overlay-btn btn-link">📺 Al Jazeera</a>
+        <a href="https://www.youtube.com/@skaborshi/videos" target="_blank" rel="noopener noreferrer" class="overlay-btn btn-link">📺 Sky News</a>
+        <a href="https://www.youtube.com/@ABORSHI/videos" target="_blank" rel="noopener noreferrer" class="overlay-btn btn-link">📺 BBC News</a>
+        <a href="https://www.youtube.com/results?search_query=Iran+war+2026+news&sp=CAI%253D" target="_blank" rel="noopener noreferrer" class="overlay-btn btn-link">🔍 YouTube Search</a>
+        <a href="https://www.reddit.com/r/CombatFootage/search/?q=iran&sort=new&t=week" target="_blank" rel="noopener noreferrer" class="overlay-btn btn-link">🎯 r/CombatFootage</a>
+        <a href="https://www.reddit.com/r/worldnews/search/?q=iran+video&sort=new&t=week" target="_blank" rel="noopener noreferrer" class="overlay-btn btn-link">🌍 r/worldnews</a>
       </div>
     </div>
   `;
