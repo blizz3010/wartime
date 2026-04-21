@@ -941,6 +941,120 @@
   .pad-md{padding:16px 20px}
   .surface-box{background:var(--surface);padding:20px}
   .btn-link{text-decoration:none;padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:center}
+
+  /* ==================================================================
+     UX POLISH — magicui-inspired, additive effects (all mu-* namespaced)
+     Subtle tactical enhancements: border beam, shine text, ripple pulse,
+     card hover lift, shimmer button, number-ticker count-up.
+     All animations respect prefers-reduced-motion.
+     ================================================================== */
+  @property --mu-angle{syntax:'<angle>';inherits:false;initial-value:0deg;}
+
+  /* 1. BORDER BEAM — rotating conic gradient trace along element border */
+  .mu-border-beam{position:relative;isolation:isolate}
+  .mu-border-beam::after{
+    content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;
+    background:conic-gradient(from var(--mu-angle,0deg),
+      transparent 0%,transparent 75%,
+      var(--mu-beam-color,rgba(248,81,73,0.9)) 88%,
+      var(--mu-beam-hi,rgba(255,220,200,0.95)) 93%,
+      var(--mu-beam-color,rgba(248,81,73,0.9)) 98%,
+      transparent 100%);
+    -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+            mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+    animation:mu-beam-spin var(--mu-beam-dur,5s) linear infinite;
+    pointer-events:none;z-index:1;
+  }
+  @keyframes mu-beam-spin{to{--mu-angle:360deg}}
+  .mu-border-beam.mu-beam-blue{--mu-beam-color:rgba(88,166,255,0.9);--mu-beam-hi:rgba(200,225,255,0.95)}
+  .mu-border-beam.mu-beam-orange{--mu-beam-color:rgba(210,153,34,0.9);--mu-beam-hi:rgba(255,220,150,0.95)}
+  .mu-border-beam.mu-beam-slow{--mu-beam-dur:9s}
+
+  /* 2. SHINE TEXT — animated highlight sweep across text */
+  .mu-shine-text,.logo .mu-shine-text{
+    background:linear-gradient(90deg,
+      var(--mu-shine-base,var(--red)) 0%,
+      var(--mu-shine-base,var(--red)) 38%,
+      var(--mu-shine-hi,#ffb3a8) 50%,
+      var(--mu-shine-base,var(--red)) 62%,
+      var(--mu-shine-base,var(--red)) 100%);
+    background-size:220% auto;
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;color:transparent;
+    animation:mu-shine 6s ease-in-out infinite;
+    font-weight:inherit;letter-spacing:inherit;text-shadow:none;
+  }
+  @keyframes mu-shine{
+    0%{background-position:220% center}
+    100%{background-position:-120% center}
+  }
+
+  /* 3. RIPPLE PULSE — expanding concentric rings (for LIVE pill) */
+  .mu-ripple{position:relative}
+  .mu-ripple::before,.mu-ripple::after{
+    content:'';position:absolute;inset:-1px;border-radius:inherit;
+    border:1px solid rgba(248,81,73,0.55);
+    animation:mu-ripple-out 2.4s cubic-bezier(.2,.6,.3,1) infinite;
+    pointer-events:none;
+  }
+  .mu-ripple::after{animation-delay:1.2s}
+  @keyframes mu-ripple-out{
+    0%{transform:scale(1);opacity:.75}
+    80%{opacity:0}
+    100%{transform:scale(1.9);opacity:0}
+  }
+
+  /* 4. CARD HOVER LIFT — subtle elevation + tactical glow on data cards */
+  .fleet-card,.impact-card,.force-card,.clip-card,.osint-card,.nuke-card,
+  .link-card,.casualty-card,.infra-card,.carrier-card,.tick,
+  .timeline-event,.news-item{
+    transition:background .15s ease,transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+    will-change:transform;
+  }
+  .fleet-card:hover,.impact-card:hover,.force-card:hover,.clip-card:hover,
+  .osint-card:hover,.nuke-card:hover,.casualty-card:hover,.infra-card:hover,
+  .carrier-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 18px -6px rgba(0,0,0,.55),0 0 0 1px rgba(248,81,73,.12),
+               inset 0 1px 0 rgba(255,255,255,.02);
+  }
+  .link-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 22px -8px rgba(0,0,0,.6),0 0 0 1px rgba(88,166,255,.18);
+  }
+  .tick:hover{box-shadow:inset 0 -2px 0 rgba(248,81,73,.35)}
+
+  /* 5. SHIMMER — sliding highlight on refresh/overlay buttons on hover */
+  .refresh-btn,.overlay-btn{position:relative;overflow:hidden}
+  .refresh-btn::before,.overlay-btn::before{
+    content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;
+    background:linear-gradient(110deg,transparent 0%,rgba(255,255,255,.08) 50%,transparent 100%);
+    transform:skewX(-18deg);transition:left .6s ease;pointer-events:none;
+  }
+  .refresh-btn:hover::before,.overlay-btn:hover::before{left:120%}
+
+  /* 6. NUMBER TICKER — count-up flash hint (paired with JS helper) */
+  .mu-num-flash{animation:mu-num-flash .45s ease}
+  @keyframes mu-num-flash{
+    0%{text-shadow:0 0 0 transparent}
+    50%{text-shadow:0 0 12px rgba(248,81,73,.55)}
+    100%{text-shadow:0 0 0 transparent}
+  }
+
+  /* 7. ACTIVE NAV TAB — gentle underline glow (cue active section) */
+  .nav-tab.active{box-shadow:inset 0 -2px 0 var(--red),0 -1px 12px -2px rgba(248,81,73,.25) inset}
+
+  /* Accessibility — honor reduced-motion preference */
+  @media(prefers-reduced-motion:reduce){
+    .mu-border-beam::after,.mu-shine-text,.mu-ripple::before,.mu-ripple::after{animation:none}
+    .mu-shine-text{-webkit-text-fill-color:var(--mu-shine-base,var(--red));color:var(--mu-shine-base,var(--red))}
+    .fleet-card:hover,.impact-card:hover,.force-card:hover,.clip-card:hover,
+    .osint-card:hover,.nuke-card:hover,.casualty-card:hover,.infra-card:hover,
+    .carrier-card:hover,.link-card:hover{transform:none}
+    .refresh-btn::before,.overlay-btn::before{display:none}
+    .mu-num-flash{animation:none}
+  }
 </style>
 </head>
 <body>
@@ -957,13 +1071,13 @@
 <!-- HEADER -->
 <div class="header">
   <div class="header-left">
-    <h1 class="logo" style="cursor:pointer;font-size:inherit;font-weight:inherit" onclick="activateTab(document.querySelector('[data-panel=&quot;overview&quot;]'))">&#9760; WARTIME <span>/ dashboard</span></h1>
+    <h1 class="logo" style="cursor:pointer;font-size:inherit;font-weight:inherit" onclick="activateTab(document.querySelector('[data-panel=&quot;overview&quot;]'))">&#9760; <span class="mu-shine-text">WARTIME</span> <span>/ dashboard</span></h1>
     <select id="theaterSelect" class="theater-select" onchange="switchTheaterDebounced(this.value)" aria-label="Select conflict theater">
       <option value="iran">IRAN / US-ISRAEL</option>
       <option value="ukraine">UKRAINE / RUSSIA</option>
     </select>
-    <div class="live-pill"><span class="live-dot"></span>LIVE</div>
-    <div class="threat-pill">DEFCON 2</div>
+    <div class="live-pill mu-ripple"><span class="live-dot"></span>LIVE</div>
+    <div class="threat-pill mu-border-beam">DEFCON 2</div>
   </div>
   <div class="header-right">
     <span class="header-stat"><span class="header-stat-label">DAY</span> <span class="day-count" id="dayCount">--</span> <span style="color:var(--text3);font-size:.55rem">OF CONFLICT</span></span>
@@ -6445,6 +6559,58 @@ document.addEventListener('visibilitychange',()=>{
     startRefreshTimers();
   }
 });
+
+/* ============================================================
+   UX POLISH — number ticker count-up + flash on numeric changes
+   Opt-in: #dayCount and any element with class .mu-count.
+   ============================================================ */
+(function muNumberTicker(){
+  try{
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    function parseNum(s){var n=parseFloat(String(s==null?'':s).replace(/[^0-9.\-]/g,''));return isFinite(n)?n:null;}
+    function attach(el){
+      if(!el||el.dataset.muObs==='1') return;
+      el.dataset.muObs='1';
+      var last=parseNum(el.textContent); if(last===null) last=0;
+      function animate(from,to,raw){
+        var dur=650,start=performance.now(),diff=to-from;
+        el.dataset.muAnim='1';
+        el.classList.remove('mu-num-flash');void el.offsetWidth;el.classList.add('mu-num-flash');
+        function step(now){
+          var p=Math.min(1,(now-start)/dur);
+          var eased=1-Math.pow(1-p,3);
+          el.textContent=String(Math.round(from+diff*eased));
+          if(p<1){requestAnimationFrame(step);}
+          else{el.textContent=raw;setTimeout(function(){el.dataset.muAnim='';},0);}
+        }
+        requestAnimationFrame(step);
+      }
+      var mo=new MutationObserver(function(){
+        if(el.dataset.muAnim==='1') return;
+        var raw=el.textContent;
+        var n=parseNum(raw);
+        if(n===null||n===last) return;
+        var from=last;last=n;
+        if(Math.abs(n-from)<1){return;}
+        animate(from,n,raw);
+      });
+      mo.observe(el,{childList:true,characterData:true,subtree:true});
+    }
+    function init(){
+      var day=document.getElementById('dayCount'); if(day) attach(day);
+      document.querySelectorAll('.mu-count').forEach(attach);
+      // Also pick up news stats once they're rendered
+      var poll=0,maxPoll=40;
+      var t=setInterval(function(){
+        var ids=['newsStatTotal','newsStatBreaking','newsStatMajor'];
+        ids.forEach(function(id){var e=document.getElementById(id);if(e) attach(e);});
+        if(++poll>=maxPoll) clearInterval(t);
+      },500);
+    }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+    else init();
+  }catch(e){/* progressive enhancement — never break the page */}
+})();
 </script>
 </body>
 </html>
