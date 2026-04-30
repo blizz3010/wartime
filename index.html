@@ -19,6 +19,7 @@
 <meta name="twitter:image" content="https://wartime-dashboard.vercel.app/images/assets/og-preview.png">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://wartime-dashboard.vercel.app/">
+<link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☠</text></svg>">
 <title>WARTIME — Iran Conflict Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1065,6 +1066,19 @@
     .refresh-btn::before,.overlay-btn::before{display:none}
     .mu-num-flash{animation:none}
   }
+
+  /* News item share button */
+  .news-share-btn{
+    margin-left:auto;background:transparent;border:1px solid var(--border);
+    color:var(--text3);font-family:var(--mono);font-size:.7rem;
+    width:24px;height:24px;border-radius:3px;cursor:pointer;line-height:1;
+    display:inline-flex;align-items:center;justify-content:center;
+    transition:all .15s;flex-shrink:0;
+  }
+  .news-share-btn:hover{color:var(--blue);border-color:var(--blue);background:var(--blue-dim)}
+  .news-share-btn:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+  .news-share-btn.shared{color:var(--green);border-color:var(--green)}
+  @media(hover:none) and (pointer:coarse){.news-share-btn{width:36px;height:36px}}
 
   /* Feed empty/error state with retry */
   .feed-empty{
@@ -2276,12 +2290,14 @@ function renderNewsFeed(containerId,items){
     const clickAction=useReader
       ?`loadArticle('${safeLink}')`
       :`openLink('${safeLink}')`;
+    const safeTitle=escAttr(item.title||'');
     return `
       <div class="news-item${compactNewsView?' compact':''}" tabindex="0" onclick="${clickAction}" onkeydown="if(event.key==='Enter')${clickAction}">
         <div class="news-meta">
           <span class="news-source ${item.sourceCls||'src-default'}">${item.sourceName||'NEWS'}</span>
           ${precHtml}${catHtml}
           <span class="news-time">${time}</span>
+          <button type="button" class="news-share-btn" title="Share article" aria-label="Share article" onclick="event.stopPropagation();shareItem('${safeLink}','${safeTitle}',this)">↗</button>
         </div>
         <div class="news-title">${isBreaking?'<span class="breaking-tag">BREAKING</span>':''}${escHtml(item.title)}</div>
         ${snippet?`<div class="news-snippet">${escHtml(snippet)}</div>`:''}
@@ -2303,6 +2319,27 @@ function loadArticle(url){
     extBtn.style.display='inline-block';
     extBtn.setAttribute('onclick',`openLink('${escAttr(url)}')`);
   }
+}
+
+// Share an article via Web Share API; fall back to clipboard copy with a tooltip flash.
+async function shareItem(url,title,btn){
+  if(!url) return;
+  const text=title||'';
+  try{
+    if(navigator.share){
+      await navigator.share({title:text,url});
+      return;
+    }
+  }catch(e){if(e&&e.name==='AbortError') return;/* fall through to clipboard */}
+  try{
+    await navigator.clipboard.writeText(url);
+    if(btn){
+      const orig=btn.textContent;
+      btn.textContent='✓';
+      btn.classList.add('shared');
+      setTimeout(()=>{btn.textContent=orig;btn.classList.remove('shared')},1200);
+    }
+  }catch(e){console.warn('share failed:',e&&e.message)}
 }
 
 function filterNews(filter){
@@ -5275,6 +5312,14 @@ function toggleTickerDetail(type){
             </div>
           </div>
         </div>
+        <div style="margin-top:14px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:4px">
+          <div style="font-family:var(--mono);font-size:.6rem;color:var(--text2);margin-bottom:6px">🧮 HOW THIS IS CALCULATED</div>
+          <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);line-height:1.6">
+            Headlines from 10 RSS sources are matched against ~80 weighted keywords (e.g. "nuclear", "ceasefire", "strike"). Each match contributes positive (escalation/military) or negative (de-escalation) points, then time-decayed:
+            <span style="color:var(--text2)">100% &lt;6h</span> · <span style="color:var(--text2)">80% 6–24h</span> · <span style="color:var(--text2)">50% 24–48h</span> · <span style="color:var(--text2)">30% 48–72h</span> · <span style="color:var(--text2)">15% &gt;72h</span>.
+            Threat tier = <code style="color:var(--text2)">escalation − deescalation + military×0.5</code>.
+          </div>
+        </div>
       `
     },
     defcon:{
@@ -5297,6 +5342,12 @@ function toggleTickerDetail(type){
               <span style="color:var(--orange)">■</span> DEFCON 4 — Above normal readiness<br>
               <span style="color:var(--green)">■</span> DEFCON 5 — Normal peacetime readiness
             </div>
+          </div>
+        </div>
+        <div style="margin-top:14px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:4px">
+          <div style="font-family:var(--mono);font-size:.6rem;color:var(--text2);margin-bottom:6px">🧮 HOW THIS IS CALCULATED</div>
+          <div style="font-family:var(--mono);font-size:.55rem;color:var(--text3);line-height:1.6">
+            DEFCON tier is derived from the same time-decayed news signals as Threat Level, but weights military readiness terms more heavily and de-escalation more lightly: <code style="color:var(--text2)">escalation − deescalation×0.5 + military×0.1</code>. This is an open-source approximation — not an official US DoD readiness condition.
           </div>
         </div>
       `
@@ -6714,6 +6765,13 @@ document.addEventListener('visibilitychange',()=>{
     else init();
   }catch(e){/* progressive enhancement — never break the page */}
 })();
+
+// Register service worker for offline shell + cached news fallback
+if('serviceWorker' in navigator&&location.protocol==='https:'){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/sw.js').catch(e=>console.warn('SW register failed:',e.message));
+  });
+}
 </script>
 </body>
 </html>
