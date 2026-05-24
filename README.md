@@ -10,7 +10,7 @@ Real-time conflict intelligence dashboard monitoring US-Israel military operatio
 - **News-Based Scoring Engine** — Dynamically updates Threat Level (6 tiers), DEFCON (1-5), and Strait of Hormuz status from headline analysis with time-decay weighting (recent articles count more)
 - **Clickable Ticker Panels** — Click any ticker item (Hormuz, Oil, Threat, DEFCON, Markets) to expand scoring breakdowns, level scales, and context
 - **Carrier Group Detail** — Click the Carrier Groups ticker to see all 3 deployed CSGs with ship photos, air wings, escorts, and deployment locations
-- **Live War Map** — LiveUAMap embed with Iran, Israel-Palestine, and global views
+- **Live War Map** — LiveUAMap launch panel with Iran, Israel-Palestine, and global views
 - **Maritime Tracking** — VesselFinder embed focused on Strait of Hormuz and Persian Gulf
 - **Air Traffic** — ADS-B Exchange and FlightRadar24 embeds
 - **Video Clips** — Curated conflict video sources
@@ -58,7 +58,7 @@ wartime/
 - **News:** Server-side RSS aggregation with Vercel CDN caching (5 min TTL) — all visitors share one cached response
 - **Scoring:** Weighted keyword analysis with time-decay (6h/24h/48h/72h+ brackets), separate tuning per indicator
 - **Live Streams:** Server-side HTML scraping for YouTube video ID extraction (no API key required)
-- **Data:** RSS feeds, Reddit JSON API, embedded maps (LiveUAMap, VesselFinder, ADS-B Exchange, FlightRadar24)
+- **Data:** RSS feeds, Reddit JSON API, external map launch panels and embeds (LiveUAMap, VesselFinder, ADS-B Exchange, FlightRadar24)
 
 ## Deployment
 
