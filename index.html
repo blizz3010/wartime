@@ -1248,9 +1248,9 @@
     <div class="section-head">
       <span id="warmapTitle">IRAN WAR MAP - LIVE</span>
       <div class="map-btn-container" style="display:flex;gap:8px;">
-        <button class="overlay-btn active" data-map-url="https://iranstrikemap.com/" data-embed-url="https://iranstrikemap.com/" onclick="setMapSrc('https://iranstrikemap.com/','https://iranstrikemap.com/')" aria-label="Switch to embedded Iran strike map">Iran Strike Map</button>
+        <button class="overlay-btn active" data-map-url="https://iran.liveuamap.com/" data-embed-url="https://iran.liveuamap.com/" onclick="setMapSrc('https://iran.liveuamap.com/','https://iran.liveuamap.com/')" aria-label="Switch to embedded Iran Liveuamap">Liveuamap Iran</button>
         <button class="overlay-btn" data-map-url="https://iranwarmap.com/" data-embed-url="https://iranwarmap.com/" onclick="setMapSrc('https://iranwarmap.com/','https://iranwarmap.com/')" aria-label="Switch to embedded Iran war map">Iran War Map</button>
-        <button class="overlay-btn" data-map-url="https://iran.liveuamap.com/" onclick="setMapSrc('https://iran.liveuamap.com/')" aria-label="Open Iran Liveuamap externally">Liveuamap Iran</button>
+        <button class="overlay-btn" data-map-url="https://iranstrikemap.com/" data-embed-url="https://iranstrikemap.com/" onclick="setMapSrc('https://iranstrikemap.com/','https://iranstrikemap.com/')" aria-label="Switch to embedded Iran strike map">Iran Strike Map</button>
         <button class="overlay-btn" data-map-url="https://israelpalestine.liveuamap.com/" onclick="setMapSrc('https://israelpalestine.liveuamap.com/')" aria-label="Open Israel-Palestine Liveuamap externally">Israel-Palestine</button>
         <button class="overlay-btn" data-map-url="https://liveuamap.com/" onclick="setMapSrc('https://liveuamap.com/')" aria-label="Open global Liveuamap externally">Global Liveuamap</button>
         <button class="overlay-btn" onclick="openLink('https://acleddata.com/iran-crisis-live/')" aria-label="Open ACLED conflict data in new tab">ACLED Data ↗</button>
@@ -1735,11 +1735,11 @@ const THEATERS={
     flags:'\u{1F1FA}\u{1F1F8}\u{1F1EE}\u{1F1F1} vs \u{1F1EE}\u{1F1F7}',
     flagsHtml:'<span class="flag">&#127482;&#127480;</span><span class="flag">&#127470;&#127473;</span> vs <span class="flag">&#127470;&#127479;</span>',
     startDate:'2026-02-28',
-    mapUrl:'https://iranstrikemap.com/',
+    mapUrl:'https://iran.liveuamap.com/',
     mapButtons:[
-      {label:'Iran Strike Map',url:'https://iranstrikemap.com/',embedUrl:'https://iranstrikemap.com/'},
+      {label:'Liveuamap Iran',url:'https://iran.liveuamap.com/',embedUrl:'https://iran.liveuamap.com/'},
       {label:'Iran War Map',url:'https://iranwarmap.com/',embedUrl:'https://iranwarmap.com/'},
-      {label:'Liveuamap Iran',url:'https://iran.liveuamap.com/'},
+      {label:'Iran Strike Map',url:'https://iranstrikemap.com/',embedUrl:'https://iranstrikemap.com/'},
       {label:'Israel-Palestine',url:'https://israelpalestine.liveuamap.com/'},
       {label:'Global Liveuamap',url:'https://liveuamap.com/'},
     ],
@@ -1798,6 +1798,15 @@ const THEATERS={
 
 const LIVE_MAP_SOURCES=[
   {
+    host:'iran.liveuamap.com',
+    title:'Iran Liveuamap',
+    theater:'Iran / US-Israel',
+    focus:'Liveuamap region embed',
+    region:'Iran / Persian Gulf',
+    url:'https://iran.liveuamap.com/',
+    embedUrl:'https://iran.liveuamap.com/'
+  },
+  {
     host:'iranstrikemap.com',
     title:'Iran Strike Map',
     theater:'Iran / US-Israel',
@@ -1823,14 +1832,6 @@ const LIVE_MAP_SOURCES=[
     region:'Ukraine',
     url:'https://liveuamap.com/',
     embedUrl:'https://api.livemapdata.com/'
-  },
-  {
-    host:'iran.liveuamap.com',
-    title:'Iran Liveuamap',
-    theater:'Iran / US-Israel',
-    focus:'Strikes, airspace, Hormuz risk',
-    region:'Tehran / Persian Gulf',
-    url:'https://iran.liveuamap.com/'
   },
   {
     host:'israelpalestine.liveuamap.com',
@@ -2170,7 +2171,7 @@ function renderLiveMapPortal(el,url){
     <div class="map-portal-shell">
       <div class="map-portal-kicker">LIVEUAMAP EXTERNAL MODE</div>
       <div class="map-portal-title">${escHtml(source.title)}</div>
-      <div class="map-portal-copy">Liveuamap now blocks third-party iframe display, so this dashboard opens the live map in a dedicated tab instead of showing a browser security error.</div>
+      <div class="map-portal-copy">This source does not expose a frame-safe embed for the dashboard, so it opens in a dedicated tab instead of showing a browser security error.</div>
       <div class="map-portal-meta" aria-label="Selected map details">
         <div class="map-portal-stat"><span>Theater</span><strong>${escHtml(source.theater)}</strong></div>
         <div class="map-portal-stat"><span>Focus</span><strong>${escHtml(source.focus)}</strong></div>
