@@ -4,7 +4,7 @@
 
 import { getTheater, parseRSS, fetchWithTimeout } from './lib/utils.js';
 
-const RSS_FEEDS_IRAN = [
+export const RSS_FEEDS_IRAN = [
   { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml' },
   { name: 'BBC', url: 'https://feeds.bbci.co.uk/news/world/middle_east/rss.xml' },
   { name: 'Reuters', url: 'https://www.reutersagency.com/feed/' },
@@ -17,7 +17,7 @@ const RSS_FEEDS_IRAN = [
   { name: 'NBC', url: 'https://feeds.nbcnews.com/nbcnews/public/world' },
 ];
 
-const RSS_FEEDS_UKRAINE = [
+export const RSS_FEEDS_UKRAINE = [
   { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml' },
   { name: 'BBC', url: 'https://feeds.bbci.co.uk/news/world/europe/rss.xml' },
   { name: 'Reuters', url: 'https://www.reutersagency.com/feed/' },
@@ -89,8 +89,24 @@ const SOURCE_WEIGHT = {
   'Kyiv Independent': 1.3, 'Ukrinform': 1.2,
 };
 
-function scoreItem(item, keywords) {
-  const { STRONG, MEDIUM, WEAK } = keywords;
+// Compile keywords to regexes anchored at a word boundary so 'war' no longer
+// matches 'aware' or 'toward'. The end stays open to preserve stem matching
+// ('escalat' → 'escalation', 'iran' → 'iranian'). Cached per keyword array.
+const keywordRegexCache = new WeakMap();
+function compileKeywords(list) {
+  let compiled = keywordRegexCache.get(list);
+  if (!compiled) {
+    compiled = list.map(k =>
+      new RegExp('\\b' + k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'), 'i'));
+    keywordRegexCache.set(list, compiled);
+  }
+  return compiled;
+}
+
+export function scoreItem(item, keywords) {
+  const strong = compileKeywords(keywords.STRONG);
+  const medium = compileKeywords(keywords.MEDIUM);
+  const weak = compileKeywords(keywords.WEAK);
   const title = (item.title || '').toLowerCase();
   const desc = (item.description || '').toLowerCase();
   const full = title + ' ' + desc;
@@ -98,15 +114,15 @@ function scoreItem(item, keywords) {
   let score = 0;
 
   // Keyword scoring — title matches worth 2x description
-  const strongTitle = STRONG.filter(k => title.includes(k)).length;
-  const strongDesc = STRONG.filter(k => desc.includes(k)).length;
+  const strongTitle = strong.filter(r => r.test(title)).length;
+  const strongDesc = strong.filter(r => r.test(desc)).length;
   score += strongTitle * 10 + strongDesc * 5;
 
-  const mediumTitle = MEDIUM.filter(k => title.includes(k)).length;
-  const mediumDesc = MEDIUM.filter(k => desc.includes(k)).length;
+  const mediumTitle = medium.filter(r => r.test(title)).length;
+  const mediumDesc = medium.filter(r => r.test(desc)).length;
   score += mediumTitle * 4 + mediumDesc * 2;
 
-  const weakHits = WEAK.filter(k => full.includes(k)).length;
+  const weakHits = weak.filter(r => r.test(full)).length;
   score += weakHits * 1;
 
   // Source credibility multiplier
@@ -130,6 +146,39 @@ function filterByRelevance(allItems, keywords) {
   const scored = allItems.map(item => ({ ...item, _score: scoreItem(item, keywords) }));
   // Minimum score threshold to pass (roughly: 1 medium keyword in title)
   return scored.filter(item => item._score >= 3).sort((a, b) => b._score - a._score);
+}
+
+// Collapse near-duplicate stories syndicated across outlets ("Israel strikes
+// Tehran" from BBC vs CNN). Exact-title dedup misses these; without this one
+// event multiplies into the threat score once per outlet.
+const TITLE_STOPWORDS = new Set(['the', 'and', 'for', 'with', 'from', 'after',
+  'over', 'amid', 'into', 'says', 'said', 'that', 'this', 'are', 'was', 'has',
+  'have', 'will', 'its', 'his', 'her', 'their', 'more', 'than', 'been', 'not']);
+
+function titleTokens(title) {
+  return new Set(
+    title.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/)
+      .filter(w => w.length >= 3 && !TITLE_STOPWORDS.has(w))
+  );
+}
+
+export function dedupeNearDuplicates(items, threshold = 0.6) {
+  const kept = [];
+  const keptTokens = [];
+  for (const item of items) {
+    const tokens = titleTokens(item.title);
+    const isDup = tokens.size > 0 && keptTokens.some(other => {
+      let overlap = 0;
+      for (const t of tokens) if (other.has(t)) overlap++;
+      const union = tokens.size + other.size - overlap;
+      return union > 0 && overlap / union >= threshold;
+    });
+    if (!isDup) {
+      kept.push(item);
+      keptTokens.push(tokens);
+    }
+  }
+  return kept;
 }
 
 export default async function handler(req, res) {
@@ -164,6 +213,10 @@ export default async function handler(req, res) {
 
     // Filter for theater relevance and sort by weighted score
     allItems = filterByRelevance(allItems, keywords);
+
+    // Collapse syndicated near-duplicates — items are score-sorted, so the
+    // highest-scored variant of each story is the one kept
+    allItems = dedupeNearDuplicates(allItems);
 
     // Return max 100 filtered items
     allItems = allItems.slice(0, 100);

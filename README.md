@@ -40,15 +40,43 @@ Real-time conflict intelligence dashboard monitoring US-Israel military operatio
 ```
 wartime/
 ├── index.html          # Single-page app (all HTML, CSS, JS)
+├── data/
+│   └── static-data.js  # Curated (non-live) datasets — timelines, order of battle,
+│                       #   fleets, bases, casualties, forecasts. Edit this to update
+│                       #   content; bump its dataAsOf dates (shown on the dashboard)
 ├── api/
 │   ├── news.js         # RSS aggregator — fetches all 10 feeds, filters, deduplicates (CDN-cached 5 min)
+│   ├── health.js       # Feed health monitor — per-feed status, item count, latency
+│   ├── markets.js      # Market data aggregator (Yahoo Finance)
+│   ├── clips.js        # Video clip aggregator (Reddit + YouTube RSS)
+│   ├── osint.js        # OSINT/social aggregator (Reddit + analysis feeds)
 │   ├── livestream.js   # YouTube livestream video ID discovery via page scraping (no API key needed)
 │   ├── reddit.js       # Reddit search proxy (serverless)
-│   └── videos.js       # YouTube video search (serverless, optional)
+│   ├── videos.js       # YouTube video search (serverless, optional)
+│   ├── img.js          # Image proxy
+│   └── lib/utils.js    # Shared parsing/fetch helpers
+├── images/             # Local asset photos (ships, bases)
 ├── vercel.json         # Vercel deployment config
 ├── .gitignore          # Excludes .env, .env.local, .vercel
 └── README.md
 ```
+
+### Updating Curated Data
+
+Live data (news, markets, maps, streams) refreshes automatically. Hand-curated
+datasets (timelines, order of battle, fleet/base status, casualties, forecast
+odds) live in `data/static-data.js`. To update them:
+
+1. Edit the entries in `data/static-data.js` — plain JS object literals.
+2. Bump the matching `dataAsOf` date at the top of the file.
+
+Each panel that renders curated data shows a `CURATED DATA · AS OF <date> · NOT LIVE`
+stamp so visitors can tell it apart from live feeds.
+
+### Feed Health
+
+`GET /api/health?theater=iran|ukraine` reports per-RSS-feed status (HTTP status,
+item count, latency, newest item date) — makes silently dead feeds visible.
 
 ## Tech Stack
 
@@ -80,8 +108,8 @@ RSS Feeds (10 sources)
   → /api/news.js (Vercel serverless)
     → Fetch all feeds in parallel
     → Parse XML server-side
-    → 3-tier relevance filter (STRONG/MEDIUM/WEAK keywords)
-    → Deduplicate by title
+    → 3-tier relevance filter (STRONG/MEDIUM/WEAK keywords, word-boundary matched)
+    → Deduplicate by title + collapse syndicated near-duplicates (token overlap)
     → CDN cache (5 min TTL, 10 min stale-while-revalidate)
   → Client renders, categorizes, scores
 ```
