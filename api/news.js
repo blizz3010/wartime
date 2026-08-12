@@ -31,7 +31,20 @@ const RSS_FEEDS_UKRAINE = [
 ];
 
 // Theater-specific keyword filters
-const KEYWORDS_IRAN = {
+export const KEYWORDS_IRAN = {
+  REQUIRED: {
+    ANCHORS: ['iran', 'iranian', 'tehran', 'irgc', 'khamenei', 'basij',
+      'quds force', 'natanz', 'fordow', 'persian gulf', 'strait of hormuz',
+      'hormuz', 'operation epic fury'],
+    CONTEXT: ['war', 'conflict*', 'attack*', 'strike*', 'airstrike*', 'bomb*',
+      'missile*', 'drone*', 'military', 'commander*', 'troop*', 'naval',
+      'blockade*', 'sanction*', 'nuclear', 'uranium', 'enrichment', 'iaea',
+      'ceasefire*', 'negotiat*', 'talk*', 'deal*', 'retaliat*', 'deterren*',
+      'threat*', 'hostilit*', 'combat', 'air defense*', 'air defence*',
+      'disarm*', 'weapon*', 'munition*', 'proxy', 'proxies', 'refiner*',
+      'oil', 'tanker*', 'kill*', 'wound*', 'execut*', 'national security',
+      'assassinat*', 'peace plan*', 'settlement*', 'fight*'],
+  },
   STRONG: ['iran','tehran','hormuz','irgc','persian gulf','hezbollah','houthi',
     'centcom','natanz','fordow','basij','quds force','strait of hormuz',
     'operation epic fury','khamenei','iranian','idf','iron dome','arrow-3',
@@ -47,7 +60,7 @@ const KEYWORDS_IRAN = {
     'trump','netanyahu','gulf','qatar','yemen','lebanon','beirut','syria'],
 };
 
-const KEYWORDS_UKRAINE = {
+export const KEYWORDS_UKRAINE = {
   STRONG: ['ukraine','kyiv','zelensky','zelenskyy','crimea','donbas','donetsk',
     'luhansk','kherson','zaporizhzhia','bakhmut','avdiivka','kharkiv',
     'ukrainian','russia invad','russian forces','wagner','black sea',
@@ -89,8 +102,38 @@ const SOURCE_WEIGHT = {
   'Kyiv Independent': 1.3, 'Ukrinform': 1.2,
 };
 
-function scoreItem(item, keywords) {
-  const { STRONG, MEDIUM, WEAK } = keywords;
+export const NEWS_MAX_AGE_DAYS = 30;
+const NEWS_MAX_AGE_MS = NEWS_MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
+
+function containsWholeTerm(text, term) {
+  const isPrefix = term.endsWith('*');
+  const value = isPrefix ? term.slice(0, -1) : term;
+  const escaped = value.replace(/[|\\{}()[\]^$+*?.-]/g, '\\$&');
+  const suffix = isPrefix ? '' : '(?=$|[^a-z0-9])';
+  return new RegExp('(^|[^a-z0-9])' + escaped + suffix, 'i').test(text);
+}
+
+function hasRequiredContext(item, required) {
+  if (!required) return true;
+
+  const title = item.title || '';
+  const full = title + ' ' + (item.description || '');
+  const titleHasAnchor = required.ANCHORS.some(term => containsWholeTerm(title, term));
+  const anchorHits = required.ANCHORS.filter(term => containsWholeTerm(full, term)).length;
+  const hasAnchor = titleHasAnchor || anchorHits >= 2;
+  const hasConflictContext = required.CONTEXT.some(term => containsWholeTerm(full, term));
+  return hasAnchor && hasConflictContext;
+}
+
+function isFreshEnough(item, nowMs) {
+  const publishedAt = Date.parse(item.pubDate);
+  return !Number.isFinite(publishedAt) || nowMs - publishedAt <= NEWS_MAX_AGE_MS;
+}
+
+export function scoreItem(item, keywords, nowMs = Date.now()) {
+  const { REQUIRED, STRONG, MEDIUM, WEAK } = keywords;
+  if (!hasRequiredContext(item, REQUIRED)) return 0;
+
   const title = (item.title || '').toLowerCase();
   const desc = (item.description || '').toLowerCase();
   const full = title + ' ' + desc;
@@ -115,7 +158,7 @@ function scoreItem(item, keywords) {
 
   // Temporal decay — articles lose 10% relevance per day after 24h
   if (item.pubDate) {
-    const ageHours = (Date.now() - new Date(item.pubDate).getTime()) / 3600000;
+    const ageHours = (nowMs - new Date(item.pubDate).getTime()) / 3600000;
     if (ageHours > 24) {
       const daysOld = (ageHours - 24) / 24;
       score *= Math.max(0.3, 1 - daysOld * 0.1);
@@ -125,9 +168,11 @@ function scoreItem(item, keywords) {
   return score;
 }
 
-function filterByRelevance(allItems, keywords) {
+export function filterByRelevance(allItems, keywords, nowMs = Date.now()) {
   // Score all items, filter threshold, sort by score
-  const scored = allItems.map(item => ({ ...item, _score: scoreItem(item, keywords) }));
+  const scored = allItems
+    .filter(item => isFreshEnough(item, nowMs))
+    .map(item => ({ ...item, _score: scoreItem(item, keywords, nowMs) }));
   // Minimum score threshold to pass (roughly: 1 medium keyword in title)
   return scored.filter(item => item._score >= 3).sort((a, b) => b._score - a._score);
 }
