@@ -499,7 +499,7 @@
     position:relative;height:calc(100% - 34px);min-height:360px;overflow:hidden;
     display:flex;align-items:center;justify-content:center;background:#05070b;
   }
-  .main-area .live-map-portal{height:calc(100% - 68px)}
+  .main-area .live-map-portal{height:auto}
   .live-map-portal::before{
     content:'';position:absolute;inset:0;
     background:
@@ -535,25 +535,31 @@
   .map-portal-actions{display:flex;flex-wrap:wrap;gap:8px}
   .map-portal-actions .primary{background:var(--red-dim);border-color:rgba(248,81,73,.55);color:var(--red);font-weight:700}
   .map-portal-actions a{text-decoration:none}
-  .live-map-portal.has-frame{display:block}
+  .live-map-portal.has-frame{
+    display:grid;grid-template-rows:auto minmax(0,1fr);align-items:stretch;justify-content:stretch;
+  }
   .live-map-portal.has-frame::before,.live-map-portal.has-frame::after{display:none}
-  .live-map-frame{
-    width:100%;height:100%;min-height:inherit;border:0;display:block;background:#05070b;
+  .map-status{
+    flex:0 0 auto;padding:8px 12px;border-bottom:1px solid var(--border);
+    background:rgba(8,10,14,.96);color:var(--text2);
+    font-family:var(--mono);font-size:.62rem;line-height:1.45;
   }
-  .map-frame-toolbar{
-    position:absolute;left:12px;right:12px;bottom:12px;z-index:3;
-    display:flex;align-items:center;justify-content:space-between;gap:10px;
-    padding:8px 10px;border:1px solid rgba(88,166,255,.2);border-radius:6px;
-    background:rgba(8,10,14,.84);backdrop-filter:blur(12px);
+  .map-status strong{color:var(--text);font-weight:700;letter-spacing:.4px}
+  .map-status-links{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .map-status-links a{text-decoration:none}
+  .map-frame-stage{position:relative;min-height:320px;height:100%}
+  .live-map-portal .live-map-frame{position:absolute;inset:0;width:100%;height:100%;border:0;background:#e8e4d8}
+  .map-frame-loading,.map-frame-error{
+    position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;
+    padding:16px;text-align:center;background:#05070b;color:var(--text2);
+    font-family:var(--mono);font-size:.72rem;line-height:1.45;
   }
-  .map-frame-title{font-family:var(--mono);font-size:.68rem;color:var(--text);letter-spacing:.8px;text-transform:uppercase}
-  .map-frame-sub{font-family:var(--mono);font-size:.52rem;color:var(--text3);letter-spacing:.6px;text-transform:uppercase;margin-top:2px}
-  .map-frame-actions{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
-  .map-frame-actions a{text-decoration:none}
+  .map-frame-error{z-index:4}
+  .map-frame-loading[hidden],.map-frame-error[hidden]{display:none}
   @media(max-width:700px){
-    .map-frame-toolbar{left:8px;right:8px;bottom:8px;align-items:flex-start;flex-direction:column}
-    .map-frame-actions{width:100%;justify-content:flex-start}
     .map-portal-meta{grid-template-columns:1fr}
+    .map-status{font-size:.58rem;padding:8px}
+    .map-frame-stage{min-height:220px}
   }
 
   /* PiP MINI PLAYER */
@@ -656,7 +662,12 @@
   /* SIDEBAR SPLIT for news+map */
   .split-layout{display:grid;grid-template-columns:380px 1fr;height:calc(100vh - 96px)}
   .split-layout .sidebar{border-right:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
-  .split-layout .main-area{overflow:hidden;position:relative}
+  .split-layout .main-area{overflow:hidden;position:relative;display:flex;flex-direction:column;min-height:0}
+  .main-area > .section-head{flex:0 0 auto}
+  .main-area .live-map-portal{flex:1 1 auto;height:auto;min-height:280px}
+  #panel-warmap .full-frame{display:flex;flex-direction:column;min-height:0}
+  #panel-warmap .full-frame > .section-head{flex:0 0 auto}
+  #panel-warmap .live-map-portal{flex:1 1 auto;height:auto;min-height:320px}
 
   /* SKIP NAV */
   .skip-nav{
@@ -1236,8 +1247,10 @@
       </div>
     </div>
     <div class="main-area">
-      <div class="section-head"><span>LIVE WAR MAP</span><span class="badge">LIVE</span></div>
-      <div id="overviewMapPortal" class="live-map-portal" role="region" aria-label="Live war map"></div>
+      <div class="section-head"><span id="overviewMapTitle">REGION REFERENCE MAP</span><span class="badge" id="overviewMapBadge">NO LIVE LAYER</span></div>
+      <div id="overviewMapPortal" class="live-map-portal" role="region" aria-label="War map">
+        <div class="loading"><div class="spinner"></div>Loading map…</div>
+      </div>
     </div>
   </div>
 </div>
@@ -1246,17 +1259,17 @@
 <div class="panel" id="panel-warmap" role="tabpanel">
   <div class="full-frame">
     <div class="section-head">
-      <span id="warmapTitle">IRAN WAR MAP - LIVE</span>
+      <span id="warmapTitle">IRAN REGION MAP</span>
       <div class="map-btn-container" style="display:flex;gap:8px;">
-        <button class="overlay-btn active" data-map-url="https://iranstrikemap.com/" data-embed-url="https://iranstrikemap.com/" onclick="setMapSrc('https://iranstrikemap.com/','https://iranstrikemap.com/')" aria-label="Switch to embedded Iran strike map">Iran Strike Map</button>
-        <button class="overlay-btn" data-map-url="https://iranwarmap.com/" data-embed-url="https://iranwarmap.com/" onclick="setMapSrc('https://iranwarmap.com/','https://iranwarmap.com/')" aria-label="Switch to embedded Iran war map">Iran War Map</button>
-        <button class="overlay-btn" data-map-url="https://iran.liveuamap.com/" onclick="setMapSrc('https://iran.liveuamap.com/')" aria-label="Open Iran Liveuamap externally">Liveuamap Iran</button>
-        <button class="overlay-btn" data-map-url="https://israelpalestine.liveuamap.com/" onclick="setMapSrc('https://israelpalestine.liveuamap.com/')" aria-label="Open Israel-Palestine Liveuamap externally">Israel-Palestine</button>
-        <button class="overlay-btn" data-map-url="https://liveuamap.com/" onclick="setMapSrc('https://liveuamap.com/')" aria-label="Open global Liveuamap externally">Global Liveuamap</button>
-        <button class="overlay-btn" onclick="openLink('https://acleddata.com/iran-crisis-live/')" aria-label="Open ACLED conflict data in new tab">ACLED Data ↗</button>
+        <button class="overlay-btn active" data-map-id="liveuamap-iran" onclick="setMapSrc('iran','liveuamap-iran')" aria-label="Show Iran region reference and open LiveUAMap Iran">LiveUAMap Iran</button>
+        <button class="overlay-btn" data-map-id="reference" onclick="setMapSrc('iran','reference')" aria-label="Show OpenStreetMap reference of Iran">Region reference</button>
+        <button class="overlay-btn" data-map-id="israel-palestine" onclick="setMapSrc('iran','israel-palestine')" aria-label="Show Levant reference map">Israel-Palestine</button>
+        <a class="overlay-btn" href="https://acleddata.com/iran-crisis-live/" target="_blank" rel="noopener noreferrer">ACLED Data ↗</a>
       </div>
     </div>
-    <div id="warmapPortal" class="live-map-portal" role="region" aria-label="Interactive war map"></div>
+    <div id="warmapPortal" class="live-map-portal" role="region" aria-label="Interactive war map">
+      <div class="loading"><div class="spinner"></div>Loading map…</div>
+    </div>
   </div>
 </div>
 
@@ -1725,6 +1738,7 @@
   <span>Data from public sources · Not affiliated with any government · <kbd style="background:var(--surface3);border:1px solid var(--border2);border-radius:2px;padding:0 4px;font-size:.5rem">?</kbd> Keyboard shortcuts</span>
 </footer>
 
+<script src="conflict-maps.js"></script>
 <script>
 // ===== THEATER CONFIGURATION =====
 const THEATERS={
@@ -1735,14 +1749,6 @@ const THEATERS={
     flags:'\u{1F1FA}\u{1F1F8}\u{1F1EE}\u{1F1F1} vs \u{1F1EE}\u{1F1F7}',
     flagsHtml:'<span class="flag">&#127482;&#127480;</span><span class="flag">&#127470;&#127473;</span> vs <span class="flag">&#127470;&#127479;</span>',
     startDate:'2026-02-28',
-    mapUrl:'https://iranstrikemap.com/',
-    mapButtons:[
-      {label:'Iran Strike Map',url:'https://iranstrikemap.com/',embedUrl:'https://iranstrikemap.com/'},
-      {label:'Iran War Map',url:'https://iranwarmap.com/',embedUrl:'https://iranwarmap.com/'},
-      {label:'Liveuamap Iran',url:'https://iran.liveuamap.com/'},
-      {label:'Israel-Palestine',url:'https://israelpalestine.liveuamap.com/'},
-      {label:'Global Liveuamap',url:'https://liveuamap.com/'},
-    ],
     maritimeUrl:'https://www.vesselfinder.com/aismap?lat=26.59&lon=56.27&zoom=10&width=1600&height=900&names=true',
     airTrafficUrl:'https://globe.adsb.fi/?lat=26.5&lon=53.6&zoom=6.0&hideSideBar',
     clocks:[
@@ -1769,12 +1775,6 @@ const THEATERS={
     flags:'\u{1F1FA}\u{1F1E6} vs \u{1F1F7}\u{1F1FA}',
     flagsHtml:'<span class="flag">&#127482;&#127462;</span> vs <span class="flag">&#127479;&#127482;</span>',
     startDate:'2022-02-24',
-    mapUrl:'https://api.livemapdata.com/',
-    mapButtons:[
-      {label:'Ukraine Liveuamap',url:'https://liveuamap.com/',embedUrl:'https://api.livemapdata.com/'},
-      {label:'Liveuamap Main',url:'https://liveuamap.com/'},
-      {label:'Global View',url:'https://liveuamap.com/en'},
-    ],
     maritimeUrl:'https://www.vesselfinder.com/aismap?lat=44.0&lon=33.5&zoom=7&width=1600&height=900&names=true',
     airTrafficUrl:'https://globe.adsb.fi/?lat=48.5&lon=35.0&zoom=6.0&hideSideBar',
     clocks:[
@@ -1796,61 +1796,12 @@ const THEATERS={
   },
 };
 
-const LIVE_MAP_SOURCES=[
-  {
-    host:'iranstrikemap.com',
-    title:'Iran Strike Map',
-    theater:'Iran / US-Israel',
-    focus:'Embedded strike and event tracker',
-    region:'Iran / Persian Gulf',
-    url:'https://iranstrikemap.com/',
-    embedUrl:'https://iranstrikemap.com/'
-  },
-  {
-    host:'iranwarmap.com',
-    title:'Iran War Map',
-    theater:'Iran / Israel / US',
-    focus:'Embedded OSINT map and feed',
-    region:'Middle East',
-    url:'https://iranwarmap.com/',
-    embedUrl:'https://iranwarmap.com/'
-  },
-  {
-    host:'api.livemapdata.com',
-    title:'Ukraine Liveuamap',
-    theater:'Ukraine / Russia',
-    focus:'Liveuamap embed endpoint',
-    region:'Ukraine',
-    url:'https://liveuamap.com/',
-    embedUrl:'https://api.livemapdata.com/'
-  },
-  {
-    host:'iran.liveuamap.com',
-    title:'Iran Liveuamap',
-    theater:'Iran / US-Israel',
-    focus:'Strikes, airspace, Hormuz risk',
-    region:'Tehran / Persian Gulf',
-    url:'https://iran.liveuamap.com/'
-  },
-  {
-    host:'israelpalestine.liveuamap.com',
-    title:'Israel-Palestine Liveuamap',
-    theater:'Israel / Gaza / Lebanon',
-    focus:'Regional strikes and alerts',
-    region:'Levant',
-    url:'https://israelpalestine.liveuamap.com/'
-  },
-  {
-    host:'liveuamap.com',
-    title:'Global Liveuamap',
-    theater:'Global conflict monitor',
-    focus:'Ukraine and worldwide incidents',
-    region:'Global',
-    url:'https://liveuamap.com/'
-  }
-];
-
 let currentTheater=THEATERS.iran;
+// Declared before theater restore. `let` is in the temporal dead zone, so a
+// typeof check inside switchTheater throws if these are still later in the file.
+let allVideoClips=[];
+let videoLastFetch=0;
+let currentPanel='overview';
 
 // ===== DAY COUNTER =====
 function updateDayCount(){
@@ -1902,22 +1853,8 @@ function switchTheater(theaterId){
   }
   updateClock();
 
-  // Update live map panels
-  const warmapPanel=document.getElementById('panel-warmap');
-  if(warmapPanel){
-    const defaultMap=getDefaultMapSource(theater);
-    renderLiveMapSurface(document.getElementById('warmapPortal'),defaultMap.url,defaultMap.embedUrl);
-    // Update map buttons
-    const btnContainer=warmapPanel.querySelector('.map-btn-container');
-    if(btnContainer){
-      btnContainer.innerHTML=theater.mapButtons.map(renderMapButton).join('')+
-        (theaterId==='iran'?`<button class="overlay-btn" onclick="openLink('https://acleddata.com/iran-crisis-live/')">ACLED Data ↗</button>`:'');
-      updateMapButtonState(defaultMap.url,defaultMap.embedUrl);
-    }
-  }
-  // Update overview map
-  const overviewMap=getDefaultMapSource(theater);
-  renderLiveMapSurface(document.getElementById('overviewMapPortal'),overviewMap.url,overviewMap.embedUrl);
+  // Update live map panels for the selected region.
+  showDefaultMaps(theaterId);
 
   // Update maritime iframe
   const maritimePanel=document.getElementById('panel-maritime');
@@ -1990,10 +1927,6 @@ function switchTheater(theaterId){
     }
   }
 
-  // Update war map title
-  const warmapTitle=document.getElementById('warmapTitle');
-  if(warmapTitle) warmapTitle.textContent=theaterId==='ukraine'?'UKRAINE WAR MAP - LIVE':'IRAN WAR MAP - LIVE';
-
   // Update maritime title & buttons
   const maritimeTitle=document.getElementById('maritimeTitle');
   if(maritimeTitle) maritimeTitle.textContent=theaterId==='ukraine'?'⚓ BLACK SEA — MARITIME TRAFFIC':'⚓ STRAIT OF HORMUZ — MARITIME TRAFFIC';
@@ -2047,7 +1980,8 @@ function switchTheater(theaterId){
   renderCoalitionFleet();
 
   // Invalidate video/news caches so stale data from other theater is cleared
-  if(typeof allVideoClips!=='undefined'){allVideoClips=[];videoLastFetch=0;}
+  allVideoClips=[];
+  videoLastFetch=0;
 
   // Re-render resources, impact & overview stats for the new theater
   renderResources();
@@ -2120,109 +2054,96 @@ document.querySelectorAll('.nav-tab').forEach(tab=>{
 });
 
 // ===== MAP SOURCE SWITCHERS =====
-function normalizeMapUrl(url){
-  try{
-    const u=new URL(url,window.location.href);
-    u.hash='';
-    return u.toString();
-  }catch(e){
-    return url;
+function renderMapButtons(theaterId){
+  const theater=ConflictMaps.getTheater(theaterId);
+  if(!theater) return '';
+  const buttons=theater.maps.map(map=>`<button type="button" class="overlay-btn" data-map-id="${escAttr(map.id)}" onclick="setMapSrc('${escAttr(theaterId)}','${escAttr(map.id)}')" aria-label="${escAttr(map.title)}">${escHtml(map.label)}</button>`).join('');
+  const extra=theaterId==='iran'?'<a class="overlay-btn" href="https://acleddata.com/iran-crisis-live/" target="_blank" rel="noopener noreferrer">ACLED Data ↗</a>':'';
+  return buttons+extra;
+}
+function renderLiveMapSurface(el,theaterId,mapId){
+  if(!el||typeof ConflictMaps==='undefined') return;
+  const view=ConflictMaps.buildMapView(theaterId,mapId);
+  if(!view) return;
+  el.dataset.theaterId=view.theaterId;
+  el.dataset.mapId=view.mapId;
+  el.dataset.embedUrl=view.embedUrl||'';
+  el.dataset.openUrl=view.openUrl;
+  el.dataset.showsLiveEvents=view.showsLiveEvents?'true':'false';
+  el.dataset.mapState=view.embedUrl?'loading':'link-only';
+  el.classList.toggle('has-frame',!!view.embedUrl);
+  const linkHtml=view.links.map(link=>`<a class="overlay-btn" href="${escAttr(link.url)}" target="_blank" rel="noopener noreferrer">${escHtml(link.label)} ↗</a>`).join('');
+  if(el.id==='overviewMapPortal'){
+    const title=document.getElementById('overviewMapTitle');
+    const badge=document.getElementById('overviewMapBadge');
+    if(title) title.textContent=view.showsLiveEvents?'LIVE WAR MAP':'REGION REFERENCE MAP';
+    if(badge) badge.textContent=view.showsLiveEvents?'LIVE':'NO LIVE LAYER';
   }
-}
-function mapHost(url){
-  try{return new URL(normalizeMapUrl(url)).hostname.replace(/^www\./,'')}
-  catch(e){return ''}
-}
-function getDefaultMapSource(theater=currentTheater){
-  return (theater&&theater.mapButtons&&theater.mapButtons[0])||{url:theater.mapUrl};
-}
-function mapKey(url,embedUrl){
-  return normalizeMapUrl(embedUrl||url);
-}
-function getLiveMapSource(url,embedUrl){
-  const normalized=normalizeMapUrl(url);
-  const embed=embedUrl?normalizeMapUrl(embedUrl):'';
-  const host=mapHost(embed||normalized);
-  return LIVE_MAP_SOURCES.find(s=>host===s.host||mapHost(s.embedUrl||s.url)===host)||{
-    host,
-    title:host||'Live map',
-    theater:'Live conflict map',
-    focus:embed?'Embedded map view':'External source',
-    region:'Current selection',
-    url:normalized,
-    embedUrl:embed
-  };
-}
-function renderMapButton(b){
-  const url=normalizeMapUrl(b.url);
-  const embed=b.embedUrl?normalizeMapUrl(b.embedUrl):'';
-  const args=embed?`'${escAttr(url)}','${escAttr(embed)}'`:`'${escAttr(url)}'`;
-  return `<button class="overlay-btn" data-map-url="${escAttr(url)}" data-embed-url="${escAttr(embed)}" onclick="setMapSrc(${args})">${escHtml(b.label)}</button>`;
-}
-function renderLiveMapPortal(el,url){
-  if(!el) return;
-  const normalized=normalizeMapUrl(url);
-  const source=getLiveMapSource(normalized);
-  el.classList.remove('has-frame');
-  el.dataset.mapUrl=normalized;
-  el.dataset.embedUrl='';
-  el.innerHTML=`
-    <div class="map-portal-shell">
-      <div class="map-portal-kicker">LIVEUAMAP EXTERNAL MODE</div>
-      <div class="map-portal-title">${escHtml(source.title)}</div>
-      <div class="map-portal-copy">Liveuamap blocks third-party iframe display, so this dashboard opens the live map in a dedicated tab instead of showing a browser security error.</div>
-      <div class="map-portal-meta" aria-label="Selected map details">
-        <div class="map-portal-stat"><span>Theater</span><strong>${escHtml(source.theater)}</strong></div>
-        <div class="map-portal-stat"><span>Focus</span><strong>${escHtml(source.focus)}</strong></div>
-        <div class="map-portal-stat"><span>Region</span><strong>${escHtml(source.region)}</strong></div>
-      </div>
-      <div class="map-portal-actions">
-        <a class="overlay-btn primary" href="${escAttr(normalized)}" target="_blank" rel="noopener noreferrer">Open Live Map</a>
-        <button class="overlay-btn" onclick="copyMapLink('${escAttr(normalized)}')" aria-label="Copy selected Liveuamap link">Copy Link</button>
-      </div>
-    </div>`;
-}
-function renderLiveMapSurface(el,url,embedUrl){
-  if(!el) return;
-  const normalized=normalizeMapUrl(url);
-  const embed=embedUrl?normalizeMapUrl(embedUrl):'';
-  if(!embed){
-    renderLiveMapPortal(el,normalized);
+  if(el.id==='warmapPortal'){
+    const warmapTitle=document.getElementById('warmapTitle');
+    if(warmapTitle) warmapTitle.textContent=view.panelTitle;
+  }
+  if(!view.embedUrl){
+    el.innerHTML=`
+      <div class="map-portal-shell">
+        <div class="map-portal-kicker">${escHtml(view.provider)}</div>
+        <div class="map-portal-title">${escHtml(view.title)}</div>
+        <div class="map-portal-copy">${escHtml(view.notice)}</div>
+        <div class="map-portal-actions">${linkHtml}</div>
+      </div>`;
     return;
   }
-  const source=getLiveMapSource(normalized,embed);
-  el.classList.add('has-frame');
-  el.dataset.mapUrl=normalized;
-  el.dataset.embedUrl=embed;
+  const eager=el.id==='overviewMapPortal'?'eager':'lazy';
   el.innerHTML=`
-    <iframe class="live-map-frame" src="${escAttr(embed)}" title="${escAttr(source.title)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
-    <div class="map-frame-toolbar">
-      <div>
-        <div class="map-frame-title">${escHtml(source.title)}</div>
-        <div class="map-frame-sub">${escHtml(source.focus)} · ${escHtml(source.region)}</div>
+    <div class="map-status" role="status">
+      <strong>${escHtml(view.title)}</strong> — ${escHtml(view.notice)}
+      <span class="map-status-attr"> Source: ${escHtml(view.attribution)}.</span>
+      <div class="map-status-links">${linkHtml}</div>
+    </div>
+    <div class="map-frame-stage">
+      <div class="map-frame-loading"><div class="spinner"></div> ${escHtml(view.loadingLabel)}</div>
+      <div class="map-frame-error" hidden>
+        <div>
+          <div>${escHtml(view.errorLabel)}</div>
+          <div class="map-portal-actions" style="margin-top:12px;justify-content:center">${linkHtml}</div>
+        </div>
       </div>
-      <div class="map-frame-actions">
-        <a class="overlay-btn" href="${escAttr(normalized)}" target="_blank" rel="noopener noreferrer">Open Source ↗</a>
-        <button class="overlay-btn" onclick="copyMapLink('${escAttr(normalized)}')" aria-label="Copy selected map link">Copy Link</button>
-      </div>
+      <iframe class="live-map-frame" title="${escAttr(view.frameTitle||view.title)}" loading="${eager}" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
     </div>`;
+  const frame=el.querySelector('iframe');
+  const loading=el.querySelector('.map-frame-loading');
+  const error=el.querySelector('.map-frame-error');
+  const mark=(state)=>{
+    el.dataset.mapState=state;
+    if(loading) loading.hidden=state!=='loading';
+    if(error) error.hidden=state!=='error';
+  };
+  frame.addEventListener('load',()=>mark('ready'));
+  frame.addEventListener('error',()=>mark('error'));
+  setTimeout(()=>{if(el.dataset.mapState==='loading') mark('error');},20000);
+  // Give the stage its final box before the map page measures itself.
+  requestAnimationFrame(()=>{frame.src=view.embedUrl;});
 }
-function updateMapButtonState(url,embedUrl){
-  const activeKey=mapKey(url,embedUrl);
-  document.querySelectorAll('#panel-warmap .map-btn-container [data-map-url]').forEach(btn=>{
-    btn.classList.toggle('active',mapKey(btn.dataset.mapUrl,btn.dataset.embedUrl)===activeKey);
+function updateMapButtonState(mapId){
+  document.querySelectorAll('#panel-warmap .map-btn-container [data-map-id]').forEach(btn=>{
+    const on=btn.dataset.mapId===mapId;
+    btn.classList.toggle('active',on);
+    if(on) btn.setAttribute('aria-pressed','true');
+    else btn.setAttribute('aria-pressed','false');
   });
 }
-function setMapSrc(url,embedUrl){
-  renderLiveMapSurface(document.getElementById('warmapPortal'),url,embedUrl);
-  updateMapButtonState(url,embedUrl);
+function setMapSrc(theaterId,mapId){
+  renderLiveMapSurface(document.getElementById('warmapPortal'),theaterId,mapId);
+  updateMapButtonState(mapId);
 }
-function copyMapLink(url){
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(url).catch(()=>openLink(url));
-  }else{
-    openLink(url);
-  }
+function showDefaultMaps(theaterId){
+  const theater=ConflictMaps.getTheater(theaterId);
+  const mapId=theater?theater.defaultMapId:'';
+  const btnContainer=document.querySelector('#panel-warmap .map-btn-container');
+  if(btnContainer) btnContainer.innerHTML=renderMapButtons(theaterId);
+  renderLiveMapSurface(document.getElementById('warmapPortal'),theaterId,mapId);
+  renderLiveMapSurface(document.getElementById('overviewMapPortal'),theaterId,mapId);
+  updateMapButtonState(mapId);
 }
 function setMaritimeSrc(lat,lon,zoom){
   document.getElementById('maritimeFrame').src=`https://www.vesselfinder.com/aismap?lat=${lat}&lon=${lon}&zoom=${zoom}&width=1600&height=900&names=true`;
@@ -2515,9 +2436,7 @@ function stripHtml(html){
 }
 
 // ===== VIDEO CLIPS (Server-side aggregation — CDN cached) =====
-let allVideoClips=[];
 let currentVideoSource='all';
-let videoLastFetch=0;
 const VIDEO_CACHE_MS=600000; // 10 min client-side cache
 
 // Content filter: block memes, parodies, reaction videos, gaming, and off-topic content
@@ -2938,7 +2857,6 @@ function requestNotificationPermission(){
 
 // ===== NOTIFICATION BADGES =====
 let lastSeenCounts={news:0,videos:0};
-let currentPanel='overview';
 
 function updateBadge(panel,count){
   const tab=document.querySelector(`[data-panel="${panel}"]`);
@@ -5513,7 +5431,7 @@ function renderResources(){
   if(!grid) return;
   const isUkraine=currentTheater.id==='ukraine';
   const cards=isUkraine?[
-    {icon:'🗺',title:'Liveuamap — Ukraine',desc:'Real-time conflict map with geolocated events, strikes, and frontline changes across Ukraine.',url:'https://liveuamap.com/',label:'liveuamap.com'},
+    {icon:'🗺',title:'Liveuamap — Ukraine',desc:'LiveUAMap Ukraine page used by the dashboard. The liveuamap.com site itself refuses to be framed.',url:'https://livemapdata.com/',label:'livemapdata.com'},
     {icon:'🗺',title:'DeepState Map',desc:'Ukrainian OSINT map with detailed frontline positions updated multiple times daily.',url:'https://deepstatemap.live/en',label:'deepstatemap.live'},
     {icon:'🎖',title:'ISW Daily Assessments',desc:'Institute for the Study of War daily campaign assessments with detailed maps and analysis.',url:'https://www.understandingwar.org/',label:'understandingwar.org'},
     {icon:'📊',title:'Oryx Equipment Losses',desc:'Visually confirmed military equipment losses for both Russia and Ukraine with photo evidence.',url:'https://www.oryxspioenkop.com/2022/02/attack-on-europe-documenting-equipment.html',label:'oryxspioenkop.com'},
@@ -5533,7 +5451,7 @@ function renderResources(){
     {icon:'📊',title:'Mediazona Casualties',desc:'Independent verified Russian military casualty tracker using obituaries and court records.',url:'https://en.zona.media/article/2022/05/11/casualties_eng',label:'zona.media'},
   ]:[
     {icon:'🗺',title:'Liveuamap — Iran',desc:'Real-time conflict map with geolocated news reports, strikes, and military movements across Iran.',url:'https://iran.liveuamap.com/',label:'iran.liveuamap.com'},
-    {icon:'🗺',title:'Iran Strike Map',desc:'Independent OSINT tracker with 115+ confirmed strikes, leader status, and verified video.',url:'https://iranstrikemap.com/',label:'iranstrikemap.com'},
+    {icon:'🗺',title:'Iran Strike Map',desc:'External tracker. Not embedded: this dashboard does not treat it as the current live layer.',url:'https://iranstrikemap.com/',label:'iranstrikemap.com'},
     {icon:'🗺',title:'ACLED Iran Crisis',desc:'Armed Conflict Location & Event Data — updated daily map of all strikes and retaliations.',url:'https://acleddata.com/iran-crisis-live/',label:'acleddata.com'},
     {icon:'🗺',title:'ISW/CTP ArcGIS Map',desc:'Institute for the Study of War interactive strike map companion to their daily conflict coverage.',url:'https://storymaps.arcgis.com/stories/089bc1a2fe684405a67d67f13bd31324',label:'storymaps.arcgis.com'},
     {icon:'⚓',title:'MarineTraffic — Hormuz',desc:'Live AIS ship positions in the Strait of Hormuz and Persian Gulf.',url:'https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8',label:'marinetraffic.com'},
@@ -6113,11 +6031,8 @@ try{
   }
 }catch(e){console.warn('localStorage restore failed:',e.message)}
 
-// Set live map panels. Frame-safe sources render inline; blocked sources open externally.
-const initialMap=getDefaultMapSource(currentTheater);
-renderLiveMapSurface(document.getElementById('overviewMapPortal'),initialMap.url,initialMap.embedUrl);
-renderLiveMapSurface(document.getElementById('warmapPortal'),initialMap.url,initialMap.embedUrl);
-updateMapButtonState(initialMap.url,initialMap.embedUrl);
+// Maps: allowed embeds only. Blocked conflict maps stay external links.
+showDefaultMaps(currentTheater.id);
 
 updateDayCount();
 updateClock();
@@ -6136,9 +6051,9 @@ renderStreamNav();
 function addLazyTab(panel,cb){const el=document.querySelector(`[data-panel="${panel}"]`);if(el)el.addEventListener('click',cb,{once:true})}
 addLazyTab('warmap',()=>{
   const f=document.getElementById('warmapPortal');
-  if(f&&!f.dataset.mapUrl){
-    const defaultMap=getDefaultMapSource(currentTheater);
-    setMapSrc(defaultMap.url,defaultMap.embedUrl);
+  if(f&&!f.dataset.mapId){
+    const theater=ConflictMaps.getTheater(currentTheater.id);
+    if(theater) setMapSrc(currentTheater.id,theater.defaultMapId);
   }
 });
 addLazyTab('maritime',()=>{

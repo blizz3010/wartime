@@ -10,7 +10,7 @@ Real-time conflict intelligence dashboard monitoring US-Israel military operatio
 - **News-Based Scoring Engine** — Dynamically updates Threat Level (6 tiers), DEFCON (1-5), and Strait of Hormuz status from headline analysis with time-decay weighting (recent articles count more)
 - **Clickable Ticker Panels** — Click any ticker item (Hormuz, Oil, Threat, DEFCON, Markets) to expand scoring breakdowns, level scales, and context
 - **Carrier Group Detail** — Click the Carrier Groups ticker to see all 3 deployed CSGs with ship photos, air wings, escorts, and deployment locations
-- **Live War Map** — Embedded frame-safe conflict maps with LiveUAMap external launch links where LiveUAMap blocks frames
+- **Live War Map** — Ukraine embeds LiveUAMap from livemapdata.com (the host that allows framing). Iran shows an OpenStreetMap region reference plus links to LiveUAMap, because those Iran hosts send `X-Frame-Options: SAMEORIGIN`. No substitute strike layer is drawn.
 - **Maritime Tracking** — VesselFinder embed focused on Strait of Hormuz and Persian Gulf
 - **Air Traffic** — ADS-B Exchange and FlightRadar24 embeds
 - **Video Clips** — Curated conflict video sources
@@ -58,7 +58,7 @@ wartime/
 - **News:** Server-side RSS aggregation with Vercel CDN caching (5 min TTL) — all visitors share one cached response
 - **Scoring:** Weighted keyword analysis with time-decay (6h/24h/48h/72h+ brackets), separate tuning per indicator
 - **Live Streams:** Server-side HTML scraping for YouTube video ID extraction (no API key required)
-- **Data:** RSS feeds, Reddit JSON API, frame-safe map embeds, and external map launch panels (LiveUAMap, VesselFinder, ADS-B, FlightRadar24)
+- **Data:** RSS feeds, Reddit JSON API, the LiveUAMap Ukraine page on livemapdata.com, OpenStreetMap's official embed for region reference, and external map links (LiveUAMap, DeepStateMAP, VesselFinder, ADS-B, FlightRadar24)
 
 ## Deployment
 
@@ -117,7 +117,7 @@ Forces, Assets, and Impact pages use a sub-page system — each sub-nav button s
 All data is aggregated from publicly available sources:
 
 - **News:** Al Jazeera, BBC, Reuters, NPR, CNN, Guardian, Jerusalem Post, Times of Israel, FOX, NBC
-- **Maps:** Iran Strike Map, Iran War Map, LiveUAMap, VesselFinder, ADS-B, FlightRadar24
+- **Maps:** LiveUAMap (livemapdata.com for the embedded Ukraine map; regional LiveUAMap sites open in a new window), OpenStreetMap, DeepStateMAP, VesselFinder, ADS-B, FlightRadar24
 - **Video:** YouTube (curated sources), Reddit video posts
 - **OSINT:** Reddit (r/OSINT, r/CombatFootage, r/worldnews, r/geopolitics, r/CredibleDefense), ISW, CSIS
 - **Military Data:** Open-source reporting from ISW, CENTCOM, IISS Military Balance, Janes, ACLED
