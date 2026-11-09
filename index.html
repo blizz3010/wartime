@@ -1284,6 +1284,7 @@
         <button class="overlay-btn" onclick="setMaritimeSrc(14.0,43.0,6)" aria-label="View Red Sea and Bab el-Mandeb vessel traffic">Red Sea / Bab el-Mandeb</button>
         <button class="overlay-btn" onclick="setMaritimeSrc(33.5,34.5,7)" aria-label="View Eastern Mediterranean vessel traffic">Eastern Med</button>
         <button class="overlay-btn" onclick="openLink('https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8')" aria-label="Open MarineTraffic in new tab">Open MarineTraffic</button>
+        <button class="overlay-btn" onclick="openVesselFinder()" aria-label="Open VesselFinder map in a new tab">Open VesselFinder</button>
       </div>
     </div>
     <iframe id="maritimeFrame" src="about:blank" title="Maritime vessel traffic tracker" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy"></iframe>
@@ -1365,20 +1366,21 @@
 <div class="panel" id="panel-cybermap" role="tabpanel">
   <div class="full-frame">
     <div class="section-head">
-      <span id="cyberMapTitle">🛡 LIVE CYBER THREAT MAP</span>
+      <span id="cyberMapTitle">🛡 CYBER THREAT MAP</span>
       <div id="cyberMapButtons" class="button-group">
-        <button class="overlay-btn active" onclick="setCyberSrc('https://threatmap.fortiguard.com/','Fortinet')" aria-label="Switch to Fortinet cyber threat map" style="background:#1a3320;border-color:#4dff88;color:#4dff88">⚔ Fortinet</button>
-        <button class="overlay-btn" onclick="setCyberSrc('https://threatmap.bitdefender.com/','Bitdefender')" aria-label="Switch to Bitdefender threat map">🔒 Bitdefender</button>
-        <button class="overlay-btn" onclick="setCyberSrc('https://www.digitalattackmap.com/','DDoS Map')" aria-label="Switch to Digital Attack DDoS map">💥 DDoS Map</button>
+        <button class="overlay-btn active" onclick="setCyberSrc('https://threatmap.bitdefender.com/','Bitdefender')" aria-label="Show Bitdefender live threat map" style="background:#1a3320;border-color:#4dff88;color:#4dff88">🔒 Bitdefender</button>
+        <button class="overlay-btn" onclick="openLink('https://fortiguard.fortinet.com/threat-map')" aria-label="Open Fortinet threat map in a new tab">⚔ Fortinet ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://www.digitalattackmap.com/')" aria-label="Open historical Digital Attack Map in a new tab" title="Arbor DDoS visualization, data copyright 2020">💥 DDoS Map ↗</button>
         <button class="overlay-btn" onclick="openLink('https://cybermap.kaspersky.com/')" aria-label="Open Kaspersky cyber map in new tab">🌐 Kaspersky ↗</button>
         <button class="overlay-btn" onclick="openLink('https://threatmap.checkpoint.com/')" aria-label="Open Check Point threat map in new tab">🛡 Check Point ↗</button>
         <button class="overlay-btn" onclick="openLink('https://horizon.netscout.com/')" aria-label="Open NETSCOUT cyber threat horizon in new tab">📊 NETSCOUT ↗</button>
         <button class="overlay-btn" onclick="openLink('https://radar.cloudflare.com/')" aria-label="Open Cloudflare Radar in new tab">☁ Cloudflare ↗</button>
         <button class="overlay-btn btn-neon" onclick="openLink(currentTheater.id==='ukraine'?'https://gpsjam.org/?lat=48.5&lon=35.0&z=5':'https://gpsjam.org/?lat=26.5&lon=53.6&z=5')" aria-label="Open GPS jamming interference map in new tab">📡 GPS Jamming ↗</button>
-        <button class="overlay-btn" onclick="openLink('https://threatmap.fortiguard.com/')" aria-label="Open current cyber map in new tab">Open Full View ↗</button>
+        <button class="overlay-btn" onclick="openLink('https://threatmap.bitdefender.com/')" aria-label="Open Bitdefender threat map in a new tab">Open Bitdefender ↗</button>
       </div>
     </div>
-    <iframe id="cyberFrame" src="about:blank" title="Cyber threat map" style="width:100%;height:calc(100% - 34px);border:0" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+    <div class="map-status" id="cyberStatus" role="status">Source: Bitdefender Threat Map — their public live feed of attacks, infections, and spam. It is global, not the selected theater. Fortinet's map cannot be embedded here: frame-ancestors allows only fortinet.com.</div>
+    <iframe id="cyberFrame" src="about:blank" title="Bitdefender Threat Map" style="width:100%;height:calc(100% - 78px);border:0" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   </div>
 </div>
 
@@ -1739,6 +1741,8 @@
 </footer>
 
 <script src="conflict-maps.js"></script>
+<script src="maritime-embed.js"></script>
+<script src="cyber-embed.js"></script>
 <script>
 // ===== THEATER CONFIGURATION =====
 const THEATERS={
@@ -1749,7 +1753,7 @@ const THEATERS={
     flags:'\u{1F1FA}\u{1F1F8}\u{1F1EE}\u{1F1F1} vs \u{1F1EE}\u{1F1F7}',
     flagsHtml:'<span class="flag">&#127482;&#127480;</span><span class="flag">&#127470;&#127473;</span> vs <span class="flag">&#127470;&#127479;</span>',
     startDate:'2026-02-28',
-    maritimeUrl:'https://www.vesselfinder.com/aismap?lat=26.59&lon=56.27&zoom=10&width=1600&height=900&names=true',
+    maritime:{lat:26.59,lon:56.27,zoom:10},
     airTrafficUrl:'https://globe.adsb.fi/?lat=26.5&lon=53.6&zoom=6.0&hideSideBar',
     clocks:[
       {label:'\u{1F1EE}\u{1F1F7} TEHRAN',tz:'Asia/Tehran',id:'theaterClock1'},
@@ -1775,7 +1779,7 @@ const THEATERS={
     flags:'\u{1F1FA}\u{1F1E6} vs \u{1F1F7}\u{1F1FA}',
     flagsHtml:'<span class="flag">&#127482;&#127462;</span> vs <span class="flag">&#127479;&#127482;</span>',
     startDate:'2022-02-24',
-    maritimeUrl:'https://www.vesselfinder.com/aismap?lat=44.0&lon=33.5&zoom=7&width=1600&height=900&names=true',
+    maritime:{lat:44.0,lon:33.5,zoom:7},
     airTrafficUrl:'https://globe.adsb.fi/?lat=48.5&lon=35.0&zoom=6.0&hideSideBar',
     clocks:[
       {label:'\u{1F1FA}\u{1F1E6} KYIV',tz:'Europe/Kyiv',id:'theaterClock1'},
@@ -1860,7 +1864,7 @@ function switchTheater(theaterId){
   const maritimePanel=document.getElementById('panel-maritime');
   if(maritimePanel){
     const iframe=maritimePanel.querySelector('iframe');
-    if(iframe) iframe.src=theater.maritimeUrl;
+    if(iframe&&theater.maritime) setMaritimeSrc(theater.maritime.lat,theater.maritime.lon,theater.maritime.zoom);
   }
 
   // Update air traffic iframe
@@ -1938,14 +1942,16 @@ function switchTheater(theaterId){
         <button class="overlay-btn" onclick="setMaritimeSrc(46.0,37.0,8)">Sea of Azov</button>
         <button class="overlay-btn" onclick="setMaritimeSrc(41.0,29.0,9)">Bosphorus</button>
         <button class="overlay-btn" onclick="setMaritimeSrc(46.5,30.7,10)">Odesa Port</button>
-        <button class="overlay-btn" onclick="openLink('https://www.marinetraffic.com/en/ais/home/centerx:34.0/centery:43.5/zoom:7')">Open MarineTraffic</button>`;
+        <button class="overlay-btn" onclick="openLink('https://www.marinetraffic.com/en/ais/home/centerx:34.0/centery:43.5/zoom:7')">Open MarineTraffic</button>
+        <button class="overlay-btn" onclick="openVesselFinder()">Open VesselFinder</button>`;
     }else{
       maritimeButtons.innerHTML=`
         <button class="overlay-btn" onclick="setMaritimeSrc(26.3,56.7,8)">Hormuz Strait</button>
         <button class="overlay-btn" onclick="setMaritimeSrc(26.0,50.5,7)">Persian Gulf Wide</button>
         <button class="overlay-btn" onclick="setMaritimeSrc(14.0,43.0,6)">Red Sea / Bab el-Mandeb</button>
         <button class="overlay-btn" onclick="setMaritimeSrc(33.5,34.5,7)">Eastern Med</button>
-        <button class="overlay-btn" onclick="openLink('https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8')">Open MarineTraffic</button>`;
+        <button class="overlay-btn" onclick="openLink('https://www.marinetraffic.com/en/ais/home/centerx:56.7/centery:26.3/zoom:8')">Open MarineTraffic</button>
+        <button class="overlay-btn" onclick="openVesselFinder()">Open VesselFinder</button>`;
     }
   }
 
@@ -2145,13 +2151,26 @@ function showDefaultMaps(theaterId){
   renderLiveMapSurface(document.getElementById('overviewMapPortal'),theaterId,mapId);
   updateMapButtonState(mapId);
 }
+let maritimeView={lat:26.59,lon:56.27,zoom:10};
 function setMaritimeSrc(lat,lon,zoom){
-  document.getElementById('maritimeFrame').src=`https://www.vesselfinder.com/aismap?lat=${lat}&lon=${lon}&zoom=${zoom}&width=1600&height=900&names=true`;
+  maritimeView={lat:Number(lat),lon:Number(lon),zoom:Number(zoom)};
+  const frame=document.getElementById('maritimeFrame');
+  if(!frame||typeof MaritimeEmbed==='undefined') return;
+  frame.src=MaritimeEmbed.vesselFinderEmbedUrl(maritimeView.lat,maritimeView.lon,maritimeView.zoom,location.href);
+}
+function openVesselFinder(){
+  if(typeof MaritimeEmbed==='undefined') return;
+  openLink(MaritimeEmbed.vesselFinderEmbedUrl(maritimeView.lat,maritimeView.lon,maritimeView.zoom,location.href));
 }
 function setAirSrc(url){document.getElementById('airFrame').src=url}
-let activeCyberLabel='Fortinet';
+let activeCyberLabel='Bitdefender';
 function setCyberSrc(url,label){
-  document.getElementById('cyberFrame').src=url;
+  if(typeof CyberEmbed==='undefined'||!CyberEmbed.embedAllowed(url)){
+    openLink(url);
+    return;
+  }
+  const frame=document.getElementById('cyberFrame');
+  if(frame) frame.src=url;
   activeCyberLabel=label||'';
   document.querySelectorAll('#cyberMapButtons .overlay-btn').forEach(b=>{
     const isExt=b.textContent.includes('↗');
@@ -6058,7 +6077,9 @@ addLazyTab('warmap',()=>{
 });
 addLazyTab('maritime',()=>{
   const f=document.getElementById('maritimeFrame');
-  if(f&&(!f.src||f.src==='about:blank'||f.src===window.location.href)) f.src=currentTheater.maritimeUrl;
+  if(f&&(!f.src||f.src==='about:blank'||f.src===window.location.href)&&currentTheater.maritime){
+    setMaritimeSrc(currentTheater.maritime.lat,currentTheater.maritime.lon,currentTheater.maritime.zoom);
+  }
 });
 addLazyTab('airtraffic',()=>{
   const f=document.getElementById('airFrame');
@@ -6076,7 +6097,7 @@ addLazyTab('videos',()=>{
 });
 addLazyTab('cybermap',()=>{
   const f=document.getElementById('cyberFrame');
-  if(f&&(!f.src||f.src==='about:blank'||f.src===window.location.href)) f.src='https://threatmap.fortiguard.com/';
+  if(f&&(!f.src||f.src==='about:blank'||f.src===window.location.href)&&typeof CyberEmbed!=='undefined') f.src=CyberEmbed.BITDEFENDER;
 });
 
 // Track active panel for badges + PiP behavior
